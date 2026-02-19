@@ -1,0 +1,58 @@
+<mxfile host="Electron" modified="2024-02-11T00:00:00.000Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.0.0 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="random_etag" version="24.0.0" type="device">
+  <diagram id="map_page_c4_lv4" name="MapPage C4 Lv4">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- MapPage (Main Component) -->
+        <mxCell id="cell_page" value="&lt;b&gt;MapPage&lt;/b&gt;&#xa;[UI Component]&#xa;Main Map View.&#xa;Handles Camera &amp; Layers." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;verticalAlign=top;align=center;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="320" y="280" width="220" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- MapPresenter -->
+        <mxCell id="cell_presenter" value="&lt;b&gt;MapPresenter&lt;/b&gt;&#xa;[State Provider]&#xa;Provides GPS/Excavator State.&#xa;Calculates Geometry." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="80" y="280" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- MapLibreMap -->
+        <mxCell id="cell_maplibre" value="&lt;b&gt;MapLibreMap&lt;/b&gt;&#xa;[External Widget]&#xa;Renders Map &amp; Layers." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="520" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- UI Components -->
+        <mxCell id="cell_ui_comps" value="&lt;b&gt;UI Widgets&lt;/b&gt;&#xa;[Sub-Components]&#xa;MapInfoPanel, GuidanceWidget,&#xa;FloatingButtons" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="620" y="280" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Controller State -->
+        <mxCell id="cell_controller" value="&lt;b&gt;MapController&lt;/b&gt;&#xa;[Local State]&#xa;Controls Camera &amp; Layers." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="350" y="140" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+
+        <!-- Page -> Presenter -->
+        <mxCell id="edge_presenter" value="Watches Position" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="cell_presenter" target="cell_page">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Page -> MapLibre -->
+        <mxCell id="edge_maplibre" value="Renders" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="cell_page" target="cell_maplibre">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Page -> UI Comps -->
+        <mxCell id="edge_ui" value="Composes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="cell_page" target="cell_ui_comps">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+         <!-- Page -> Controller -->
+        <mxCell id="edge_controller" value="Initializes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="cell_page" target="cell_controller">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

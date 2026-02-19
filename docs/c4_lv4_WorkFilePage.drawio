@@ -1,0 +1,47 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" version="29.3.8">
+  <diagram name="C4 L4 WorkFilePage" id="WorkFilePage_L4">
+    <mxGraphModel dx="1426" dy="789" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="boundary_wf_page" parent="1" style="shape=rect;html=1;verticalAlign=top;fontStyle=1;dashed=1;whiteSpace=wrap;align=center;" value="WorkFilePage Context" vertex="1">
+          <mxGeometry height="600" width="700" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_workfile_page" parent="1" style="swipe;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;align=center;verticalAlign=middle;" value="WorkFilePage" vertex="1">
+          <mxGeometry height="60" width="280" x="280" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="workfile_page_details" parent="1" style="text;html=1;align=left;verticalAlign=top;spacingLeft=4;fontColor=#333333;overflow=hidden;rounded=0;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;" value="+ _presenter: WorkfilePresenter&lt;br&gt;--&lt;br&gt;+ _openMap(workFile, index, user)&lt;br&gt;+ _newFile()&lt;br&gt;+ initState()&lt;br&gt;+ build(context)" vertex="1">
+          <mxGeometry height="150" width="280" x="280" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_dashboard_presenter" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;align=center;verticalAlign=middle;" value="WorkfilePresenter" vertex="1">
+          <mxGeometry height="60" width="200" x="280" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_map_page" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;align=center;verticalAlign=middle;" value="MapPage" vertex="1">
+          <mxGeometry height="60" width="180" x="80" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_create_workfile" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;align=center;verticalAlign=middle;" value="CreateWorkfile" vertex="1">
+          <mxGeometry height="60" width="180" x="500" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="rel_wf_nav_map" edge="1" parent="1" source="workfile_page_details" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="comp_map_page" value="Navigates to">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel_wf_nav_create" edge="1" parent="1" source="workfile_page_details" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="comp_create_workfile" value="Navigates to (_newFile)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="480" y="380" />
+              <mxPoint x="590" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_wf_uses_presenter" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="comp_dashboard_presenter" value="uses">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="310" />
+            </Array>
+            <mxPoint x="380" y="310" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

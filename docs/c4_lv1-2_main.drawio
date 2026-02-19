@@ -1,0 +1,498 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" version="29.3.6">
+  <diagram name="Page-1" id="Q7EWUXjwuJCjluWBz7uc">
+    <mxGraphModel dx="1181" dy="657" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3300" pageHeight="2339" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-65" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-94" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;" target="uhJr_CJUcPinVrimRQX8-81">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-94" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;dashed=1;dashPattern=8 8;" value="" vertex="1">
+          <mxGeometry height="440" width="640" x="1000" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-60" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;dashed=1;dashPattern=8 8;strokeColor=#001DBC;fontColor=#ffffff;" value="" vertex="1">
+          <mxGeometry height="360" width="1680" x="160" y="1320" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;strokeWidth=2;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="760" width="720" x="160" y="165" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-17" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="uhJr_CJUcPinVrimRQX8-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-1" parent="1" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="220" width="160" x="280" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-4" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 24px;&quot;&gt;Operator&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="330" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-5" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Operate Excavator with GNSS guide system and see work result" vertex="1">
+          <mxGeometry height="60" width="130" x="295" y="325" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-18" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="uhJr_CJUcPinVrimRQX8-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-155" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" target="uhJr_CJUcPinVrimRQX8-60">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="120" y="565" />
+              <mxPoint x="120" y="1500" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="240" y="485" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-7" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;EGS System&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="235" x="243" y="495" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-8" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Allow Operator to work with presicion GNSS save result in Database, make a Timesheet Digital" vertex="1">
+          <mxGeometry height="60" width="145" x="287.5" y="565" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-157" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="uhJr_CJUcPinVrimRQX8-109">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="1000" />
+              <mxPoint x="2500" y="1000" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-27" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="uhJr_CJUcPinVrimRQX8-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="240" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-10" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;Local System&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="259" y="737" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-11" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Store all Data in database and Auth Local System" vertex="1">
+          <mxGeometry height="60" width="130" x="295" y="805" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-156" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" target="uhJr_CJUcPinVrimRQX8-94">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="600" y="485" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-13" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;Utility System&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="615" y="515" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-14" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="handle Connection, Input/output and periperial and others" vertex="1">
+          <mxGeometry height="60" width="130" x="655" y="581" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-26" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 36px;&quot;&gt;Software System&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="280" x="575" y="850" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-27" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Level 1&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="70" x="575" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-54" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="5qe1Ureq1w7CpRUjOKIP-44">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="1300" />
+              <mxPoint x="1640" y="1300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-67" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;" target="5qe1Ureq1w7CpRUjOKIP-43">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-68" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="5qe1Ureq1w7CpRUjOKIP-40">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="1300" />
+              <mxPoint x="680" y="1300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-32" parent="1" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="220" width="160" x="280" y="1060" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-33" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 24px;&quot;&gt;Operator&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="330" y="1155" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-34" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Operate Excavator with GNSS guide system and see work result" vertex="1">
+          <mxGeometry height="60" width="130" x="295" y="1200" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-64" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;" target="5qe1Ureq1w7CpRUjOKIP-59">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-38" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="880" y="1760" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-40" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Store all Data in database and Auth Local System" vertex="1">
+          <mxGeometry height="60" width="130" x="935" y="1840" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-54" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Login to App, load Database, Query Database" vertex="1">
+          <mxGeometry height="30" width="100" x="890" y="1700" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-72" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="1360" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-73" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;COM Module&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="1375" y="456" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-74" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="allow app to get data from rover controller via Tablet-Pair use RS232 Com. have Ble com, and Wifi Com" vertex="1">
+          <mxGeometry height="60" width="160" x="1400" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-66" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-81" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="uhJr_CJUcPinVrimRQX8-97">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-81" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="1760" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-83" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Store all Data in database and Auth Local System" vertex="1">
+          <mxGeometry height="60" width="130" x="1815" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-89" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Container : Usb_serial" vertex="1">
+          <mxGeometry height="30" width="130" x="1415" y="475" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-95" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px; text-align: center;&quot;&gt;Utility System&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="160" x="1480" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-96" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Software system&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="150" x="1480" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-97" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="1760" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-98" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;GNSS Guide System&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="1775" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-99" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Allow Operator to work with presicion GNSS save result in Database, make a Timesheet Digital" vertex="1">
+          <mxGeometry height="60" width="145" x="1807.5" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-109" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;dashed=1;dashPattern=8 8;" value="" vertex="1">
+          <mxGeometry height="545" width="760" x="2120" y="405" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-147" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-111" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="uhJr_CJUcPinVrimRQX8-135">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-111" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="2200" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-112" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;DB Repository&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="2215" y="446" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-113" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Enables fast queries and indexing for local data retrieval" vertex="1">
+          <mxGeometry height="60" width="200" x="2220" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-114" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-118" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;startArrow=none;startFill=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2920" y="510" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-115" connectable="0" parent="uhJr_CJUcPinVrimRQX8-114" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];" value="DATA" vertex="1">
+          <mxGeometry relative="1" x="-0.2509" y="3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-116" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-118" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="uhJr_CJUcPinVrimRQX8-111">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-117" connectable="0" parent="uhJr_CJUcPinVrimRQX8-116" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="DATA" vertex="1">
+          <mxGeometry relative="1" x="-0.0269" y="-1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-144" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-118" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="uhJr_CJUcPinVrimRQX8-139">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-33" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-118" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;" target="5qe1Ureq1w7CpRUjOKIP-29">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2900" y="510" />
+              <mxPoint x="2900" y="803" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-118" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="2560" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-119" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;State Management&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="2575" y="446" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-120" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Manages application state in a reactive, declarative way,&amp;nbsp;Provides dependency injection throughout the app,&amp;nbsp;Handles state lifecycle and automatic disposal" vertex="1">
+          <mxGeometry height="60" width="200" x="2580" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-124" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Container : Riverpod" vertex="1">
+          <mxGeometry height="30" width="130" x="2615" y="465" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-125" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Container : ISAR" vertex="1">
+          <mxGeometry height="30" width="130" x="2255" y="465" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-126" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 24px;&quot;&gt;Local System&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="280" x="2709" y="878" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-127" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Software system&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="150" x="2709" y="908" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-128" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="2920" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-129" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;GNSS Guide System&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="2935" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-130" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Allow Operator to work with presicion GNSS save result in Database, make a Timesheet Digital" vertex="1">
+          <mxGeometry height="60" width="145" x="2967.5" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-135" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
+          <mxGeometry height="240" width="240" x="2200" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-136" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;Local Database&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="2215" y="705" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-137" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Container : Isar" vertex="1">
+          <mxGeometry height="30" width="130" x="2247.5" y="729" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-148" edge="1" parent="1" source="uhJr_CJUcPinVrimRQX8-139" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="uhJr_CJUcPinVrimRQX8-135">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-139" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="2560" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-140" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;Auth System&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="2575" y="686" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-141" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Manage User Login, CRUD function." vertex="1">
+          <mxGeometry height="60" width="160" x="2600" y="750" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-142" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Container : Logic, ISAR" vertex="1">
+          <mxGeometry height="30" width="130" x="2615" y="705" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-154" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="NoSQL Embedded Database,&amp;nbsp;Stores structured data locally on the device,&amp;nbsp;Enables fast queries and indexing for local data retrieval" vertex="1">
+          <mxGeometry height="110" width="180" x="2222.5" y="775" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-158" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Read User Info from Database" vertex="1">
+          <mxGeometry height="30" width="100" x="2450" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-159" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;ul&gt;&lt;li&gt;WorkFile&lt;/li&gt;&lt;li&gt;WorkResult&lt;/li&gt;&lt;li&gt;TimesheetRecord&lt;/li&gt;&lt;li&gt;ExcaDriver (User)&lt;/li&gt;&lt;/ul&gt;" vertex="1">
+          <mxGeometry height="75" width="147.5" x="2302.5" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-160" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Software System" vertex="1">
+          <mxGeometry height="30" width="130" x="293.5" y="516" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-161" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Software System" vertex="1">
+          <mxGeometry height="30" width="130" x="293.5" y="759" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-162" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;Local System&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="1775" y="653" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-163" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Software System" vertex="1">
+          <mxGeometry height="30" width="130" x="1809.5" y="675" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-164" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Software System" vertex="1">
+          <mxGeometry height="30" width="130" x="655" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-166" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;Local System&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="895" y="1768" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-167" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Software System" vertex="1">
+          <mxGeometry height="30" width="130" x="929.5" y="1790" as="geometry" />
+        </mxCell>
+        <mxCell id="uhJr_CJUcPinVrimRQX8-169" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Person" vertex="1">
+          <mxGeometry height="30" width="50" x="334.5" y="299" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-5" edge="1" parent="1" source="5qe1Ureq1w7CpRUjOKIP-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="uhJr_CJUcPinVrimRQX8-6">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="580" y="440" />
+              <mxPoint x="360" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-1" parent="1" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="220" width="160" x="500" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-2" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 24px;&quot;&gt;Supervisor&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="550" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-3" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="allow user to see dashboard, download data result (geojson)" vertex="1">
+          <mxGeometry height="60" width="130" x="515" y="325" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-4" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Person" vertex="1">
+          <mxGeometry height="30" width="50" x="554.5" y="299" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-6" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="View Dashboard, Timesheet and download File" vertex="1">
+          <mxGeometry height="30" width="100" x="590" y="415" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-7" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="can view dashboard, timesheet and work with guidance" vertex="1">
+          <mxGeometry height="65" width="110" x="240" y="405" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="1040" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-9" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;Protocol Service&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="1055" y="456" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-10" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Save Function and protocol use for communication" vertex="1">
+          <mxGeometry height="60" width="160" x="1080" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-11" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Container : Flutter Native" vertex="1">
+          <mxGeometry height="30" width="145" x="1088" y="478" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-16" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Data trasfer use stream in state management" vertex="1">
+          <mxGeometry height="30" width="100" x="1640" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-18" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Get data from Rover, (GNSS, Base station, error, alram). sent Data Calibration" vertex="1">
+          <mxGeometry height="70" width="120" x="870" y="1940" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-69" edge="1" parent="1" source="5qe1Ureq1w7CpRUjOKIP-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="5qe1Ureq1w7CpRUjOKIP-40">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="598" y="1300" />
+              <mxPoint x="680" y="1300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-70" edge="1" parent="1" source="5qe1Ureq1w7CpRUjOKIP-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;" target="5qe1Ureq1w7CpRUjOKIP-41">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="598" y="1300" />
+              <mxPoint x="1000" y="1300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-71" edge="1" parent="1" source="5qe1Ureq1w7CpRUjOKIP-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="5qe1Ureq1w7CpRUjOKIP-42">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="598" y="1300" />
+              <mxPoint x="1320" y="1300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-19" parent="1" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="220" width="160" x="518" y="1060" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-20" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 24px;&quot;&gt;Supervisor&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="568" y="1155" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-21" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="allow user to see dashboard, download data result (geojson)" vertex="1">
+          <mxGeometry height="60" width="130" x="533" y="1200" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-22" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Person" vertex="1">
+          <mxGeometry height="30" width="50" x="572.5" y="1174" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-24" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Work With Guidance" vertex="1">
+          <mxGeometry height="20" width="120" x="240" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-26" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="State, data, provider came from Local System" vertex="1">
+          <mxGeometry height="65" width="110" x="240" y="651" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-28" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="State, data, provider came from Local System" vertex="1">
+          <mxGeometry height="65" width="110" x="555" y="664" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-29" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="2920" y="723" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-30" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;Utility System&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="2935" y="753" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-31" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="handle Connection, Input/output and periperial and others" vertex="1">
+          <mxGeometry height="60" width="130" x="2975" y="819" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-32" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Software System" vertex="1">
+          <mxGeometry height="30" width="130" x="2975" y="788" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-35" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="1040" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-36" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;Input / Output&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="1055" y="656" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-37" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Save Function and protocol use for communication" vertex="1">
+          <mxGeometry height="60" width="160" x="1080" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-38" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Container : Flutter Native" vertex="1">
+          <mxGeometry height="30" width="145" x="1088" y="678" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-74" edge="1" parent="1" source="5qe1Ureq1w7CpRUjOKIP-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="uhJr_CJUcPinVrimRQX8-38">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="1640" />
+              <mxPoint x="1000" y="1640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-40" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;Map (MapLibre)&lt;/font&gt;&lt;/h3&gt;Container : page&lt;br&gt;&lt;br&gt;&lt;i&gt;Visual interface for excavator operations, displaying guidance, terrain, and working spots using MapLibre.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="560" y="1400" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-75" edge="1" parent="1" source="5qe1Ureq1w7CpRUjOKIP-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="uhJr_CJUcPinVrimRQX8-38">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-41" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;Dashboard&lt;/font&gt;&lt;/h3&gt;&lt;h3&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;Container : Page&lt;/span&gt;&lt;br style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;&lt;br style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;&lt;i style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;Visualizes operational metrics, productivity trends, engine hours, and shift performance.&lt;/i&gt;&lt;/h3&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="880" y="1400" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-76" edge="1" parent="1" source="5qe1Ureq1w7CpRUjOKIP-42" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="uhJr_CJUcPinVrimRQX8-38">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1320" y="1640" />
+              <mxPoint x="1000" y="1640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-42" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;Timesheet&lt;/font&gt;&lt;/h3&gt;Container : Page&lt;br&gt;&lt;br&gt;&lt;i&gt;Manages operator shifts, records activities (Ops, MDT, ODT), and tracks downtime&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="1200" y="1400" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-72" edge="1" parent="1" source="5qe1Ureq1w7CpRUjOKIP-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="5qe1Ureq1w7CpRUjOKIP-40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-73" edge="1" parent="1" source="5qe1Ureq1w7CpRUjOKIP-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="uhJr_CJUcPinVrimRQX8-38">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="1640" />
+              <mxPoint x="1000" y="1640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-43" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;Workfile&lt;/font&gt;&lt;/h3&gt;&lt;h3&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;Container : Page&lt;/span&gt;&lt;br style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;&lt;br style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;&lt;i style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;Handles project file selection, creation, map downloads, and managing work files.&lt;/i&gt;&lt;/h3&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="240" y="1400" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-77" edge="1" parent="1" source="5qe1Ureq1w7CpRUjOKIP-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="uhJr_CJUcPinVrimRQX8-38">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1640" y="1640" />
+              <mxPoint x="1000" y="1640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-44" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;Setup&lt;/font&gt;&lt;/h3&gt;&lt;h3&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;Container : Page&lt;/span&gt;&lt;br style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;&lt;br style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;&lt;i style=&quot;font-size: 12px; font-weight: 400;&quot;&gt;Central configuration hub for profiles, calibration, radio settings, and system management.&lt;/i&gt;&lt;/h3&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="1520" y="1400" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-48" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 24px;&quot;&gt;&lt;b style=&quot;&quot;&gt;EGS System&lt;/b&gt;&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;Software system&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="150" x="165" y="1630" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-49" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="View Work Result from Map" vertex="1">
+          <mxGeometry height="20" width="120" x="554.5" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-50" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="View Timesheet after Work in Map" vertex="1">
+          <mxGeometry height="20" width="120" x="870" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-52" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Open Map" vertex="1">
+          <mxGeometry height="30" width="67" x="488" y="1440" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-56" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Pick Workfile to Open Map in Compartmen register in that Workfile" vertex="1">
+          <mxGeometry height="50" width="132" x="1174" y="1340" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-57" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Open Calibration, Radio Config, Debug, Managemnt and more" vertex="1">
+          <mxGeometry height="50" width="132" x="1490" y="1340" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-58" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Person" vertex="1">
+          <mxGeometry height="30" width="50" x="334" y="1174" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-59" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" value="" vertex="1">
+          <mxGeometry height="160" width="240" x="880" y="2040" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-60" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 24px;&quot;&gt;Utility System&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="895" y="2070" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-61" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="handle Connection, Input/output and periperial and others" vertex="1">
+          <mxGeometry height="60" width="130" x="935" y="2136" as="geometry" />
+        </mxCell>
+        <mxCell id="5qe1Ureq1w7CpRUjOKIP-62" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Software System" vertex="1">
+          <mxGeometry height="30" width="130" x="935" y="2105" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

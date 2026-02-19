@@ -1,0 +1,282 @@
+class Basestatus {
+  Id id = 1010;
+  double batteryVoltage;
+  double batteryCurrent;
+  int bcc;
+  int bmc;
+  double lat;
+  double long;
+  int altitude;
+  int akurasi;
+  int satelit;
+  String status;
+  double pitch;
+  double roll;
+  int bsDistance;
+  String chargetype;
+
+  Basestatus({
+    required this.lat,
+    required this.long,
+    required this.akurasi,
+    required this.satelit,
+    required this.status,
+    required this.batteryVoltage,
+    required this.batteryCurrent,
+    required this.bcc,
+    required this.bmc,
+    required this.altitude,
+    required this.pitch,
+    required this.roll,
+    this.bsDistance = 0,
+    this.chargetype = "N/A",
+  });
+}
+
+class ErrorAlert {
+  String sourceID;
+  String alertType;
+  String message;
+  DateTime timestamp;
+
+  ErrorAlert({
+    this.sourceID = 'N/A',
+    this.alertType = 'N/A',
+    this.message = 'N/A',
+    DateTime? timestamp,
+  }) : timestamp = timestamp ?? DateTime.now();
+}
+
+import 'package:isar_community/isar.dart';
+
+part 'driver_models.g.dart';
+
+@collection
+class Person {
+  Id id = Isar.autoIncrement;
+
+  @Index()
+  String uid;
+
+  @Index()
+  String kontraktor;
+
+  @Index()
+  String driverID;
+
+  String picURL;
+  String preset;
+  String user;
+  String password;
+  String loginState;
+  int lastLogin;
+
+  @Index()
+  String firstName;
+  
+  String lastName;
+
+  @Index()
+  String role;
+
+  Person({
+    required this.uid,
+    required this.firstName,
+    required this.lastName,
+    required this.kontraktor,
+    required this.driverID,
+    required this.picURL,
+    required this.preset,
+    required this.user,
+    required this.password,
+    required this.loginState,
+    required this.lastLogin,
+    required this.role,
+  });
+}
+
+class GPSLoc {
+  final double boomLat;
+  final double boomLng;
+  final double boomAlt;
+  final double stickLat;
+  final double stickLng;
+  final double stickAlt;
+  final double attachLat;
+  final double attachLng;
+  final double attachAlt;
+  final double tipLat;
+  final double tipLng;
+  final double tipAlt;
+  final int hAcc1;
+  final int vAcc1;
+  final int satelit;
+  final String status;
+  final double heading;
+  final double pitch;
+  final double roll;
+  final int trackHeight;
+  final double bucketLat;
+  final double bucketLong;
+  final int hAcc2;
+  final int vAcc2;
+  final int satelit2;
+  final String status2;
+  final int rssi;
+  final int bsDistance;
+  final double boomTilt;
+  final double stickTilt;
+  final double attachTilt;
+  final int lastCorrection;
+  final int lastBasePacket;
+  final double mcuVoltage;
+  final double mcuTemperature;
+
+  GPSLoc({
+    required this.boomLat,
+    required this.boomLng,
+    required this.boomAlt,
+    required this.stickLat,
+    required this.stickLng,
+    required this.stickAlt,
+    required this.attachLat,
+    required this.attachLng,
+    required this.attachAlt,
+    required this.tipLat,
+    required this.tipLng,
+    required this.tipAlt,
+    required this.hAcc1,
+    required this.vAcc1,
+    required this.satelit,
+    required this.status,
+    required this.heading,
+    required this.pitch,
+    required this.roll,
+    required this.trackHeight,
+    required this.bucketLat,
+    required this.bucketLong,
+    required this.hAcc2,
+    required this.vAcc2,
+    required this.satelit2,
+    required this.status2,
+    required this.rssi,
+    required this.bsDistance,
+    required this.boomTilt,
+    required this.stickTilt,
+    required this.attachTilt,
+    required this.lastCorrection,
+    required this.lastBasePacket,
+    required this.mcuVoltage,
+    required this.mcuTemperature,
+  });
+}
+
+class WorkFile {
+  Id id = Isar.autoIncrement;
+
+  int uid;
+  String areaName;
+  double panjang;
+  double lebar;
+  double luasArea;
+  String contractor;
+  String equipment;
+  int totalSpot;
+  int spotDone;
+
+  @Index()
+  String status;
+
+  int createAt;
+  int lastUpdate;
+  int doneAt
+  int equipmentID
+  int operatorID
+  int areaID
+
+  WorkFile({
+    required this.uid,
+    required this.areaName,
+    required this.panjang,
+    required this.lebar,
+    required this.luasArea,
+    required this.contractor,
+    required this.equipment,
+    required this.totalSpot,
+    required this.spotDone,
+    required this.status,
+    required this.createAt,
+    required this.lastUpdate,
+    required this.doneAt,
+    required this.equipmentID,
+    required this.operatorID,
+    required areaID,
+  });
+}
+
+class Equipment {
+  Id id = Isar.autoIncrement;
+
+  String uid;
+  String equipName;
+  String partName;
+  String type;
+  double armLenght;
+
+  int lastUpdate;
+  String lastDriver;
+
+  Equipment({
+    required this.uid,
+    required this.equipName,
+    required this.partName,
+    required this.type,
+    required this.armLenght,
+    required this.lastUpdate,
+    required this.lastDriver,
+  });
+}
+
+class Contractor {
+  Id id = Isar.autoIncrement;
+
+  String uid;
+  String name;
+  String area;
+  String sector;
+  double numberEquipment;
+  double numberOperator
+
+  int lastUpdate;
+
+
+  Contractor({
+    required this.uid,
+    required this.name,
+    required this.area,
+    required this.sector,
+    required this.numberEquipment,
+    required this.numberOeator,
+
+  });
+}
+
+class Area {
+  Id id = Isar.autoIncrement;
+
+  String uid;
+  String areaName;
+  double luasArea;
+  String spacing;
+  int targetDone;
+
+  Area({
+    required this.uid,
+    required this.areaName,
+    required this.luasArea,
+    required this.spacing,
+    required this.targetDone,
+
+  });
+}
+

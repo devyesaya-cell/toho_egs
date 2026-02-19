@@ -1,0 +1,128 @@
+<mxfile host="Electron" modified="2024-05-24T00:00:00.000Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Draw.io/24.4.8 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="unique-etag" version="24.4.8" type="device">
+  <diagram id="dashboard_presenter_c4" name="Page-1">
+    <mxGraphModel dx="1422" dy="754" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- DashboardPresenter Container -->
+        <mxCell id="main_container" value="DashboardPresenter Component" style="swimlane;whiteSpace=wrap;html=1;startSize=23;fillColor=#f9f9f9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="760" height="920" as="geometry" />
+        </mxCell>
+
+        <!-- Method: build -->
+        <mxCell id="m_build" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="40" width="340" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="m_build_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="m_build">
+           <mxGeometry width="340" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="m_build_title" value="&lt;b&gt;build()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_build">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_build_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; void&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; FutureOr&amp;lt;DashboardData&amp;gt;&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; DatabaseService, Isar, DashboardFilter&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Initializes Database, checks/seeds data, determine default filter (Morning/Night) based on time, and loads initial dashboard data.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_build">
+           <mxGeometry x="10" y="30" width="320" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Method: updateFilterType -->
+        <mxCell id="m_uft" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="380" y="40" width="340" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_uft_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="m_uft">
+           <mxGeometry width="340" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_uft_title" value="&lt;b&gt;updateFilterType()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_uft">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_uft_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; DashboardFilterType type&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; void&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; DashboardFilter, DashboardFilterType&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Updates the current filter type (Morning, Night, etc.) in the state and triggers data refresh.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_uft">
+           <mxGeometry x="10" y="30" width="320" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Method: updateDate -->
+        <mxCell id="m_ud" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="220" width="340" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ud_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="m_ud">
+           <mxGeometry width="340" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ud_title" value="&lt;b&gt;updateDate()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ud">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ud_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; DateTime date&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; void&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; DashboardFilter&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Updates the selected reference date in the filter state and triggers data refresh.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ud">
+           <mxGeometry x="10" y="30" width="320" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Method: updateCustomRange -->
+        <mxCell id="m_ucr" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="380" y="220" width="340" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ucr_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="m_ucr">
+           <mxGeometry width="340" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ucr_title" value="&lt;b&gt;updateCustomRange()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ucr">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ucr_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; DateTimeRange range&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; void&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; DashboardFilter, DashboardFilterType&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Sets filter type to &#39;custom&#39;, updates the custom date range in state, and triggers data refresh.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ucr">
+           <mxGeometry x="10" y="30" width="320" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Method: refresh -->
+        <mxCell id="m_ref" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="380" width="340" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ref_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="m_ref">
+           <mxGeometry width="340" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ref_title" value="&lt;b&gt;refresh()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ref">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ref_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; void&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; Future&amp;lt;void&amp;gt;&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; AsyncValue&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Sets state to loading, then reloads data by calling _loadDashboardData() inside AsyncValue.guard().&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ref">
+           <mxGeometry x="10" y="30" width="320" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Method: _seedMockData -->
+        <mxCell id="m_smd" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="380" y="380" width="340" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="m_smd_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="m_smd">
+           <mxGeometry width="340" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="m_smd_title" value="&lt;b&gt;_seedMockData()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_smd">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_smd_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; void&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; Future&amp;lt;void&amp;gt;&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; Isar, WorkingSpot, Random&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Generates 35 days of dummy WorkingSpot data if DB is empty. Creates random lat/lng, accuracy, and timestamps for testing.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_smd">
+           <mxGeometry x="10" y="30" width="320" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Method: _loadDashboardData -->
+        <mxCell id="m_ldd" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="560" width="700" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ldd_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="m_ldd">
+           <mxGeometry width="700" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ldd_title" value="&lt;b&gt;_loadDashboardData()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ldd">
+           <mxGeometry x="0" y="0" width="700" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ldd_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; void&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; Future&amp;lt;DashboardData&amp;gt;&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; Isar, WorkingSpot, DashboardData, DashboardFilter&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; 1. Calculates Start/End Time based on Filter (Morning/Night/Weekly/Monthly).&lt;br&gt;2. Queries Isar for WorkingSpots in range.&lt;br&gt;3. Calculates Work Hours (time gap &amp;lt; 5 mins).&lt;br&gt;4. Calculates Productivity (Spots/Hr), Precision (Avg), Area (Ha), Progress %.&lt;br&gt;5. Generates Trend Data points (Productivity/Production) for Charts.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ldd">
+           <mxGeometry x="10" y="30" width="680" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- Method: _calculateTrend -->
+        <mxCell id="m_ct" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="770" width="700" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ct_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="m_ct">
+           <mxGeometry width="700" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ct_title" value="&lt;b&gt;_calculateTrend()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ct">
+           <mxGeometry x="0" y="0" width="700" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ct_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; List&amp;lt;WorkingSpot&amp;gt;, DateTime startTime, int intervalMinutes, Function valueMapper&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; List&amp;lt;FlSpot&amp;gt;&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; WorkingSpot, FlSpot&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Groups spots by time intervals relative to start time. Maps grouped data to Chart Y-Values (e.g., Sum Area or Count). Returns list of FlSpot for graphing.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ct">
+           <mxGeometry x="10" y="30" width="680" height="70" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

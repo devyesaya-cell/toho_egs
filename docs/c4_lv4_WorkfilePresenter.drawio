@@ -1,0 +1,43 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" version="29.3.8">
+  <diagram name="C4 L4 WorkfilePresenter" id="WorkfilePresenter_L4">
+    <mxGraphModel dx="1426" dy="789" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="boundary_presenter" parent="1" style="shape=rect;html=1;verticalAlign=top;fontStyle=1;dashed=1;whiteSpace=wrap;align=center;" value="WorkfilePresenter Context" vertex="1">
+          <mxGeometry height="700" width="800" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_dashboard_presenter" parent="1" style="swipe;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;align=center;verticalAlign=middle;" value="WorkfilePresenter" vertex="1">
+          <mxGeometry height="60" width="300" x="300" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="dashboard_presenter_details" parent="1" style="text;html=1;align=left;verticalAlign=top;spacingLeft=4;fontColor=#333333;overflow=hidden;rounded=0;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;" value="+ _workFile: WorkfileRepo&#xa;+ _log: WorkingspotRepo&#xa;+ _boundaryRepo: BoundaryRepo&#xa;+ _guideRepo: GuideRepo&#xa;+ _pick: PickFile&#xa;+ _calc: CoorCalculate&#xa;--&#xa;+ saveWork(workFile)&#xa;+ updateWork(workFile)&#xa;+ deleteWork(index)&#xa;+ loadWorkFile()&#xa;+ loadTree()&#xa;+ saveWorkingSpot(spots)&#xa;+ saveGuideLines(listPos, workfile, driverID)&#xa;+ saveBounds(list, driverID, fileID)&#xa;+ getGuideLines2(bounds, workfile, bearing)&#xa;+ getWorkingSpotFromBoundary(...)&#xa;+ uidGenerator()" vertex="1">
+          <mxGeometry height="270" width="300" x="300" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_workfile_repo" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;align=center;verticalAlign=middle;" value="WorkfileRepo" vertex="1">
+          <mxGeometry height="60" width="120" x="80" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_workingspot_repo" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;align=center;verticalAlign=middle;" value="WorkingspotRepo" vertex="1">
+          <mxGeometry height="60" width="130" x="220" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_pick_file" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;align=center;verticalAlign=middle;" value="PickFile" vertex="1">
+          <mxGeometry height="60" width="120" x="650" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_calc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;align=center;verticalAlign=middle;" value="CoordinateService" vertex="1">
+          <mxGeometry height="60" width="120" x="690" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="rel_pres_workfile" edge="1" parent="1" source="dashboard_presenter_details" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="comp_workfile_repo" value="Uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel_pres_spot" edge="1" parent="1" source="dashboard_presenter_details" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="comp_workingspot_repo" value="Uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel_pres_pick" edge="1" parent="1" source="dashboard_presenter_details" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="comp_pick_file" value="Uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel_pres_calc" edge="1" parent="1" source="dashboard_presenter_details" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="comp_calc" value="Uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

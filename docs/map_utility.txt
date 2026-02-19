@@ -1,0 +1,811 @@
+class CoorCalculate {
+  final double _pi = 3.141592653589793238;
+
+  double _degreeRadian(double degree) {
+    return degree * _pi / 180;
+  }
+
+  double getBearing(Position pointA, Position pointB) {
+    double radianLatA = pointA.lat * pi / 180;
+    double radianLongA = pointA.lng * pi / 180;
+    double radianLatB = pointB.lat * pi / 180;
+    double radianLongB = pointB.lng * pi / 180;
+
+    double sigmaLong = radianLongB - radianLongA;
+    double y = cos(radianLatB) * sin(sigmaLong);
+    double x =
+        cos(radianLatA) * sin(radianLatB) - sin(radianLatA) * cos(radianLatB) * cos(sigmaLong);
+    return ((atan2(y, x) / pi * 180) + 360) % 360;
+  }
+
+  Position leftOffset(Position initPos, double offset, double bearing) {
+    double radioOffsetX = offset * sin((bearing - 90) * pi / 180);
+    double radioOffsetY = offset * cos((bearing - 90) * pi / 180);
+
+    double earthRadius = 6371;
+    double multiplier = (1 / ((2 * pi / 360) * earthRadius)) / 1000; // degree per meter
+    double newLat = initPos.lat + (radioOffsetY * multiplier);
+    double newLong = initPos.lng + (radioOffsetX * multiplier) / cos(initPos.lat * (pi / 180));
+    return Position(newLong, newLat);
+  }
+
+  Position rightOffset(Position initPos, double offset, double bearing) {
+    double radioOffsetX = offset * sin((bearing + 90) * pi / 180);
+    double radioOffsetY = offset * cos((bearing + 90) * pi / 180);
+
+    double earthRadius = 6371;
+    double multiplier = (1 / ((2 * pi / 360) * earthRadius)) / 1000; // degree per meter
+    double newLat = initPos.lat + (radioOffsetY * multiplier);
+    double newLong = initPos.lng + (radioOffsetX * multiplier) / cos(initPos.lat * (pi / 180));
+    return Position(newLong, newLat);
+  }
+
+  double getDistance(Position pointA, Position pointB) {
+    var p = 0.017453292519943295;
+    var a = 0.5 -
+        cos((pointB.lat - pointA.lat) * p) / 2 +
+        cos(pointA.lat * p) * cos(pointB.lat * p) * (1 - cos((pointB.lng - pointA.lng) * p)) / 2;
+    return (12742 * asin(sqrt(a))) * 1000;
+  }
+
+  Position topOffset(Position initPos, double offset, double bearing) {
+    double radioOffsetX = offset * sin((bearing) * pi / 180);
+    double radioOffsetY = offset * cos((bearing) * pi / 180);
+
+    double earthRadius = 6371;
+    double multiplier = (1 / ((2 * pi / 360) * earthRadius)) / 1000; // degree per meter
+    double newLat = initPos.lat + (radioOffsetY * multiplier);
+    double newLong = initPos.lng + (radioOffsetX * multiplier) / cos(initPos.lat * (pi / 180));
+    return Position(newLong, newLat);
+  }
+
+  List<double> topOffset2(Position initPos, double offset, double bearing) {
+    double radioOffsetX = offset * sin((bearing) * pi / 180);
+    double radioOffsetY = offset * cos((bearing) * pi / 180);
+
+    double earthRadius = 6371;
+    double multiplier = (1 / ((2 * pi / 360) * earthRadius)) / 1000; // degree per meter
+    double newLat = initPos.lat + (radioOffsetY * multiplier);
+    double newLong = initPos.lng + (radioOffsetX * multiplier) / cos(initPos.lat * (pi / 180));
+    return [newLong, newLat];
+  }
+
+  Position bottomOffset(Position initPos, double offset, double bearing) {
+    double radioOffsetX = offset * sin((bearing + 180) * pi / 180);
+    double radioOffsetY = offset * cos((bearing + 180) * pi / 180);
+
+    double earthRadius = 6371;
+    double multiplier = (1 / ((2 * pi / 360) * earthRadius)) / 1000; // degree per meter
+    double newLat = initPos.lat + (radioOffsetY * multiplier);
+    double newLong = initPos.lng + (radioOffsetX * multiplier) / cos(initPos.lat * (pi / 180));
+    return Position(newLong, newLat);
+  }
+
+  List<double> bottomOffset2(Position initPos, double offset, double bearing) {
+    double radioOffsetX = offset * sin((bearing + 180) * pi / 180);
+    double radioOffsetY = offset * cos((bearing + 180) * pi / 180);
+
+    double earthRadius = 6371;
+    double multiplier = (1 / ((2 * pi / 360) * earthRadius)) / 1000; // degree per meter
+    double newLat = initPos.lat + (radioOffsetY * multiplier);
+    double newLong = initPos.lng + (radioOffsetX * multiplier) / cos(initPos.lat * (pi / 180));
+    return [newLong, newLat];
+  }
+
+  double calculate(Position start, Position end, Position update) {
+    double deviation;
+    const double avg = 6371.0;
+    double radianToDegree(num radians) {
+      return radians * (180 / pi);
+    }
+
+    double degreeToradians(num deg) {
+      return deg * (pi / 180);
+    }
+
+    double haversine(Position start, Position end) {
+      // distance between latitudes
+      // and longitudes
+      double dLat = (end.lat - start.lat) * pi / 180.0;
+      double dLon = (end.lng - start.lng) * pi / 180.0;
+
+      // convert to radians
+      double lat1 = degreeToradians(start.lat);
+      double lat2 = degreeToradians(end.lat);
+
+      // apply formulae
+      double a = pow(sin(dLat / 2), 2) + pow(sin(dLon / 2), 2) * cos(lat1) * cos(lat2);
+      double rad = 6371;
+      double c = 2 * asin(sqrt(a));
+      return rad * c;
+    }
+
+    double bearing(Position pos1, Position pos2) {
+      double y2 = sin(pos2.lng - pos1.lng) * cos(pos2.lat);
+      double x2 =
+          cos(pos1.lat) * sin(pos2.lat) - sin(pos1.lat) * cos(pos2.lat) * cos(pos2.lat - pos1.lat);
+      return radianToDegree(atan2(y2, x2));
+    }
+
+    double bearAB = bearing(start, end);
+    double bearAC = bearing(start, update);
+    double distAC = haversine(start, update);
+    deviation =
+        (asin(sin(distAC / avg) * sin(degreeToradians(bearAC) - degreeToradians(bearAB))) * avg);
+    return deviation;
+  }
+
+  double getSlopValue(double pitch, double lenght) {
+    return lenght * cos(_degreeRadian(pitch));
+  }
+
+  double getArea(List<List<double>> lists) {
+    final path = <LatLng>[];
+    for (var list in lists) {
+      path.add(LatLng(list[1], list[0]));
+    }
+    final area = SphericalUtil.computeArea(path);
+    return area.toDouble();
+  }
+
+  bool isInsideArea(List<List<double>> lists, Position pos) {
+    final path = <LatLng>[];
+    for (var list in lists) {
+      path.add(LatLng(list[1], list[0]));
+    }
+    return PolygonUtil.containsLocation(LatLng(pos.lat.toDouble(), pos.lng.toDouble()), path, true);
+  }
+
+  bool isInsideDouble(List<List<double>> lists, List<double> pos) {
+    final path = <LatLng>[];
+    for (var list in lists) {
+      path.add(LatLng(list[1], list[0]));
+    }
+    return PolygonUtil.containsLocation(LatLng(pos[1], pos[0]), path, true);
+  }
+
+  double calculateAngle(double heightA, double heightB, double distanceAB) {
+    double angleInRadians = atan((heightB - heightA) / distanceAB);
+    double angleInDegrees = angleInRadians * (180 / pi);
+    return angleInDegrees;
+  }
+
+  double hitungZoom20(double zoomLv) {
+    // double pixelPerMeter = pow(2, (zoomLv - 1)).toDouble();
+    return 0.2 / (78271.484 / pow(2, zoomLv));
+  }
+
+  double hitungZoom20Maplibre(double zoomLv) {
+    // Fungsi untuk menghitung pixel 0.2m di Maplibre dengan tileset 256
+    return 0.2 / (156543.03392 / pow(2, zoomLv));
+  }
+
+  double hitungZoom(double zoomLv, double width) {
+    double metersPerPixel = 156543.03392 * cos(0) / pow(2, zoomLv);
+    double pixelCount = width * pow(2, zoomLv) / (256 * metersPerPixel);
+    return pixelCount;
+  }
+
+  double hitungJarak({
+    required Position start,
+    required Position end,
+  }) {
+    final from = LatLng(start.lat.toDouble(), start.lng.toDouble());
+    final to = LatLng(end.lat.toDouble(), end.lng.toDouble());
+    return SphericalUtil.computeDistanceBetween(from, to).toDouble();
+  }
+
+  double hitungQuadranX(double distance, double sudut) {
+    return distance * sin(degreesToRadians(sudut));
+  }
+
+  double hitungQuadranY(double distance, double sudut) {
+    return distance * cos(degreesToRadians(sudut));
+  }
+
+  Position getCenter({
+    required Position leftTop,
+    required Position rightBottom,
+    required Position leftBottom,
+    required Position rightTop,
+  }) {
+    final centerLat = (leftTop.lat + rightBottom.lat + leftBottom.lat + rightTop.lat) / 4;
+    final centerLng = (leftTop.lng + rightBottom.lng + leftBottom.lng + rightTop.lng) / 4;
+    return Position(centerLng, centerLat);
+  }
+}
+
+// fungsi untuk add dan update exca di mapLibre
+
+void addBodyML({
+    required maplibre.MapController controller,
+    required GPSLoc gps,
+  }) async {
+    try {
+      // Constants for excavator dimensions
+      const double BODY_WIDTH = 1.7; // meters
+      const double BODY_LENGTH = 3; // meters
+      const double TRACK_WIDTH = 0.8; // meters
+      const double TRACK_LENGTH = 4.0; // meters
+
+      // Get current map bearing
+      double mapBearing = (await controller.getCamera()).bearing;
+      double adjustedBearing = gps.heading - mapBearing;
+
+      // Calculate body corners
+      Position frontLeft = _calc.topOffset(
+          _calc.leftOffset(Position(gps.bucketLong, gps.bucketLat), BODY_WIDTH / 2, gps.heading), BODY_LENGTH / 2, gps.heading);
+      Position frontRight = _calc.topOffset(
+          _calc.rightOffset(Position(gps.bucketLong, gps.bucketLat), BODY_WIDTH / 2, gps.heading), BODY_LENGTH / 2, gps.heading);
+      Position backLeft = _calc.bottomOffset(
+          _calc.leftOffset(Position(gps.bucketLong, gps.bucketLat), BODY_WIDTH / 2, gps.heading), BODY_LENGTH / 2, gps.heading);
+      Position backRight = _calc.bottomOffset(
+          _calc.rightOffset(Position(gps.bucketLong, gps.bucketLat), BODY_WIDTH / 2, gps.heading), BODY_LENGTH / 2, gps.heading);
+
+      // Calculate track positions
+      // Left track - offset from left side of body
+      Position leftTrackFront = _calc.topOffset(
+          _calc.leftOffset(Position(gps.bucketLong, gps.bucketLat), (BODY_WIDTH / 2 + TRACK_WIDTH), gps.heading),
+          TRACK_LENGTH / 2,
+          gps.heading);
+      Position leftTrackBack = _calc.bottomOffset(
+          _calc.leftOffset(Position(gps.bucketLong, gps.bucketLat), (BODY_WIDTH / 2 + TRACK_WIDTH), gps.heading),
+          TRACK_LENGTH / 2,
+          gps.heading);
+
+      // Right track - offset from right side of body (fixed)
+      Position rightTrackFront = _calc.topOffset(
+          _calc.rightOffset(Position(gps.bucketLong, gps.bucketLat), (BODY_WIDTH / 2), gps.heading), TRACK_LENGTH / 2, gps.heading);
+      Position rightTrackBack = _calc.bottomOffset(
+          _calc.rightOffset(Position(gps.bucketLong, gps.bucketLat), (BODY_WIDTH / 2), gps.heading), TRACK_LENGTH / 2, gps.heading);
+
+      // Create GeoJSON structure
+      final Map<String, dynamic> geoJson = {
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [frontLeft.lng, frontLeft.lat],
+                  [frontRight.lng, frontRight.lat],
+                  [backRight.lng, backRight.lat],
+                  [backLeft.lng, backLeft.lat],
+                  [frontLeft.lng, frontLeft.lat]
+                ]
+              ]
+            },
+            "properties": {"bearing": adjustedBearing, "type": "body"}
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [leftTrackFront.lng, leftTrackFront.lat],
+                  [
+                    _calc.rightOffset(leftTrackFront, TRACK_WIDTH, gps.heading).lng,
+                    _calc.rightOffset(leftTrackFront, TRACK_WIDTH, gps.heading).lat
+                  ],
+                  [
+                    _calc.rightOffset(leftTrackBack, TRACK_WIDTH, gps.heading).lng,
+                    _calc.rightOffset(leftTrackBack, TRACK_WIDTH, gps.heading).lat
+                  ],
+                  [leftTrackBack.lng, leftTrackBack.lat],
+                  [leftTrackFront.lng, leftTrackFront.lat]
+                ]
+              ]
+            },
+            "properties": {"bearing": adjustedBearing, "type": "track"}
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [rightTrackFront.lng, rightTrackFront.lat],
+                  [
+                    _calc.rightOffset(rightTrackFront, TRACK_WIDTH, gps.heading).lng,
+                    _calc.rightOffset(rightTrackFront, TRACK_WIDTH, gps.heading).lat
+                  ],
+                  [
+                    _calc.rightOffset(rightTrackBack, TRACK_WIDTH, gps.heading).lng,
+                    _calc.rightOffset(rightTrackBack, TRACK_WIDTH, gps.heading).lat
+                  ],
+                  [rightTrackBack.lng, rightTrackBack.lat],
+                  [rightTrackFront.lng, rightTrackFront.lat]
+                ]
+              ]
+            },
+            "properties": {"bearing": adjustedBearing, "type": "track"}
+          }
+        ]
+      };
+
+      final base = maplibre.GeoJsonSource(
+        id: 'exca_body_source',
+        data: jsonEncode(geoJson),
+      );
+      await controller.style!.addSource(base);
+
+      await controller.style!.addLayer(
+        const maplibre.FillStyleLayer(
+          id: 'exca_body_layer',
+          sourceId: 'exca_body_source',
+          paint: {'fill-color': '#FBAF00'},
+        ),
+      );
+
+      await controller.style!.addLayer(
+        const maplibre.FillStyleLayer(
+          id: 'exca_tracks_layer',
+          sourceId: 'exca_body_source',
+          paint: {'fill-color': '#000000'},
+        ),
+      );
+    } catch (e) {
+      print("Error updating excavator body: $e");
+    }
+  }
+
+  void updateBodyML({
+    required maplibre.MapController controller,
+    required GPSLoc gps,
+  }) async {
+    try {
+      // Constants for excavator dimensions
+      const double BODY_WIDTH = 1.7; // meters
+      const double BODY_LENGTH = 3; // meters
+      const double TRACK_WIDTH = 0.8; // meters
+      const double TRACK_LENGTH = 4.0; // meters
+
+      // Get current map bearing
+      double mapBearing = (await controller.getCamera()).bearing;
+      double adjustedBearing = gps.heading - mapBearing;
+
+      // Calculate body corners
+      Position frontLeft = _calc.topOffset(
+          _calc.leftOffset(Position(gps.bucketLong, gps.bucketLat), BODY_WIDTH / 2, gps.heading), BODY_LENGTH / 2, gps.heading);
+      Position frontRight = _calc.topOffset(
+          _calc.rightOffset(Position(gps.bucketLong, gps.bucketLat), BODY_WIDTH / 2, gps.heading), BODY_LENGTH / 2, gps.heading);
+      Position backLeft = _calc.bottomOffset(
+          _calc.leftOffset(Position(gps.bucketLong, gps.bucketLat), BODY_WIDTH / 2, gps.heading), BODY_LENGTH / 2, gps.heading);
+      Position backRight = _calc.bottomOffset(
+          _calc.rightOffset(Position(gps.bucketLong, gps.bucketLat), BODY_WIDTH / 2, gps.heading), BODY_LENGTH / 2, gps.heading);
+
+      // Calculate track positions
+      // Left track - offset from left side of body
+      Position leftTrackFront = _calc.topOffset(
+          _calc.leftOffset(Position(gps.bucketLong, gps.bucketLat), (BODY_WIDTH / 2 + TRACK_WIDTH), gps.heading),
+          TRACK_LENGTH / 2,
+          gps.heading);
+      Position leftTrackBack = _calc.bottomOffset(
+          _calc.leftOffset(Position(gps.bucketLong, gps.bucketLat), (BODY_WIDTH / 2 + TRACK_WIDTH), gps.heading),
+          TRACK_LENGTH / 2,
+          gps.heading);
+
+      // Right track - offset from right side of body (fixed)
+      Position rightTrackFront = _calc.topOffset(
+          _calc.rightOffset(Position(gps.bucketLong, gps.bucketLat), (BODY_WIDTH / 2), gps.heading), TRACK_LENGTH / 2, gps.heading);
+      Position rightTrackBack = _calc.bottomOffset(
+          _calc.rightOffset(Position(gps.bucketLong, gps.bucketLat), (BODY_WIDTH / 2), gps.heading), TRACK_LENGTH / 2, gps.heading);
+
+      // Create GeoJSON structure
+      final Map<String, dynamic> geoJson = {
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [frontLeft.lng, frontLeft.lat],
+                  [frontRight.lng, frontRight.lat],
+                  [backRight.lng, backRight.lat],
+                  [backLeft.lng, backLeft.lat],
+                  [frontLeft.lng, frontLeft.lat]
+                ]
+              ]
+            },
+            "properties": {"bearing": adjustedBearing, "type": "body"}
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [leftTrackFront.lng, leftTrackFront.lat],
+                  [
+                    _calc.rightOffset(leftTrackFront, TRACK_WIDTH, gps.heading).lng,
+                    _calc.rightOffset(leftTrackFront, TRACK_WIDTH, gps.heading).lat
+                  ],
+                  [
+                    _calc.rightOffset(leftTrackBack, TRACK_WIDTH, gps.heading).lng,
+                    _calc.rightOffset(leftTrackBack, TRACK_WIDTH, gps.heading).lat
+                  ],
+                  [leftTrackBack.lng, leftTrackBack.lat],
+                  [leftTrackFront.lng, leftTrackFront.lat]
+                ]
+              ]
+            },
+            "properties": {"bearing": adjustedBearing, "type": "track"}
+          },
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [rightTrackFront.lng, rightTrackFront.lat],
+                  [
+                    _calc.rightOffset(rightTrackFront, TRACK_WIDTH, gps.heading).lng,
+                    _calc.rightOffset(rightTrackFront, TRACK_WIDTH, gps.heading).lat
+                  ],
+                  [
+                    _calc.rightOffset(rightTrackBack, TRACK_WIDTH, gps.heading).lng,
+                    _calc.rightOffset(rightTrackBack, TRACK_WIDTH, gps.heading).lat
+                  ],
+                  [rightTrackBack.lng, rightTrackBack.lat],
+                  [rightTrackFront.lng, rightTrackFront.lat]
+                ]
+              ]
+            },
+            "properties": {"bearing": adjustedBearing, "type": "track"}
+          }
+        ]
+      };
+
+      await controller.style!.updateGeoJsonSource(id: 'exca_body_source', data: jsonEncode(geoJson));
+    } catch (e) {
+      print("Error updating excavator body: $e");
+    }
+  }
+
+  void addCockpitML({
+    required maplibre.MapController controller,
+    required GPSLoc gps,
+  }) async {
+    try {
+      const double BASE_SIZE = 2.6; // 3x3 meters
+      // const double COCKPIT_WIDTH = 1.0;
+      const double COCKPIT_LENGTH = 2.0;
+      const double ARM_WIDTH = 0.3; // 30cm
+      const double ATTACHMENT_LENGTH = 0.97; // 97cm
+      final Position center = Position(gps.bucketLong, gps.bucketLat);
+      final Position armPos = Position(gps.attachLng, gps.attachLat);
+      final double bearing = gps.heading;
+
+      // Get current map bearing
+      double mapBearing = await controller.camera!.bearing;
+      double adjustedBearing = bearing - mapBearing;
+
+      // Calculate base corners (3x3m square)
+      Position baseTopLeft = _calc.topOffset(
+          _calc.leftOffset(center, BASE_SIZE / 2, bearing),
+          BASE_SIZE / 2,
+          bearing);
+      Position baseTopRight = _calc.topOffset(
+          _calc.rightOffset(center, BASE_SIZE / 2, bearing),
+          BASE_SIZE / 2,
+          bearing);
+      Position baseBottomLeft = _calc.bottomOffset(
+          _calc.leftOffset(center, BASE_SIZE / 2, bearing),
+          BASE_SIZE / 2,
+          bearing);
+      Position baseBottomRight = _calc.bottomOffset(
+          _calc.rightOffset(center, BASE_SIZE / 2, bearing),
+          BASE_SIZE / 2,
+          bearing);
+
+      // Calculate cockpit position (1x2m rectangle)
+      Position cockpitTopLeft = _calc.topOffset(
+          _calc.leftOffset(center, BASE_SIZE / 2, bearing),
+          COCKPIT_LENGTH / 2,
+          bearing);
+      Position cockpitTopRight =
+          _calc.topOffset(center, COCKPIT_LENGTH / 2, bearing);
+      Position cockpitBottomLeft = _calc.bottomOffset(
+          _calc.leftOffset(center, BASE_SIZE / 2, bearing),
+          COCKPIT_LENGTH / 2,
+          bearing);
+      Position cockpitBottomRight =
+          _calc.bottomOffset(center, COCKPIT_LENGTH / 2, bearing);
+
+      // Calculate arm (variable length, 30cm width)
+      double armLength = _calc.getDistance(center, armPos) - (BASE_SIZE / 2);
+      double armBearing = _calc.getBearing(center, armPos);
+
+      Position armStart = _calc.topOffset(center, BASE_SIZE / 2, armBearing);
+      Position armEnd = _calc.topOffset(armStart, armLength, armBearing);
+
+      Position armTopLeft =
+          _calc.leftOffset(armStart, ARM_WIDTH / 2, armBearing);
+      Position armTopRight =
+          _calc.rightOffset(armStart, ARM_WIDTH / 2, armBearing);
+      Position armBottomLeft =
+          _calc.leftOffset(armEnd, ARM_WIDTH / 2, armBearing);
+      Position armBottomRight =
+          _calc.rightOffset(armEnd, ARM_WIDTH / 2, armBearing);
+
+      // Create GeoJSON
+      final Map<String, dynamic> geoJson = {
+        "type": "FeatureCollection",
+        "features": [
+          // Base feature
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [baseTopLeft.lng, baseTopLeft.lat],
+                  [baseTopRight.lng, baseTopRight.lat],
+                  [baseBottomRight.lng, baseBottomRight.lat],
+                  [baseBottomLeft.lng, baseBottomLeft.lat],
+                  [baseTopLeft.lng, baseTopLeft.lat]
+                ]
+              ]
+            },
+            "properties": {"bearing": adjustedBearing, "part": "base"}
+          },
+          // Cockpit feature
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [cockpitTopLeft.lng, cockpitTopLeft.lat],
+                  [cockpitTopRight.lng, cockpitTopRight.lat],
+                  [cockpitBottomRight.lng, cockpitBottomRight.lat],
+                  [cockpitBottomLeft.lng, cockpitBottomLeft.lat],
+                  [cockpitTopLeft.lng, cockpitTopLeft.lat]
+                ]
+              ]
+            },
+            "properties": {"bearing": adjustedBearing, "part": "cockpit"}
+          },
+          // Arm feature
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [armTopLeft.lng, armTopLeft.lat],
+                  [armTopRight.lng, armTopRight.lat],
+                  [armBottomRight.lng, armBottomRight.lat],
+                  [armBottomLeft.lng, armBottomLeft.lat],
+                  [armTopLeft.lng, armTopLeft.lat]
+                ]
+              ]
+            },
+            "properties": {"bearing": adjustedBearing, "part": "arm"}
+          }
+        ]
+      };
+
+      final cockpit = maplibre.GeoJsonSource(
+        id: 'excavator_source',
+        data: jsonEncode(geoJson),
+      );
+      await controller.style!.addSource(cockpit);
+
+      await controller.style!.addLayer(
+        const maplibre.FillStyleLayer(
+          id: 'base_layer',
+          sourceId: 'excavator_source',
+          paint: {'fill-color': '#E78A00'},
+        ),
+      );
+
+      await controller.style!.addLayer(
+        const maplibre.FillStyleLayer(
+          id: 'cockpit_layer',
+          sourceId: 'excavator_source',
+          paint: {'fill-color': '#808080'},
+        ),
+      );
+
+      await controller.style!.addLayer(
+        const maplibre.FillStyleLayer(
+          id: 'arm_layer',
+          sourceId: 'excavator_source',
+          paint: {'fill-color': '#808080'},
+        ),
+      );
+    } catch (e) {
+      print("Error updating excavator: $e");
+    }
+  }
+
+  void updateCockpitML({
+    required maplibre.MapController controller,
+    required GPSLoc gps,
+  }) async {
+    try {
+      const double BASE_SIZE = 2.6; // 3x3 meters
+      // const double COCKPIT_WIDTH = 1.0;
+      const double COCKPIT_LENGTH = 2.0;
+      const double ARM_WIDTH = 0.3; // 30cm
+      // const double ATTACHMENT_LENGTH = 0.97; // 97cm
+      final Position center = Position(gps.bucketLong, gps.bucketLat);
+      final Position armPos = Position(gps.attachLng, gps.attachLat);
+      final double bearing = gps.heading;
+
+      // Get current map bearing
+      double mapBearing = await controller.camera!.bearing;
+      double adjustedBearing = bearing - mapBearing;
+
+      // Calculate base corners (3x3m square)
+      Position baseTopLeft =
+          _calc.topOffset(_calc.leftOffset(center, BASE_SIZE / 2, bearing), BASE_SIZE / 2, bearing);
+      Position baseTopRight = _calc.topOffset(
+          _calc.rightOffset(center, BASE_SIZE / 2, bearing), BASE_SIZE / 2, bearing);
+      Position baseBottomLeft = _calc.bottomOffset(
+          _calc.leftOffset(center, BASE_SIZE / 2, bearing), BASE_SIZE / 2, bearing);
+      Position baseBottomRight = _calc.bottomOffset(
+          _calc.rightOffset(center, BASE_SIZE / 2, bearing), BASE_SIZE / 2, bearing);
+
+      // Calculate cockpit position (1x2m rectangle)
+      Position cockpitTopLeft = _calc.topOffset(
+          _calc.leftOffset(center, BASE_SIZE / 2, bearing), COCKPIT_LENGTH / 2, bearing);
+      Position cockpitTopRight = _calc.topOffset(center, COCKPIT_LENGTH / 2, bearing);
+      Position cockpitBottomLeft = _calc.bottomOffset(
+          _calc.leftOffset(center, BASE_SIZE / 2, bearing), COCKPIT_LENGTH / 2, bearing);
+      Position cockpitBottomRight = _calc.bottomOffset(center, COCKPIT_LENGTH / 2, bearing);
+
+      // Calculate arm (variable length, 30cm width)
+      double armLength = _calc.getDistance(center, armPos) - (BASE_SIZE / 2);
+      double armBearing = _calc.getBearing(center, armPos);
+
+      Position armStart = _calc.topOffset(center, BASE_SIZE / 2, armBearing);
+      Position armEnd = _calc.topOffset(armStart, armLength, armBearing);
+
+      Position armTopLeft = _calc.leftOffset(armStart, ARM_WIDTH / 2, armBearing);
+      Position armTopRight = _calc.rightOffset(armStart, ARM_WIDTH / 2, armBearing);
+      Position armBottomLeft = _calc.leftOffset(armEnd, ARM_WIDTH / 2, armBearing);
+      Position armBottomRight = _calc.rightOffset(armEnd, ARM_WIDTH / 2, armBearing);
+
+      // Create GeoJSON
+      final Map<String, dynamic> geoJson = {
+        "type": "FeatureCollection",
+        "features": [
+          // Base feature
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [baseTopLeft.lng, baseTopLeft.lat],
+                  [baseTopRight.lng, baseTopRight.lat],
+                  [baseBottomRight.lng, baseBottomRight.lat],
+                  [baseBottomLeft.lng, baseBottomLeft.lat],
+                  [baseTopLeft.lng, baseTopLeft.lat]
+                ]
+              ]
+            },
+            "properties": {"bearing": adjustedBearing, "part": "base"}
+          },
+          // Cockpit feature
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [cockpitTopLeft.lng, cockpitTopLeft.lat],
+                  [cockpitTopRight.lng, cockpitTopRight.lat],
+                  [cockpitBottomRight.lng, cockpitBottomRight.lat],
+                  [cockpitBottomLeft.lng, cockpitBottomLeft.lat],
+                  [cockpitTopLeft.lng, cockpitTopLeft.lat]
+                ]
+              ]
+            },
+            "properties": {"bearing": adjustedBearing, "part": "cockpit"}
+          },
+          // Arm feature
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [armTopLeft.lng, armTopLeft.lat],
+                  [armTopRight.lng, armTopRight.lat],
+                  [armBottomRight.lng, armBottomRight.lat],
+                  [armBottomLeft.lng, armBottomLeft.lat],
+                  [armTopLeft.lng, armTopLeft.lat]
+                ]
+              ]
+            },
+            "properties": {"bearing": adjustedBearing, "part": "arm"}
+          }
+        ]
+      };
+
+      await controller.style!.updateGeoJsonSource(id: 'excavator_source', data: jsonEncode(geoJson));
+    } catch (e) {
+      print("Error updating excavator: $e");
+    }
+  }
+
+  void addAttachML({
+    required maplibre.MapController controller,
+    required GPSLoc gps,
+    required double zoom,
+  }) async {
+    try {
+      // Create proper GeoJSON structure with bearing info
+      final Map<String, dynamic> geoJson = {
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [gps.attachLng, gps.attachLat]
+            },
+            "properties": {"bearing": 0}
+          }
+        ]
+      };
+
+      final earthquakes = maplibre.GeoJsonSource(
+        id: 'fill_source_id',
+        data: jsonEncode(geoJson),
+      );
+      await controller.style!.addSource(earthquakes);
+      // await controller.style!.updateGeoJsonSource(id: 'fill_source_id', data: jsonEncode(geoJson));
+
+      await controller.style!.addLayer(maplibre.CircleStyleLayer(
+        id: "fill_layer_id",
+        sourceId: "fill_source_id",
+        paint: {
+          // Size circle radius by earthquake magnitude and zoom level
+          'circle-radius': _sizeCirclebyZoom(zoom),
+          // Color circle by earthquake magnitude
+          'circle-color': 0xFFFBAF00,
+          'circle-stroke-color': 'white',
+          'circle-stroke-width': 1,
+        },
+      ));
+    } catch (e) {
+      print("Error updating fill layer: $e");
+    }
+  }
+
+  void updateAttachML({
+    required maplibre.MapController controller,
+    required GPSLoc gps,
+    required double zoom,
+  }) async {
+    try {
+
+      // Create proper GeoJSON structure with bearing info
+      final Map<String, dynamic> geoJson = {
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [gps.attachLng, gps.attachLat]
+            },
+            "properties": {"bearing": 0}
+          }
+        ]
+      };
+    // await controller.style!.addSource(earthquakes);
+    await controller.style!.updateGeoJsonSource(id: 'fill_source_id', data: jsonEncode(geoJson));
+    } catch (e) {
+      print("Error updating fill layer: $e");
+    }
+  }

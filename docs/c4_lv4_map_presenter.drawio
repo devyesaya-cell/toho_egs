@@ -1,0 +1,68 @@
+<mxfile host="Electron" modified="2024-02-11T00:00:00.000Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.0.0 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="random_etag" version="24.0.0" type="device">
+  <diagram id="map_presenter_c4_lv4" name="MapPresenter C4 Lv4">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- MapPresenter (Main Component) -->
+        <mxCell id="cell_presenter" value="&lt;b&gt;MapPresenter&lt;/b&gt;&#xa;[Logic Component]&#xa;Integrates GPS/Base data,&#xa;Updates Map Layers." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;verticalAlign=top;align=center;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="320" y="280" width="220" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- MapState -->
+        <mxCell id="cell_state" value="&lt;b&gt;MapState&lt;/b&gt;&#xa;[State Object]&#xa;GPS, RTK, Heading,&#xa;Work Mode, Alerts." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="80" y="280" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ComService -->
+        <mxCell id="cell_coms" value="&lt;b&gt;ComService&lt;/b&gt;&#xa;[Service]&#xa;Stream: GPS, Base, Error." style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="520" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- CoordinateService -->
+        <mxCell id="cell_coord" value="&lt;b&gt;CoordinateService&lt;/b&gt;&#xa;[Service]&#xa;Geometry Calculations." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="620" y="280" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- DatabaseService -->
+        <mxCell id="cell_db" value="&lt;b&gt;DatabaseService&lt;/b&gt;&#xa;[Database]&#xa;WorkingSpots Storage." style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="140" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+         <!-- GPSLoc Model -->
+        <mxCell id="cell_model" value="&lt;b&gt;GPSLoc / Base&lt;/b&gt;&#xa;[Model]&#xa;Raw Data Models." style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="620" y="520" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+
+        <!-- Presenter -> State -->
+        <mxCell id="edge_state" value="Updates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="cell_presenter" target="cell_state">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Presenter -> Coms -->
+        <mxCell id="edge_coms" value="Subscribes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="cell_presenter" target="cell_coms">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Presenter -> Coord -->
+        <mxCell id="edge_coord" value="Uses (Calc GeoJSON)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="cell_presenter" target="cell_coord">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Presenter -> DB -->
+        <mxCell id="edge_db" value="Loads Spots" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="cell_presenter" target="cell_db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Coms -> Model -->
+        <mxCell id="edge_model" value="Emits" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="cell_coms" target="cell_model">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

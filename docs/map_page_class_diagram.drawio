@@ -1,0 +1,86 @@
+<mxfile host="Electron" modified="2024-05-24T00:00:00.000Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Draw.io/24.4.8 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="unique-etag" version="24.4.8" type="device">
+  <diagram id="map_page_c4" name="Page-1">
+    <mxGraphModel dx="1422" dy="754" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- MapPage Container -->
+        <mxCell id="main_container" value="MapPage Component" style="swimlane;whiteSpace=wrap;html=1;startSize=23;fillColor=#f9f9f9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="760" height="600" as="geometry" />
+        </mxCell>
+
+        <!-- Method: build -->
+        <mxCell id="m_build" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="40" width="340" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="m_build_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="m_build">
+           <mxGeometry width="340" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="m_build_title" value="&lt;b&gt;build()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_build">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_build_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; BuildContext context&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; Widget&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; MapPresenter, MapLibreMap, Stack, GuidanceWidget&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Constructs the main UI Stack:&lt;br&gt;1. MapLibreMap Layer (Points, Polygons)&lt;br&gt;2. Top Menu &amp;amp; Zoom Controls&lt;br&gt;3. GuidanceWidget (if Work Mode)&lt;br&gt;4. USB Status Indicator&lt;br&gt;5. Bottom MapInfoPanel&lt;br&gt;Listens to MapPresenter for state changes.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_build">
+           <mxGeometry x="10" y="30" width="320" height="200" as="geometry" />
+        </mxCell>
+
+        <!-- Logic: State Listener -->
+        <mxCell id="m_listen" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="380" y="40" width="340" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_listen_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="m_listen">
+           <mxGeometry width="340" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_listen_title" value="&lt;b&gt;ref.listen(mapPresenter)&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_listen">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_listen_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;Trigger:&lt;/b&gt; State Change&lt;br&gt;&lt;b&gt;Action:&lt;/b&gt; Camera Move, Polygon Update&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; 1. Auto-centers camera if &#39;isWorkMode&#39; is true or on first GPS fix.&lt;br&gt;2. Calls &#39;updateExcavatorPosition&#39; on presenter to redraw machine polygons.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_listen">
+           <mxGeometry x="10" y="30" width="320" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Logic: onStyleLoaded -->
+        <mxCell id="m_style" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="380" y="200" width="340" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="m_style_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="m_style">
+           <mxGeometry width="340" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="m_style_title" value="&lt;b&gt;onStyleLoaded()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_style">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_style_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;Trigger:&lt;/b&gt; MapLibre Callback&lt;br&gt;&lt;b&gt;Action:&lt;/b&gt; Init Layers&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Calls &#39;addExcavatorLayers&#39; to initialize GeoJSON sources and FillLayers once the map style is ready.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_style">
+           <mxGeometry x="10" y="30" width="320" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Method: _toZoom -->
+        <mxCell id="m_zoom" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="300" width="340" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="m_zoom_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="m_zoom">
+           <mxGeometry width="340" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="m_zoom_title" value="&lt;b&gt;_toZoom()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_zoom">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_zoom_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; double zoom&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; void&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; MapController&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Moves the map camera to the specified zoom level using the controller.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_zoom">
+           <mxGeometry x="10" y="30" width="320" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Method: _buildFloatingButton -->
+        <mxCell id="m_btn" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="380" y="320" width="340" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m_btn_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="m_btn">
+           <mxGeometry width="340" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m_btn_title" value="&lt;b&gt;_buildFloatingButton()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_btn">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_btn_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; IconData, VoidCallback, Color&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; Widget&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; FloatingActionButton&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Helper method to create consistent styled floating buttons for the map menu (Zoom In/Out, Toggle Work Mode).&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_btn">
+           <mxGeometry x="10" y="30" width="320" height="80" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

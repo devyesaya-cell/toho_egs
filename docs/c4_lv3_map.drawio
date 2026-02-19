@@ -1,0 +1,68 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" version="29.3.6">
+  <diagram name="Page-1" id="ut2s_RSLtdpJRe2edUx0">
+    <mxGraphModel dx="2066" dy="1150" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="cy640OhXN08jFaELB3vM-8" edge="1" parent="1" source="cy640OhXN08jFaELB3vM-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="cy640OhXN08jFaELB3vM-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-9" connectable="0" parent="cy640OhXN08jFaELB3vM-8" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Stream" vertex="1">
+          <mxGeometry relative="1" x="-0.0667" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-10" edge="1" parent="1" source="cy640OhXN08jFaELB3vM-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="cy640OhXN08jFaELB3vM-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-11" connectable="0" parent="cy640OhXN08jFaELB3vM-10" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Read" vertex="1">
+          <mxGeometry relative="1" x="-0.0667" y="-2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-14" edge="1" parent="1" source="cy640OhXN08jFaELB3vM-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="cy640OhXN08jFaELB3vM-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-15" connectable="0" parent="cy640OhXN08jFaELB3vM-14" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="render" vertex="1">
+          <mxGeometry relative="1" x="-0.0667" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 24px;&quot;&gt;MapPage&lt;/font&gt;&lt;/h3&gt;Component : UI Page&lt;br&gt;&lt;br&gt;&lt;i&gt;Main visual interface hosting the MapLibre map and UI overlays (Zoom, Menu, USB Status).&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="520" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-16" edge="1" parent="1" source="cy640OhXN08jFaELB3vM-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="cy640OhXN08jFaELB3vM-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-17" connectable="0" parent="cy640OhXN08jFaELB3vM-16" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="provider" vertex="1">
+          <mxGeometry relative="1" x="-0.0417" y="-2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 24px;&quot;&gt;MapLibreMap&lt;/font&gt;&lt;/h3&gt;Component : Widget&lt;br&gt;&lt;br&gt;&lt;i&gt;Renders the map, handles camera movements, and displays style layers.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="880" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-12" edge="1" parent="1" source="cy640OhXN08jFaELB3vM-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="cy640OhXN08jFaELB3vM-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-13" connectable="0" parent="cy640OhXN08jFaELB3vM-12" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="updates" vertex="1">
+          <mxGeometry relative="1" x="-0.0667" y="-2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 24px;&quot;&gt;MapPresenter&lt;/font&gt;&lt;/h3&gt;Component : Presenter&lt;br&gt;&lt;br&gt;&lt;i&gt;Handles business logic, updates map layers (Body, Cockpit, Attach), and queries data.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="520" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 24px;&quot;&gt;StreamProviders&lt;/font&gt;&lt;/h3&gt;Component : State Management&lt;br&gt;&lt;br&gt;&lt;i&gt;Provides real-time GPS (gpsStreamProvider) and USB connection status (usbConnectionProvider).&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="160" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 24px;&quot;&gt;MapController (Lib)&lt;/font&gt;&lt;/h3&gt;Component : Library Class&lt;br&gt;&lt;br&gt;&lt;i&gt;Controls camera movement (moveCamera) and style operations.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="880" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="cy640OhXN08jFaELB3vM-18" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=bottom;whiteSpace=wrap;rounded=0;fontColor=#333333;" value="&lt;b&gt;Map Container&lt;/b&gt;&lt;br&gt;[Container: Map Feature]" vertex="1">
+          <mxGeometry height="30" width="200" x="160" y="530" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,156 @@
+<mxfile host="Electron" modified="2024-05-24T00:00:00.000Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Draw.io/24.4.8 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="unique-etag" version="24.4.8" type="device">
+  <diagram id="map_presenter_c4" name="Page-1">
+    <mxGraphModel dx="1422" dy="754" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- MapPresenter Container -->
+        <mxCell id="main_container" value="MapPresenter Component" style="swimlane;whiteSpace=wrap;html=1;startSize=23;fillColor=#f9f9f9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="760" height="1300" as="geometry" />
+        </mxCell>
+
+        <!-- Method: build -->
+        <mxCell id="m_build" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="40" width="340" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m_build_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="m_build">
+           <mxGeometry width="340" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m_build_title" value="&lt;b&gt;build()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_build">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_build_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; void&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; MapState&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; Timer, ComService&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Initializes state, calls _subscribe() for streams, and starts a periodic timer to check connection status.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_build">
+           <mxGeometry x="10" y="30" width="320" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Method: _subscribe -->
+        <mxCell id="m_sub" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="380" y="40" width="340" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="m_sub_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="m_sub">
+           <mxGeometry width="340" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="m_sub_title" value="&lt;b&gt;_subscribe()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_sub">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_sub_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; void&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; void&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; GPSLoc, Basestatus, ErrorAlert&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Listens to ComService streams.&lt;br&gt;1. GPS: Updates Lat/Lng, Heading, RTK Status, Arm Length.&lt;br&gt;2. Base: Updates Battery, Satellites.&lt;br&gt;3. Error: Updates LastError and shows notifications.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_sub">
+           <mxGeometry x="10" y="30" width="320" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- Method: _checkConnection -->
+        <mxCell id="m_check" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="180" width="340" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m_check_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="m_check">
+           <mxGeometry width="340" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m_check_title" value="&lt;b&gt;_checkConnection()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_check">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_check_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; void&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; void&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; ComService&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Watchdog timer callback. Sets usbConnected to true ONLY if hardware is connected AND data was received within the last 3 seconds.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_check">
+           <mxGeometry x="10" y="30" width="320" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Method: addExcavatorLayers -->
+        <mxCell id="m_ael" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="320" width="700" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ael_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="m_ael">
+           <mxGeometry width="700" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ael_title" value="&lt;b&gt;addExcavatorLayers()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ael">
+           <mxGeometry x="0" y="0" width="700" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ael_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; MapController controller&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; Future&amp;lt;void&amp;gt;&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; MapLibreMap, GeojsonSource, FillStyleLayer, CircleStyleLayer&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Initializes the map visual structure:&lt;br&gt;1. &#39;spots_source&#39; + &#39;spots_layer&#39; (Circles) for work history.&lt;br&gt;2. &#39;exca_body_source&#39; + &#39;exca_body_layer&#39;/&#39;tracks&#39; (Fill) for chassis.&lt;br&gt;3. &#39;excavator_source&#39; + &#39;base&#39;/&#39;cockpit&#39;/&#39;arm&#39; layers (Fill) for upper structure.&lt;br&gt;4. &#39;attach_source&#39; + &#39;attach_layer&#39; (Fill) for the bucket.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ael">
+           <mxGeometry x="10" y="30" width="680" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Method: updateExcavatorPosition -->
+        <mxCell id="m_uep" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="480" width="340" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_uep_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="m_uep">
+           <mxGeometry width="340" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_uep_title" value="&lt;b&gt;updateExcavatorPosition()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_uep">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_uep_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; MapController, GPSLoc&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; Future&amp;lt;void&amp;gt;&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; GPSLoc&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Main render orchestrator. Calls the specific update sub-methods for Body, Cockpit, and Attachment to refresh the map polygons based on new GPS data.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_uep">
+           <mxGeometry x="10" y="30" width="320" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Method: _updateBody -->
+        <mxCell id="m_ub" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="380" y="480" width="340" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ub_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="m_ub">
+           <mxGeometry width="340" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ub_title" value="&lt;b&gt;_updateBody()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ub">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ub_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; MapController, GPSLoc&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; Future&amp;lt;void&amp;gt;&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; CoordinateService, GPSLoc&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Computes 4-point polygons for:&lt;br&gt;1. Main Chassis (Orange)&lt;br&gt;2. Left Track (Black)&lt;br&gt;3. Right Track (Black)&lt;br&gt;Uses &#39;Track Heading&#39; and offset calculations to create the shape around the current lat/lng.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ub">
+           <mxGeometry x="10" y="30" width="320" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- Method: _updateCockpit -->
+        <mxCell id="m_uc" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="700" width="340" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="m_uc_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="m_uc">
+           <mxGeometry width="340" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="m_uc_title" value="&lt;b&gt;_updateCockpit()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_uc">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_uc_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; MapController, GPSLoc&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; Future&amp;lt;void&amp;gt;&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; CoordinateService, GPSLoc&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Computes polygons for:&lt;br&gt;1. Base Rotation Unit&lt;br&gt;2. Cockpit Cabin&lt;br&gt;3. Arm (Boom + Stick representation)&lt;br&gt;Uses &#39;Heading&#39; (machine facing) for base, but draws the arm dynamically between the center and the attachment point GPS coordinates.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_uc">
+           <mxGeometry x="10" y="30" width="320" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- Method: _updateAttachment -->
+        <mxCell id="m_ua" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="380" y="700" width="340" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ua_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="m_ua">
+           <mxGeometry width="340" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ua_title" value="&lt;b&gt;_updateAttachment()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ua">
+           <mxGeometry x="0" y="0" width="340" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ua_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; MapController, GPSLoc&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; Future&amp;lt;void&amp;gt;&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; CoordinateService&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Computes a circular polygon (approximated) around the &#39;Attachment&#39; GPS point to represent the bucket.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ua">
+           <mxGeometry x="10" y="30" width="320" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Method: loadSpots -->
+        <mxCell id="m_ls" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="920" width="700" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ls_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="m_ls">
+           <mxGeometry width="700" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ls_title" value="&lt;b&gt;loadSpots()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ls">
+           <mxGeometry x="0" y="0" width="700" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ls_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; MapController&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; Future&amp;lt;void&amp;gt;&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; Isar, WorkingSpot&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Reads all WorkingSpots from Isar database and converts them into a GeoJSON FeatureCollection of Points with &#39;status&#39; properties for color coding (Red/Green). Updates &#39;spots_source&#39;.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_ls">
+           <mxGeometry x="10" y="30" width="680" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Method: _calculate3DDistance -->
+        <mxCell id="m_c3d" value="" style="group" vertex="1" connectable="0" parent="main_container">
+           <mxGeometry x="20" y="1060" width="700" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="m_c3d_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="m_c3d">
+           <mxGeometry width="700" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="m_c3d_title" value="&lt;b&gt;_calculate3DDistance()&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_c3d">
+           <mxGeometry x="0" y="0" width="700" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m_c3d_content" value="&lt;div style=&quot;text-align: left;&quot;&gt;&lt;b&gt;In:&lt;/b&gt; double lat1, lon1, alt1, lat2, lon2, alt2&lt;br&gt;&lt;b&gt;Out:&lt;/b&gt; double&lt;br&gt;&lt;b&gt;Models:&lt;/b&gt; Math.sqrt, Math.cos, Math.asin&lt;br&gt;&lt;b&gt;Desc:&lt;/b&gt; Helper math function. Calculates 3D Euclidean distance between two GPS points accounting for altitude difference.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" vertex="1" parent="m_c3d">
+           <mxGeometry x="10" y="30" width="680" height="60" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

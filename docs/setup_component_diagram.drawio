@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" modified="2024-05-22T00:00:00.000Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.8 Chrome/114.0.0.0 Electron/25.5.0 Safari/537.36" etag="SetupComponentDiagram" version="21.6.8" type="device">
+  <diagram id="SetupComponentDesign" name="Setup Container Components">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Setup Container Boundary -->
+        <mxCell id="setup_container" value="" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=none;strokeColor=#666666;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="700" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="setup_container_label" value="&lt;b&gt;Setup Container&lt;/b&gt;&lt;br&gt;[Container: Configuration Hub]" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=bottom;whiteSpace=wrap;rounded=0;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="60" y="690" width="250" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Components -->
+        <!-- SetupBasePage -->
+        <mxCell id="comp_setup_page" value="&lt;h3&gt;SetupBasePage&lt;/h3&gt;Component : UI Page&lt;br&gt;&lt;br&gt;&lt;i&gt;Central dashboard for accessing configuration modules (Profile, Calibration, Radio, Debug).&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="80" y="80" width="240" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- SetupPresenter -->
+        <mxCell id="comp_setup_presenter" value="&lt;h3&gt;SetupPresenter&lt;/h3&gt;Component : Presenter&lt;br&gt;&lt;br&gt;&lt;i&gt;Central logic handler for all setup operations, commands, and data persistence.&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="400" y="80" width="240" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- ProfileSetup -->
+        <mxCell id="comp_profile_setup" value="&lt;h3&gt;ProfileSetup&lt;/h3&gt;Component : UI Module&lt;br&gt;&lt;br&gt;&lt;i&gt;Manages operator profiles and machine configurations.&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="80" y="240" width="240" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- CalibrationPage -->
+        <mxCell id="comp_cal_page" value="&lt;h3&gt;CalibrationPage&lt;/h3&gt;Component : UI Module&lt;br&gt;&lt;br&gt;&lt;i&gt;Interface for 3D sensor calibration and verification.&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="80" y="360" width="240" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- RadioSetup -->
+        <mxCell id="comp_radio_setup" value="&lt;h3&gt;RadioSetup&lt;/h3&gt;Component : UI Module&lt;br&gt;&lt;br&gt;&lt;i&gt;Configures LoRa and Radio communication settings.&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" vertex="1" parent="1">
+           <mxGeometry x="80" y="480" width="240" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- DebuggingPage (As Component) -->
+        <mxCell id="comp_debug_page" value="&lt;h3&gt;DebuggingPage&lt;/h3&gt;Component : UI Module&lt;br&gt;&lt;br&gt;&lt;i&gt;Real-time diagnostics for sensors, GNSS status, and raw data streams.&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" vertex="1" parent="1">
+           <mxGeometry x="400" y="360" width="240" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+        <!-- Page -> Presenter -->
+        <mxCell id="rel_page_pres" value="Uses" style="endArrow=block;endFill=1;html=1;strokeColor=#666666;fontColor=#333333;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="comp_setup_page" target="comp_setup_presenter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Modules use Presenter (Shared Logic) -->
+        <mxCell id="rel_mod_pres" value="Uses" style="endArrow=block;endFill=1;html=1;strokeColor=#666666;fontColor=#333333;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="1" source="comp_profile_setup" target="comp_setup_presenter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+         <mxCell id="rel_cal_pres" value="Uses" style="endArrow=block;endFill=1;html=1;strokeColor=#666666;fontColor=#333333;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="1" source="comp_cal_page" target="comp_setup_presenter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+         <mxCell id="rel_debug_pres" value="Uses" style="endArrow=block;endFill=1;html=1;strokeColor=#666666;fontColor=#333333;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="1" source="comp_debug_page" target="comp_setup_presenter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- SetupPage -> Modules -->
+        <mxCell id="rel_setup_profile" value="Navigates" style="endArrow=block;endFill=1;html=1;strokeColor=#666666;fontColor=#333333;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="comp_setup_page" target="comp_profile_setup">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel_setup_cal" value="Navigates" style="endArrow=block;endFill=1;html=1;strokeColor=#666666;fontColor=#333333;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="comp_setup_page" target="comp_cal_page">
+           <mxGeometry relative="1" as="geometry">
+              <mxPoint x="200" y="220" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_setup_debug" value="Navigates" style="endArrow=block;endFill=1;html=1;strokeColor=#666666;fontColor=#333333;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="comp_setup_page" target="comp_debug_page">
+           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

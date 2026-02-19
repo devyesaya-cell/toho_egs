@@ -1,0 +1,248 @@
+// inside MapPresenter class
+  final StreamController<GPSLoc> _gpsController =
+      StreamController<GPSLoc>.broadcast();
+  Stream<GPSLoc> get gpsStream => _gpsController.stream;
+
+  // inside MapPresenter class
+  final StreamController<Basestatus> _bsController =
+      StreamController<Basestatus>.broadcast();
+  Stream<Basestatus> get bsStream => _bsController.stream;
+
+// Optional: keep Transaction & subscription for management
+  Transaction<Uint8List>? _txn;
+  StreamSubscription<Uint8List>? _txnSub;
+  UsbPort? _currentPort;
+  // if you want to update providers from presenter; alternative: accept a StateNotifier to update
+  Ref? _riverpodRef;
+
+// provide an init method to store Ref or callbacks (if needed)
+  void attachRef(Ref ref) {
+    _riverpodRef = ref;
+  }
+
+  Future<void> startUsb(UsbPort port) async {
+    // save port
+    _currentPort = port;
+    print('Starting USB data listener on port: $_currentPort');
+    // ensure port is opened and params set (pairing_page probably did this)
+    // Use Transaction.magicHeader to frame packets
+    _txn = Transaction.magicHeader(port.inputStream!, [85, 170, 85, 170],
+        maxLen: 200);
+    _txnSub = _txn!.stream.listen((Uint8List framed) {
+      final packet = framed.toList();
+      // validate CRC/length as before
+      // try {
+      //   // Assume getCRC etc exist
+      //   final crc = crcCalculate(packet.sublist(5, packet[4] + 3));
+      //   final expected1 = packet[packet.length - 2];
+      //   final expected2 = packet[packet.length - 1];
+      //   if ((crc & 0xFF) != expected1 || (crc >> 8) != expected2) {
+      //     // drop
+      //     return;
+      //   }
+      // } catch (e) {/* handle */}
+
+      final opcode = packet[5];
+      if (opcode == 0xD0) {
+        final gps = getDataLoc(packet); // existing method that builds GPSLoc
+        // emit into stream
+        _gpsController.add(gps);
+        // optionally log
+        // logPacketFromData(data: packet, label: 'GPS_DATA_0xD0');
+      } else {
+        // handle low-rate messages: update stateful storages (via _riverpodRef or callbacks)
+        if (opcode == 0xD3) {
+          final bs = getBsData(packet);
+          _bsController.add(bs);
+          // push to state provider if available (see below)
+          // e.g., _riverpodRef?.read(basestatusProvider.notifier).set(bs);
+        } else if (opcode == 0x83) {
+          // handle other opcodes similarly
+        }
+        // log others
+        // logPacketFromData(
+        //     data: packet, label: 'OP_${opcode.toRadixString(16)}');
+      }
+    }, onError: (e) {
+      debugPrint('Transaction stream error: $e');
+    }, onDone: () {
+      debugPrint('Transaction stream done');
+    });
+
+    // set connected = true via state provider if you stored Ref
+    _riverpodRef?.read(usbConnectionProvider.notifier).setConnected(true);
+  }
+
+  Future<void> stopUsb() async {
+    await _txnSub?.cancel();
+    _txnSub = null;
+    _txn?.dispose();
+    _txn = null;
+    _currentPort = null;
+    _riverpodRef?.read(usbConnectionProvider.notifier).setConnected(false);
+  }
+
+void _getDevices() async {
+    List<UsbDevice> devices = await _presenter!.listUSBDevice();
+    ref.read(usbProvider.notifier).setDevices(devices);
+    for (var device in devices) {
+      if (device.productName!.contains('CP2102N')) {
+        UsbPort? port = await _presenter!.openUSBDevice(device);
+
+        if (port != null) {
+          ref.read(usbProvider.notifier).setPort(port);
+          // allow presenter to update providers
+          final presenter = ref.read(mapPresenterProvider);
+          // presenter.attachRef(ref as Ref<Object?>);
+          await presenter.startUsb(port);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Device connected successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to connect to device'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+GPSLoc getDataLoc(List<int> socketData) {
+    return GPSLoc(
+      boomLat: Parsing.parseFromINT_32(socketData.sublist(73, 77)) / 10000000,
+      boomLng: Parsing.parseFromINT_32(socketData.sublist(77, 81)) / 10000000,
+      boomAlt: Parsing.parseFromINT_32(socketData.sublist(81, 85)) / 1000,
+      stickLat: Parsing.parseFromINT_32(socketData.sublist(85, 89)) / 10000000,
+      stickLng: Parsing.parseFromINT_32(socketData.sublist(89, 93)) / 10000000,
+      stickAlt: Parsing.parseFromINT_32(socketData.sublist(93, 97)) / 1000,
+      attachLat: Parsing.parseFromINT_32(socketData.sublist(97, 101)) / 10000000,
+      attachLng: Parsing.parseFromINT_32(socketData.sublist(101, 105)) / 10000000,
+      attachAlt: Parsing.parseFromINT_32(socketData.sublist(105, 109)) / 1000,
+      tipLat: Parsing.parseFromINT_32(socketData.sublist(109, 113)) / 10000000,
+      tipLng: Parsing.parseFromINT_32(socketData.sublist(113, 117)) / 10000000,
+      tipAlt: Parsing.parseFromINT_32(socketData.sublist(117, 121)) / 1000,
+      hAcc1: Parsing.parseFromUint_16(socketData.sublist(47, 49)),
+      vAcc1: Parsing.parseFromUint_16(socketData.sublist(49, 51)),
+      satelit: socketData[51],
+      status: _statusGPS(socketData[52]),
+      heading: Parsing.parseFromFloat_32(socketData.sublist(30, 34)),
+      pitch: Parsing.parseFromFloat_32(socketData.sublist(10, 14)),
+      roll: Parsing.parseFromFloat_32(socketData.sublist(14, 18)),
+      bucketLat: Parsing.parseFromINT_32(socketData.sublist(61, 65)) / 10000000,
+      bucketLong: Parsing.parseFromINT_32(socketData.sublist(65, 69)) / 10000000,
+      hAcc2: Parsing.parseFromUint_16(socketData.sublist(54, 56)),
+      vAcc2: Parsing.parseFromUint_16(socketData.sublist(56, 58)),
+      satelit2: socketData[58],
+      status2: _statusGPS(socketData[60]),
+      rssi: socketData[42].toSigned(8),
+      bsDistance: Parsing.parseFromUint_32(socketData.sublist(6, 10)),
+      boomTilt: Parsing.parseFromFloat_32(socketData.sublist(18, 22)),
+      stickTilt: Parsing.parseFromFloat_32(socketData.sublist(22, 26)),
+      attachTilt: Parsing.parseFromFloat_32(socketData.sublist(26, 30)),
+      lastCorrection: Parsing.parseFromUint_16(socketData.sublist(43, 45)),
+      lastBasePacket: Parsing.parseFromUint_16(socketData.sublist(45, 47)),
+      mcuVoltage: Parsing.parseFromFloat_32(socketData.sublist(34, 38)),
+      mcuTemperature: Parsing.parseFromFloat_32(socketData.sublist(38, 42)),
+      trackHeight: Parsing.parseFromINT_32(socketData.sublist(69, 73)),
+    );
+  }
+
+  Basestatus getBsData(List<int> socketData) {
+    return Basestatus(
+      batteryVoltage: Parsing.parseFromFloat_32(socketData.sublist(6, 10)),
+      batteryCurrent: Parsing.parseFromFloat_32(socketData.sublist(10, 14)),
+      bcc: socketData[14],
+      bmc: socketData[15],
+      lat: Parsing.parseFromFloat_64(socketData.sublist(16, 24)),
+      long: Parsing.parseFromFloat_64(socketData.sublist(24, 32)),
+      altitude: Parsing.parseFromUint_32(socketData.sublist(32, 36)),
+      akurasi: Parsing.parseFromUint_16(socketData.sublist(36, 38)),
+      satelit: socketData[38],
+      status: _statusBS2(socketData),
+      pitch: Parsing.parseFromFloat_32(socketData.sublist(41, 45)),
+      roll: Parsing.parseFromFloat_32(socketData.sublist(45, 49)),
+      chargetype: _chargeType(socketData[49]),
+      bsDistance: Parsing.parseFromUint_16(socketData.sublist(50, 52)),
+    );
+  }
+
+ErrorAlert getErrorAlert(List<int> socketData) {
+    return ErrorAlert(
+      sourceID: _sourceIDError(socketData[6]),
+      alertType: _errType(socketData[7]),
+      message: _alertContent(socketData),
+      timestamp: DateTime.now(),
+    );
+  }
+
+  String _sourceIDError(int id) {
+    if (id == 1) {
+      return 'Tablet Pair';
+    } else if (id == 2) {
+      return 'Rover';
+    } else if (id == 3) {
+      return 'Boom';
+    } else if (id == 4) {
+      return 'Stick';
+    } else if (id == 5) {
+      return 'Bucket';
+    } else if (id == 6) {
+      return 'Plow';
+    } else {
+      return 'Unknown';
+    }
+  }
+
+  String _errType(int akurasi) {
+    // String value = '--';
+    if (akurasi == 0) {
+      return 'No Data';
+    } else if (akurasi == 1) {
+      return 'Fail To sent';
+    } else if (akurasi == 2) {
+      return 'Bad Power';
+    } else if (akurasi == 3) {
+      return 'Just Restarted';
+    } else if (akurasi == 4) {
+      return 'Sensor need Calibration';
+    } else if (akurasi == 5) {
+      return 'Data Lagging';
+    } else if (akurasi == 6) {
+      return 'Sensor Error';
+    } else if (akurasi == 7) {
+      return 'Restart External Sensor';
+    } else {
+      return 'Unknown';
+    }
+  }
+
+  String _alertContent(List<int> socketData) {
+    // String content = '';
+    if (socketData[7] == 0) {
+      return 'No Data from ${_sourceIDError(socketData[8])}';
+    } else if (socketData[7] == 1) {
+      return 'Fail To sent to ${_sourceIDError(socketData[8])}';
+    } else if (socketData[7] == 2) {
+      return 'Bad Power from ${Parsing.parseFromFloat_32(socketData.sublist(8, 12)).toStringAsFixed(2)}V';
+    } else if (socketData[7] == 3) {
+      return 'Just Restarted ${Parsing.parseFromUint_16(socketData.sublist(10, 12)).toStringAsFixed(2)} Times';
+    } else if (socketData[7] == 4) {
+      return 'Sensor need Calibration';
+    } else if (socketData[7] == 5) {
+      return '${_errType(socketData[8])}';
+    } else if (socketData[7] == 6) {
+      return '${_errType(socketData[8])}';
+    } else if (socketData[7] == 7) {
+      return 'Restart External Sensor';
+    } else {
+      return 'Unknown';
+    }
+  }
+
+

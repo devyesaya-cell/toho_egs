@@ -1,0 +1,40 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" version="29.3.6">
+  <diagram id="IsarContainerDesign" name="Isar Component Diagram">
+    <mxGraphModel dx="1722" dy="958" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="container" parent="1" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=none;strokeColor=#666666;arcSize=4;" value="" vertex="1">
+          <mxGeometry height="890" width="650" x="30" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="container_label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=bottom;whiteSpace=wrap;rounded=0;fontColor=#333333;" value="&lt;b&gt;Isar Database&lt;/b&gt;&lt;br&gt;[Container: NoSQL Database]" vertex="1">
+          <mxGeometry height="30" width="200" x="80" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="comp1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;WorkResult&lt;/h3&gt;Component : Isar Collection&lt;br&gt;&lt;br&gt;&lt;i&gt;Represents a specific operational spot or location for work activities.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="80" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="comp3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;Equipment&lt;/h3&gt;Component : Isar Collection&lt;br&gt;&lt;br&gt;&lt;i&gt;Stores Equipment configurations and project-specific data.&lt;/i&gt;&lt;i&gt;.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="80" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="comp5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;TimesheetRecord&lt;/h3&gt;Component : Isar Collection&lt;br&gt;&lt;br&gt;&lt;i&gt;Tracks shift data and working hours for operators.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="80" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="comp6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;Basestatus&lt;/h3&gt;Component : Isar Collection&lt;br&gt;&lt;br&gt;&lt;i&gt;Maintains the real-time operational status of the base station.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="242.5" x="357.5" y="680" as="geometry" />
+        </mxCell>
+        <mxCell id="comp7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;ExcaDriver&lt;/h3&gt;Component : Isar Collection&lt;br&gt;&lt;br&gt;&lt;i&gt;Manages driver profiles, authentication, and user roles.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="80" y="680" as="geometry" />
+        </mxCell>
+        <mxCell id="comp8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;WorkFile&lt;/h3&gt;Component : Isar Collection&lt;br&gt;&lt;br&gt;&lt;i&gt;Stores work file configurations and project-specific data.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="360" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="cvXIceRphdF9vVnMDefW-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;Contractor&lt;/h3&gt;Component : Isar Collection&lt;br&gt;&lt;br&gt;&lt;i&gt;Stores Contractor configurations and project-specific data.&lt;/i&gt;&lt;i&gt;.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="242.5" x="357.5" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cvXIceRphdF9vVnMDefW-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;Area/Compartemen&lt;/h3&gt;Component : Isar Collection&lt;br&gt;&lt;br&gt;&lt;i&gt;Stores Area configurations and project-specific data.&lt;/i&gt;&lt;i&gt;.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="242.5" x="357.5" y="280" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

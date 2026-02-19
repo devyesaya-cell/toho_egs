@@ -1,0 +1,63 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" version="29.3.7">
+  <diagram name="Page-1" id="Vd_dNyXKfqXuhUxbGP9o">
+    <mxGraphModel dx="2431" dy="1353" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="dleHkV8QqP7AVP9euPIE-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;dashed=1;dashPattern=8 8;" value="" vertex="1">
+          <mxGeometry height="520" width="680" x="360" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="dleHkV8QqP7AVP9euPIE-2" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="880" y="520" as="sourcePoint" />
+            <mxPoint x="880" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dleHkV8QqP7AVP9euPIE-3" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="760" y="440" as="sourcePoint" />
+            <mxPoint x="640" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dleHkV8QqP7AVP9euPIE-6" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" target="dleHkV8QqP7AVP9euPIE-10">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1000" y="720" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dleHkV8QqP7AVP9euPIE-7" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="760" y="720.0344827586207" as="sourcePoint" />
+            <mxPoint x="520" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dleHkV8QqP7AVP9euPIE-9" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;i style=&quot;color: rgb(51, 51, 51);&quot;&gt;Calls Function in PickFile services and save, load Workfile from repository&lt;/i&gt;" vertex="1">
+          <mxGeometry height="80" width="160" x="1040" y="645" as="geometry" />
+        </mxCell>
+        <mxCell id="dleHkV8QqP7AVP9euPIE-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 24px;&quot;&gt;Local System&lt;/font&gt;&lt;/h3&gt;Software System&lt;br&gt;&lt;br&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;Store all Data in database and Auth Local System&lt;/span&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="1200" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="dleHkV8QqP7AVP9euPIE-12" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;i&gt;Uses&lt;/i&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="890" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="dleHkV8QqP7AVP9euPIE-13" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;i&gt;Navigate to&lt;/i&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="670" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="dleHkV8QqP7AVP9euPIE-14" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;i&gt;Uses&lt;/i&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="550" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="dleHkV8QqP7AVP9euPIE-30" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;AddWorkFilePage&lt;/font&gt;&lt;/h3&gt;Component : UI Page&lt;br&gt;&lt;br&gt;&lt;i&gt;Form for creating new work files, importing maps/GeoJSON.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="400" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="dleHkV8QqP7AVP9euPIE-31" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 24px;&quot;&gt;WorkfilePresenter&lt;/font&gt;&lt;/h3&gt;Component : Presenter&lt;br&gt;&lt;br&gt;&lt;i&gt;Manages work file logic, including CRUD operations and map imports.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="760" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="dleHkV8QqP7AVP9euPIE-32" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#333333;align=center;verticalAlign=top;spacingTop=10;arcSize=15;" value="&lt;h3&gt;&lt;font style=&quot;font-size: 24px;&quot;&gt;WorkFilePage&lt;/font&gt;&lt;/h3&gt;Component : UI Page&lt;br&gt;&lt;br&gt;&lt;i&gt;Lists available work files, allows opening or deleting projects.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="240" x="760" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="dleHkV8QqP7AVP9euPIE-33" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=bottom;whiteSpace=wrap;rounded=0;fontColor=#333333;" value="&lt;b&gt;Workfile Container&lt;/b&gt;&lt;br&gt;[Container: Workfile Management]" vertex="1">
+          <mxGeometry height="30" width="250" x="370" y="800" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
