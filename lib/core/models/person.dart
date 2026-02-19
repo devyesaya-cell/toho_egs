@@ -30,6 +30,8 @@ class Person {
   @Index()
   String? role;
 
+  String? equipment; // Linked to Equipment.equipName or similar
+
   Person({
     this.uid,
     this.firstName,
@@ -43,7 +45,12 @@ class Person {
     this.loginState,
     this.lastLogin,
     this.role,
+    this.equipment,
+    this.lastUpdate,
   });
+
+  @Index()
+  int? lastUpdate;
 
   @override
   bool operator ==(Object other) =>

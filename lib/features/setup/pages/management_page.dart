@@ -14,36 +14,43 @@ class ManagementPage extends ConsumerWidget {
     return DefaultTabController(
       length: 5,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF1F5F9), // Light grey background
+        backgroundColor: const Color(0xFF0F1410), // Dark background
         appBar: AppBar(
-          title: const Text('Management'),
-          backgroundColor: const Color(0xFF0D2C54), // Dark Blue
+          title: const Text(
+            'MANAGEMENT',
+            style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+          ),
+          backgroundColor: const Color(0xFF0F1410), // Dark background
           foregroundColor: Colors.white,
+          elevation: 0,
           bottom: const TabBar(
             isScrollable: true,
-            indicatorColor: Colors.amber,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
+            indicatorColor: Color(0xFF2ECC71), // Green
+            labelColor: Color(0xFF2ECC71), // Green
+            unselectedLabelColor: Colors.white54,
+            labelStyle: TextStyle(fontWeight: FontWeight.bold),
             tabs: [
-              Tab(text: 'Person', icon: Icon(Icons.person)),
-              Tab(text: 'Workfile', icon: Icon(Icons.folder)),
-              Tab(text: 'Contractor', icon: Icon(Icons.business)),
-              Tab(
-                text: 'Equipment',
-                icon: Icon(Icons.handyman),
-              ), // or construction
-              Tab(text: 'Area', icon: Icon(Icons.map)),
+              Tab(text: 'PERSON', icon: Icon(Icons.person)),
+              Tab(text: 'WORKFILE', icon: Icon(Icons.folder)),
+              Tab(text: 'CONTRACTOR', icon: Icon(Icons.business)),
+              Tab(text: 'EQUIPMENT', icon: Icon(Icons.handyman)),
+              Tab(text: 'AREA', icon: Icon(Icons.map)),
             ],
           ),
         ),
-        body: const TabBarView(
-          children: [
-            PersonTab(),
-            WorkfileTab(),
-            ContractorTab(),
-            EquipmentTab(),
-            AreaTab(),
-          ],
+        body: Container(
+          decoration: const BoxDecoration(
+            border: Border(top: BorderSide(color: Color(0xFF1E3A2A))),
+          ),
+          child: const TabBarView(
+            children: [
+              PersonTab(),
+              WorkfileTab(),
+              ContractorTab(),
+              EquipmentTab(),
+              AreaTab(),
+            ],
+          ),
         ),
       ),
     );

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import '../../../../core/models/person.dart';
 import '../../../../core/repositories/app_repository.dart';
 import '../../../../core/models/workfile.dart';
 import '../../../../core/state/auth_state.dart';
+import 'workfile_card_widget.dart';
 
 class WorkfileTab extends ConsumerWidget {
   const WorkfileTab({super.key});
@@ -26,15 +27,23 @@ class WorkfileTab extends ConsumerWidget {
         final workfiles = snapshot.data ?? [];
 
         if (workfiles.isEmpty) {
-          return const Center(child: Text('No workfiles found.'));
+          return const Center(
+            child: Text(
+              'No workfiles found.',
+              style: TextStyle(color: Colors.white54),
+            ),
+          );
         }
 
         return LayoutBuilder(
           builder: (context, constraints) {
             final width = constraints.maxWidth;
-            int crossAxisCount = 1;
-            if (width > 600) crossAxisCount = 2;
-            if (width > 900) crossAxisCount = 3;
+
+            // Responsive Columns
+            int crossAxisCount = 2;
+            if (width > 700) crossAxisCount = 3;
+            if (width > 1000) crossAxisCount = 4;
+            if (width > 1400) crossAxisCount = 5;
 
             return GridView.builder(
               padding: const EdgeInsets.all(16),
@@ -43,72 +52,16 @@ class WorkfileTab extends ConsumerWidget {
                 crossAxisCount: crossAxisCount,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: 1.8, // Slightly shorter than Person card
+                childAspectRatio: 0.85, // Adjust for card content
               ),
               itemBuilder: (context, index) {
                 final workfile = workfiles[index];
-                return Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.folder,
-                              color: Colors.amber,
-                              size: 32,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    workfile.areaName ?? 'Unknown Area',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Status: ${workfile.status}',
-                                    style: TextStyle(
-                                      color: workfile.status == 'Open'
-                                          ? Colors.green
-                                          : Colors.grey,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Divider(),
-                        Text('Contractor: ${workfile.contractor ?? '-'}'),
-                        Text('UID: ${workfile.uid ?? '-'}'),
-                        Text('Created: ${_formatDate(workfile.createAt)}'),
-                        const Spacer(),
-                        if (_canDelete(currentUser))
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                _confirmDelete(context, ref, workfile);
-                              },
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
+                return WorkfileCardWidget(
+                  workfile: workfile,
+                  showDelete: _canDelete(currentUser),
+                  onDelete: () {
+                    _confirmDelete(context, ref, workfile);
+                  },
                 );
               },
             );
@@ -118,14 +71,7 @@ class WorkfileTab extends ConsumerWidget {
     );
   }
 
-  String _formatDate(int? millis) {
-    if (millis == null) return '-';
-    return DateFormat(
-      'dd MMM yyyy HH:mm',
-    ).format(DateTime.fromMillisecondsSinceEpoch(millis));
-  }
-
-  bool _canDelete(currentUser) {
+  bool _canDelete(Person? currentUser) {
     if (currentUser == null) return false;
     // Admin and Supervisor can delete
     return currentUser.role == 'admin' || currentUser.role == 'supervisor';
@@ -139,18 +85,27 @@ class WorkfileTab extends ConsumerWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Workfile'),
+        backgroundColor: const Color(0xFF0F1410),
+        title: const Text(
+          'Delete Workfile',
+          style: TextStyle(color: Colors.white),
+        ),
         content: const Text(
           'Are you sure you want to delete this workfile? This will also delete all associated working spots.',
+          style: TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white54),
+            ),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete'),
           ),
         ],
       ),

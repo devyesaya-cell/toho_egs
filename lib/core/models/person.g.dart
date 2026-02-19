@@ -22,42 +22,52 @@ const PersonSchema = CollectionSchema(
       name: r'driverID',
       type: IsarType.string,
     ),
-    r'firstName': PropertySchema(
+    r'equipment': PropertySchema(
       id: 1,
+      name: r'equipment',
+      type: IsarType.string,
+    ),
+    r'firstName': PropertySchema(
+      id: 2,
       name: r'firstName',
       type: IsarType.string,
     ),
-    r'hashCode': PropertySchema(id: 2, name: r'hashCode', type: IsarType.long),
+    r'hashCode': PropertySchema(id: 3, name: r'hashCode', type: IsarType.long),
     r'kontraktor': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'kontraktor',
       type: IsarType.string,
     ),
     r'lastLogin': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'lastLogin',
       type: IsarType.long,
     ),
     r'lastName': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'lastName',
       type: IsarType.string,
     ),
+    r'lastUpdate': PropertySchema(
+      id: 7,
+      name: r'lastUpdate',
+      type: IsarType.long,
+    ),
     r'loginState': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'loginState',
       type: IsarType.string,
     ),
     r'password': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'password',
       type: IsarType.string,
     ),
-    r'picURL': PropertySchema(id: 8, name: r'picURL', type: IsarType.string),
-    r'preset': PropertySchema(id: 9, name: r'preset', type: IsarType.string),
-    r'role': PropertySchema(id: 10, name: r'role', type: IsarType.string),
-    r'uid': PropertySchema(id: 11, name: r'uid', type: IsarType.string),
-    r'user': PropertySchema(id: 12, name: r'user', type: IsarType.string),
+    r'picURL': PropertySchema(id: 10, name: r'picURL', type: IsarType.string),
+    r'preset': PropertySchema(id: 11, name: r'preset', type: IsarType.string),
+    r'role': PropertySchema(id: 12, name: r'role', type: IsarType.string),
+    r'uid': PropertySchema(id: 13, name: r'uid', type: IsarType.string),
+    r'user': PropertySchema(id: 14, name: r'user', type: IsarType.string),
   },
 
   estimateSize: _personEstimateSize,
@@ -131,6 +141,19 @@ const PersonSchema = CollectionSchema(
         ),
       ],
     ),
+    r'lastUpdate': IndexSchema(
+      id: -2443505817451631414,
+      name: r'lastUpdate',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'lastUpdate',
+          type: IndexType.value,
+          caseSensitive: false,
+        ),
+      ],
+    ),
   },
   links: {},
   embeddedSchemas: {},
@@ -149,6 +172,12 @@ int _personEstimateSize(
   var bytesCount = offsets.last;
   {
     final value = object.driverID;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.equipment;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -223,18 +252,20 @@ void _personSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.driverID);
-  writer.writeString(offsets[1], object.firstName);
-  writer.writeLong(offsets[2], object.hashCode);
-  writer.writeString(offsets[3], object.kontraktor);
-  writer.writeLong(offsets[4], object.lastLogin);
-  writer.writeString(offsets[5], object.lastName);
-  writer.writeString(offsets[6], object.loginState);
-  writer.writeString(offsets[7], object.password);
-  writer.writeString(offsets[8], object.picURL);
-  writer.writeString(offsets[9], object.preset);
-  writer.writeString(offsets[10], object.role);
-  writer.writeString(offsets[11], object.uid);
-  writer.writeString(offsets[12], object.user);
+  writer.writeString(offsets[1], object.equipment);
+  writer.writeString(offsets[2], object.firstName);
+  writer.writeLong(offsets[3], object.hashCode);
+  writer.writeString(offsets[4], object.kontraktor);
+  writer.writeLong(offsets[5], object.lastLogin);
+  writer.writeString(offsets[6], object.lastName);
+  writer.writeLong(offsets[7], object.lastUpdate);
+  writer.writeString(offsets[8], object.loginState);
+  writer.writeString(offsets[9], object.password);
+  writer.writeString(offsets[10], object.picURL);
+  writer.writeString(offsets[11], object.preset);
+  writer.writeString(offsets[12], object.role);
+  writer.writeString(offsets[13], object.uid);
+  writer.writeString(offsets[14], object.user);
 }
 
 Person _personDeserialize(
@@ -245,17 +276,19 @@ Person _personDeserialize(
 ) {
   final object = Person(
     driverID: reader.readStringOrNull(offsets[0]),
-    firstName: reader.readStringOrNull(offsets[1]),
-    kontraktor: reader.readStringOrNull(offsets[3]),
-    lastLogin: reader.readLongOrNull(offsets[4]),
-    lastName: reader.readStringOrNull(offsets[5]),
-    loginState: reader.readStringOrNull(offsets[6]),
-    password: reader.readStringOrNull(offsets[7]),
-    picURL: reader.readStringOrNull(offsets[8]),
-    preset: reader.readStringOrNull(offsets[9]),
-    role: reader.readStringOrNull(offsets[10]),
-    uid: reader.readStringOrNull(offsets[11]),
-    user: reader.readStringOrNull(offsets[12]),
+    equipment: reader.readStringOrNull(offsets[1]),
+    firstName: reader.readStringOrNull(offsets[2]),
+    kontraktor: reader.readStringOrNull(offsets[4]),
+    lastLogin: reader.readLongOrNull(offsets[5]),
+    lastName: reader.readStringOrNull(offsets[6]),
+    lastUpdate: reader.readLongOrNull(offsets[7]),
+    loginState: reader.readStringOrNull(offsets[8]),
+    password: reader.readStringOrNull(offsets[9]),
+    picURL: reader.readStringOrNull(offsets[10]),
+    preset: reader.readStringOrNull(offsets[11]),
+    role: reader.readStringOrNull(offsets[12]),
+    uid: reader.readStringOrNull(offsets[13]),
+    user: reader.readStringOrNull(offsets[14]),
   );
   object.id = id;
   return object;
@@ -273,17 +306,17 @@ P _personDeserializeProp<P>(
     case 1:
       return (reader.readStringOrNull(offset)) as P;
     case 2:
-      return (reader.readLong(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 3:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 4:
-      return (reader.readLongOrNull(offset)) as P;
-    case 5:
       return (reader.readStringOrNull(offset)) as P;
+    case 5:
+      return (reader.readLongOrNull(offset)) as P;
     case 6:
       return (reader.readStringOrNull(offset)) as P;
     case 7:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 8:
       return (reader.readStringOrNull(offset)) as P;
     case 9:
@@ -293,6 +326,10 @@ P _personDeserializeProp<P>(
     case 11:
       return (reader.readStringOrNull(offset)) as P;
     case 12:
+      return (reader.readStringOrNull(offset)) as P;
+    case 13:
+      return (reader.readStringOrNull(offset)) as P;
+    case 14:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -315,6 +352,14 @@ extension PersonQueryWhereSort on QueryBuilder<Person, Person, QWhere> {
   QueryBuilder<Person, Person, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterWhere> anyLastUpdate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'lastUpdate'),
+      );
     });
   }
 }
@@ -754,6 +799,132 @@ extension PersonQueryWhere on QueryBuilder<Person, Person, QWhereClause> {
       }
     });
   }
+
+  QueryBuilder<Person, Person, QAfterWhereClause> lastUpdateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'lastUpdate', value: [null]),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterWhereClause> lastUpdateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'lastUpdate',
+          lower: [null],
+          includeLower: false,
+          upper: [],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterWhereClause> lastUpdateEqualTo(
+    int? lastUpdate,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'lastUpdate', value: [lastUpdate]),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterWhereClause> lastUpdateNotEqualTo(
+    int? lastUpdate,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'lastUpdate',
+                lower: [],
+                upper: [lastUpdate],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'lastUpdate',
+                lower: [lastUpdate],
+                includeLower: false,
+                upper: [],
+              ),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'lastUpdate',
+                lower: [lastUpdate],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'lastUpdate',
+                lower: [],
+                upper: [lastUpdate],
+                includeUpper: false,
+              ),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterWhereClause> lastUpdateGreaterThan(
+    int? lastUpdate, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'lastUpdate',
+          lower: [lastUpdate],
+          includeLower: include,
+          upper: [],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterWhereClause> lastUpdateLessThan(
+    int? lastUpdate, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'lastUpdate',
+          lower: [],
+          upper: [lastUpdate],
+          includeUpper: include,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterWhereClause> lastUpdateBetween(
+    int? lowerLastUpdate,
+    int? upperLastUpdate, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'lastUpdate',
+          lower: [lowerLastUpdate],
+          includeLower: includeLower,
+          upper: [upperLastUpdate],
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
 }
 
 extension PersonQueryFilter on QueryBuilder<Person, Person, QFilterCondition> {
@@ -915,6 +1086,168 @@ extension PersonQueryFilter on QueryBuilder<Person, Person, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(property: r'driverID', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> equipmentIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'equipment'),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> equipmentIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'equipment'),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> equipmentEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'equipment',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> equipmentGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'equipment',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> equipmentLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'equipment',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> equipmentBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'equipment',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> equipmentStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'equipment',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> equipmentEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'equipment',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> equipmentContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'equipment',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> equipmentMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'equipment',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> equipmentIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'equipment', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> equipmentIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'equipment', value: ''),
       );
     });
   }
@@ -1592,6 +1925,81 @@ extension PersonQueryFilter on QueryBuilder<Person, Person, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(property: r'lastName', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> lastUpdateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'lastUpdate'),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> lastUpdateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'lastUpdate'),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> lastUpdateEqualTo(
+    int? value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'lastUpdate', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> lastUpdateGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'lastUpdate',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> lastUpdateLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'lastUpdate',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterFilterCondition> lastUpdateBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'lastUpdate',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
       );
     });
   }
@@ -2748,6 +3156,18 @@ extension PersonQuerySortBy on QueryBuilder<Person, Person, QSortBy> {
     });
   }
 
+  QueryBuilder<Person, Person, QAfterSortBy> sortByEquipment() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'equipment', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterSortBy> sortByEquipmentDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'equipment', Sort.desc);
+    });
+  }
+
   QueryBuilder<Person, Person, QAfterSortBy> sortByFirstName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'firstName', Sort.asc);
@@ -2805,6 +3225,18 @@ extension PersonQuerySortBy on QueryBuilder<Person, Person, QSortBy> {
   QueryBuilder<Person, Person, QAfterSortBy> sortByLastNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterSortBy> sortByLastUpdate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastUpdate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterSortBy> sortByLastUpdateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastUpdate', Sort.desc);
     });
   }
 
@@ -2906,6 +3338,18 @@ extension PersonQuerySortThenBy on QueryBuilder<Person, Person, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Person, Person, QAfterSortBy> thenByEquipment() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'equipment', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterSortBy> thenByEquipmentDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'equipment', Sort.desc);
+    });
+  }
+
   QueryBuilder<Person, Person, QAfterSortBy> thenByFirstName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'firstName', Sort.asc);
@@ -2975,6 +3419,18 @@ extension PersonQuerySortThenBy on QueryBuilder<Person, Person, QSortThenBy> {
   QueryBuilder<Person, Person, QAfterSortBy> thenByLastNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastName', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterSortBy> thenByLastUpdate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastUpdate', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Person, Person, QAfterSortBy> thenByLastUpdateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastUpdate', Sort.desc);
     });
   }
 
@@ -3072,6 +3528,14 @@ extension PersonQueryWhereDistinct on QueryBuilder<Person, Person, QDistinct> {
     });
   }
 
+  QueryBuilder<Person, Person, QDistinct> distinctByEquipment({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'equipment', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Person, Person, QDistinct> distinctByFirstName({
     bool caseSensitive = true,
   }) {
@@ -3105,6 +3569,12 @@ extension PersonQueryWhereDistinct on QueryBuilder<Person, Person, QDistinct> {
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'lastName', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Person, Person, QDistinct> distinctByLastUpdate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastUpdate');
     });
   }
 
@@ -3178,6 +3648,12 @@ extension PersonQueryProperty on QueryBuilder<Person, Person, QQueryProperty> {
     });
   }
 
+  QueryBuilder<Person, String?, QQueryOperations> equipmentProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'equipment');
+    });
+  }
+
   QueryBuilder<Person, String?, QQueryOperations> firstNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'firstName');
@@ -3205,6 +3681,12 @@ extension PersonQueryProperty on QueryBuilder<Person, Person, QQueryProperty> {
   QueryBuilder<Person, String?, QQueryOperations> lastNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lastName');
+    });
+  }
+
+  QueryBuilder<Person, int?, QQueryOperations> lastUpdateProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastUpdate');
     });
   }
 
