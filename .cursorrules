@@ -95,3 +95,13 @@ All generated diagrams must be saved in the `docs/` folder.
 
 ## Context Check
 - **ALWAYS** check the `context7` MCP server first for every prompt to ensure access to the latest database updates and context.
+
+## UI Design Rules (Dark Theme)
+The application follows a dark green theme. When implementing UI components, use these standard colors:
+- **Main Background**: `Color(0xFF0F1410)` (Deep dark green/black for main pages and panels)
+- **Surface Dark**: `Color(0xFF1E293B)` (For cards, inner containers, and dialogs)
+- **Border / Light Green Hint**: `Color(0xFF1E3A2A)` (For borders, dividers, and selected menu backgrounds)
+- **Primary Green / Active**: `Color(0xFF2ECC71)` (For active text, icons, and primary indicators)
+- **Text Grey / Inactive**: `Color(0xFFB0BEC5)` (For secondary text, unselected menu items)
+- **Red / Error**: `Color(0xFFEF4444)` (For error status text and icons)
+- **Dark Red Hint**: `Color(0xFF3F1D1D)` (For error status background containers)

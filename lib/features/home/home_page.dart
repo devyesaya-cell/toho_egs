@@ -78,8 +78,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return Scaffold(
       backgroundColor: const Color(
-        0xFFE2EFF7,
-      ), // Light Blue background for content
+        0xFF1E293B,
+      ), // Lighter dark theme background to frame things
       body: Row(
         children: [
           const SideMenu(),
@@ -87,7 +87,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: Container(
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFE2EFF7),
+                color: const Color(0xFF0F1410), // Content area background
                 borderRadius: BorderRadius.circular(24),
               ),
               child: ClipRRect(

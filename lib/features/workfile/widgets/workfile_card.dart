@@ -17,17 +17,23 @@ class WorkfileCard extends StatelessWidget {
     final spacing = '${workfile.panjang}x${workfile.lebar}';
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: EdgeInsets.zero,
+      color: const Color(0xFF1E293B), // Surface Dark
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(
+          color: Color(0xFF1E3A2A),
+          width: 1.5,
+        ), // Border Dark
+      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -35,9 +41,10 @@ class WorkfileCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       workfile.areaName ?? 'Unknown Area',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 16,
+                        color: Colors.white,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -45,75 +52,92 @@ class WorkfileCard extends StatelessWidget {
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
+                      horizontal: 8,
+                      vertical: 4,
                     ),
                     decoration: BoxDecoration(
                       color: workfile.status == 'Done'
-                          ? Colors.green.withOpacity(0.1)
-                          : Colors.blue.withOpacity(0.1),
+                          ? const Color(0xFF2ECC71).withOpacity(0.15)
+                          : const Color(0xFF3B82F6).withOpacity(0.15),
                       borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: workfile.status == 'Done'
+                            ? const Color(0xFF2ECC71).withOpacity(0.3)
+                            : const Color(0xFF3B82F6).withOpacity(0.3),
+                      ),
                     ),
                     child: Text(
-                      workfile.status ?? 'Open',
+                      (workfile.status ?? 'Open').toUpperCase(),
                       style: TextStyle(
                         color: workfile.status == 'Done'
-                            ? Colors.green
-                            : Colors.blue,
+                            ? const Color(0xFF2ECC71)
+                            : const Color(0xFF3B82F6),
                         fontWeight: FontWeight.bold,
                         fontSize: 10,
+                        letterSpacing: 0.8,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Contractor: ${workfile.contractor ?? '-'}',
-                style: const TextStyle(fontSize: 12),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              const SizedBox(height: 12),
+
+              // Details
+              _buildDetailRow(
+                Icons.business,
+                'Contractor',
+                workfile.contractor ?? '-',
               ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Spacing: $spacing',
-                      style: const TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Area: ${workfile.luasArea?.toStringAsFixed(2) ?? '0'} Ha',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ],
+              const SizedBox(height: 8),
+              _buildDetailRow(Icons.grid_on, 'Spacing', spacing),
+              const SizedBox(height: 8),
+              _buildDetailRow(
+                Icons.landscape,
+                'Area',
+                '${workfile.luasArea?.toStringAsFixed(2) ?? '0'} Ha',
               ),
+
               const Spacer(),
+
+              // Progress Section
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Progress', style: TextStyle(fontSize: 11)),
+                      const Text(
+                        'PROGRESS',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFB0BEC5),
+                          letterSpacing: 1.0,
+                        ),
+                      ),
                       Text(
                         '${(progress * 100).toStringAsFixed(1)}% ($done/$total)',
-                        style: const TextStyle(fontSize: 11),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 2),
-                  LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: Colors.grey[200],
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      progress >= 1.0 ? Colors.green : Colors.blue,
+                  const SizedBox(height: 6),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      backgroundColor: const Color(0xFF0F1410),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        progress >= 1.0
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFF2ECC71),
+                      ),
+                      minHeight: 6,
                     ),
-                    minHeight: 4,
-                    borderRadius: BorderRadius.circular(2),
                   ),
                 ],
               ),
@@ -121,6 +145,30 @@ class WorkfileCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDetailRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: const Color(0xFF64748B)),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFFB0BEC5),
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }

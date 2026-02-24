@@ -175,7 +175,7 @@ class EquipmentTab extends ConsumerWidget {
               ref.read(appRepositoryProvider).deleteEquipment(equipment.id);
               Navigator.pop(context);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
             child: const Text('Delete'),
           ),
         ],

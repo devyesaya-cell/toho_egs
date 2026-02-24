@@ -7,6 +7,7 @@ import 'package:usb_serial/transaction.dart';
 import 'package:usb_serial/usb_serial.dart';
 
 import '../models/base_status.dart';
+import '../models/calibration_data.dart';
 import '../models/error_alert.dart';
 import '../models/gps_loc.dart';
 import '../utils/parsing.dart';
@@ -49,6 +50,8 @@ class ComService extends Notifier<UsbState> {
       StreamController<Basestatus>.broadcast();
   final StreamController<ErrorAlert> _errorController =
       StreamController<ErrorAlert>.broadcast();
+  final StreamController<CalibrationData> _calibController =
+      StreamController<CalibrationData>.broadcast();
 
   // USB Transaction
   Transaction<Uint8List>? _txn;
@@ -63,6 +66,7 @@ class ComService extends Notifier<UsbState> {
   Stream<GPSLoc> get gpsStream => _gpsController.stream;
   Stream<Basestatus> get bsStream => _bsController.stream;
   Stream<ErrorAlert> get errorStream => _errorController.stream;
+  Stream<CalibrationData> get calibStream => _calibController.stream;
 
   // --- Device Management ---
 
@@ -183,6 +187,14 @@ class ComService extends Notifier<UsbState> {
           } catch (e) {
             debugPrint('Error parsing Alert: $e');
           }
+        } else if (opcode == 0xD1) {
+          // Calibration Data
+          try {
+            final calib = _parseCalibrationData(packet);
+            _calibController.add(calib);
+          } catch (e) {
+            debugPrint('Error parsing CalibrationData: $e');
+          }
         }
       },
       onError: (e) {
@@ -274,6 +286,37 @@ class ComService extends Notifier<UsbState> {
     );
   }
 
+  CalibrationData _parseCalibrationData(List<int> socketData) {
+    return CalibrationData(
+      pitch: Parsing.parseFromFloat_32(socketData.sublist(7, 11)),
+      roll: Parsing.parseFromFloat_32(socketData.sublist(11, 15)),
+      boomTilt: Parsing.parseFromFloat_32(socketData.sublist(15, 19)),
+      stickTilt: Parsing.parseFromFloat_32(socketData.sublist(19, 23)),
+      bucketTilt: Parsing.parseFromFloat_32(socketData.sublist(23, 27)),
+      iLinkTilt: Parsing.parseFromFloat_32(socketData.sublist(27, 31)),
+      bucketLayTilt: Parsing.parseFromFloat_32(socketData.sublist(31, 35)),
+      boomLenght: Parsing.parseFromUint_16(socketData.sublist(35, 37)),
+      stickLenght: Parsing.parseFromUint_16(socketData.sublist(37, 39)),
+      bucketLenght: Parsing.parseFromUint_16(socketData.sublist(39, 41)),
+      bucketWidth: Parsing.parseFromUint_16(socketData.sublist(43, 45)),
+      iLink: Parsing.parseFromUint_16(socketData.sublist(47, 49)),
+      hLink: Parsing.parseFromUint_16(socketData.sublist(49, 51)),
+      bpd: Parsing.parseFromUint_16(socketData.sublist(51, 53)),
+      spd: Parsing.parseFromUint_16(socketData.sublist(53, 55)),
+      boomBaseHeight: Parsing.parseFromUint_16(socketData.sublist(55, 57)),
+      bcx: Parsing.parseFromINT_16(socketData.sublist(57, 59)),
+      bcy: Parsing.parseFromINT_16(socketData.sublist(59, 61)),
+      acx: Parsing.parseFromINT_16(socketData.sublist(61, 63)),
+      acy: Parsing.parseFromINT_16(socketData.sublist(63, 65)),
+      antHeight: Parsing.parseFromUint_16(socketData.sublist(65, 67)),
+      antPole: Parsing.parseFromUint_16(socketData.sublist(67, 69)),
+      heading: Parsing.parseFromFloat_32(socketData.sublist(77, 81)),
+      akurasi1: Parsing.parseFromUint_16(socketData.sublist(81, 83)),
+      akurasi2: Parsing.parseFromUint_16(socketData.sublist(85, 87)),
+      calStatus: socketData[89],
+    );
+  }
+
   // --- Helper Functions ---
   String _statusGPS(int status) {
     switch (status) {
@@ -333,15 +376,27 @@ class ComService extends Notifier<UsbState> {
   String _alertContent(List<int> socketData) {
     final type = socketData[7];
     final source = socketData[8]; // Assuming source ID in byte 8
-    if (type == 0) return 'No Data from ${_sourceIDError(source)}';
-    if (type == 1) return 'Fail To sent to ${_sourceIDError(source)}';
-    if (type == 2)
+    if (type == 0) {
+      return 'No Data from ${_sourceIDError(source)}';
+    }
+    if (type == 1) {
+      return 'Fail To sent to ${_sourceIDError(source)}';
+    }
+    if (type == 2) {
       return 'Bad Power from ${Parsing.parseFromFloat_32(socketData.sublist(8, 12)).toStringAsFixed(2)}V';
-    if (type == 3)
+    }
+    if (type == 3) {
       return 'Just Restarted ${Parsing.parseFromUint_16(socketData.sublist(10, 12)).toStringAsFixed(2)} Times';
-    if (type == 4) return 'Sensor need Calibration';
-    if (type == 5 || type == 6) return _errType(source);
-    if (type == 7) return 'Restart External Sensor';
+    }
+    if (type == 4) {
+      return 'Sensor need Calibration';
+    }
+    if (type == 5 || type == 6) {
+      return _errType(source);
+    }
+    if (type == 7) {
+      return 'Restart External Sensor';
+    }
     return 'Unknown Error';
   }
 }
@@ -362,4 +417,8 @@ final bsStreamProvider = StreamProvider<Basestatus>((ref) {
 
 final errorStreamProvider = StreamProvider<ErrorAlert>((ref) {
   return ref.watch(comServiceProvider.notifier).errorStream;
+});
+
+final calibStreamProvider = StreamProvider<CalibrationData>((ref) {
+  return ref.watch(comServiceProvider.notifier).calibStream;
 });

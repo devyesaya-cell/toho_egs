@@ -224,7 +224,7 @@ class _PersonTabState extends ConsumerState<PersonTab> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
             child: const Text('Delete'),
           ),
         ],

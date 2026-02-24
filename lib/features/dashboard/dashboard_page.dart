@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dashboard_presenter.dart';
@@ -15,18 +14,25 @@ class DashboardPage extends ConsumerWidget {
     final dashboardDataAsync = ref.watch(dashboardPresenterProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE2EFF7), // Match Light Blue background
+      backgroundColor: const Color(0xFF0F1410), // Dark background
       body: Padding(
-        padding: const EdgeInsets.all(16.0), // Reduced padding to save space
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             const DashboardHeader(),
-            const SizedBox(height: 12), // Reduced spacing
+            const SizedBox(height: 16),
             Expanded(
               child: dashboardDataAsync.when(
                 data: (data) => _buildDashboardContent(data),
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, stack) => Center(child: Text('Error: $err')),
+                loading: () => const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF2ECC71)),
+                ),
+                error: (err, stack) => Center(
+                  child: Text(
+                    'Error: $err',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
               ),
             ),
           ],
@@ -40,12 +46,12 @@ class DashboardPage extends ConsumerWidget {
       children: [
         // Top Row: Big Progress Card + Grid of Summary Cards
         Expanded(
-          flex: 6, // Slightly increased flex for cards area
+          flex: 6,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Left: Progress Card
-               Expanded(
+              Expanded(
                 flex: 4,
                 child: ProgressCard(
                   areaHa: data.areaHa,
@@ -54,8 +60,8 @@ class DashboardPage extends ConsumerWidget {
                   totalSpots: data.productionSpots,
                 ),
               ),
-              const SizedBox(width: 12),
-              
+              const SizedBox(width: 16),
+
               // Right: Grid of 4 cards
               Expanded(
                 flex: 7,
@@ -71,10 +77,10 @@ class DashboardPage extends ConsumerWidget {
                               subUnit: 'spots/hr',
                               subValue: '${data.productivitySpotsHr} spots/Hr',
                               percent: data.percentageProductivity,
-                              progressColor: Colors.blue,
+                              progressColor: const Color(0xFF3B82F6), // Blue
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 16),
                           Expanded(
                             child: SummaryCard(
                               title: 'Spots Precision',
@@ -82,16 +88,16 @@ class DashboardPage extends ConsumerWidget {
                               subUnit: 'cm',
                               subValue: '10 cm',
                               percent: data.percentagePrecision,
-                              progressColor: Colors.red,
+                              progressColor: const Color(0xFFEF4444), // Red
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     Expanded(
                       child: Row(
-                         children: [
+                        children: [
                           Expanded(
                             child: SummaryCard(
                               title: 'Production',
@@ -99,10 +105,12 @@ class DashboardPage extends ConsumerWidget {
                               subUnit: 'spot',
                               subValue: '${data.productionSpotsTotal} spots',
                               percent: data.percentageProduction,
-                              progressColor: Colors.green,
+                              progressColor: const Color(
+                                0xFF2ECC71,
+                              ), // Primary Green
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 16),
                           Expanded(
                             child: SummaryCard(
                               title: 'Work Hours',
@@ -110,7 +118,7 @@ class DashboardPage extends ConsumerWidget {
                               subUnit: 'hours',
                               subValue: '12 Hours',
                               percent: data.percentageWorkHours,
-                              progressColor: Colors.purple,
+                              progressColor: const Color(0xFFA855F7), // Purple
                             ),
                           ),
                         ],
@@ -122,12 +130,12 @@ class DashboardPage extends ConsumerWidget {
             ],
           ),
         ),
-        
-        const SizedBox(height: 12),
-        
+
+        const SizedBox(height: 16),
+
         // Bottom Row: 2 Charts
         Expanded(
-          flex: 4, 
+          flex: 4,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -138,10 +146,10 @@ class DashboardPage extends ConsumerWidget {
                   spots: data.productivityTrend,
                   maxY: data.productivityMaxY,
                   interval: data.trendInterval,
-                  lineColor: Colors.blue,
+                  lineColor: const Color(0xFF3B82F6), // Blue
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 child: TrendChart(
                   title: 'Production Trend',
@@ -149,7 +157,7 @@ class DashboardPage extends ConsumerWidget {
                   spots: data.productionTrend,
                   maxY: data.productionMaxY,
                   interval: data.trendInterval,
-                  lineColor: Colors.blue,
+                  lineColor: const Color(0xFF2ECC71), // Primary Green
                 ),
               ),
             ],

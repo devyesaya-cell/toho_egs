@@ -52,17 +52,21 @@ class SetupPage extends StatelessWidget {
     ];
 
     return Scaffold(
+      backgroundColor: const Color(0xFF0F1410), // Main Background
       appBar: AppBar(
         title: const Text(
           'SETUP',
           style: TextStyle(
-            color: Color(0xFF0D2C54), // Dark blue text
+            color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 24,
           ),
         ),
-        // backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFF0F1410),
         elevation: 0,
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ), // Ensure back button is visible
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -91,7 +95,7 @@ class SetupPage extends StatelessWidget {
 
   Widget _buildMenuCard(BuildContext context, Map<String, dynamic> item) {
     return Material(
-      color: Colors.white,
+      color: const Color(0xFF1E293B), // Surface Dark
       borderRadius: BorderRadius.circular(12),
       elevation: 2,
       child: InkWell(
@@ -113,7 +117,7 @@ class SetupPage extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
-                color: Colors.black87,
+                color: Colors.white,
               ),
             ),
           ],

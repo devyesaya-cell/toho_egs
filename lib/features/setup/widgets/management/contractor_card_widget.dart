@@ -35,7 +35,7 @@ class ContractorCardWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF16231B),
+                  color: const Color(0xFF1E293B),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -150,12 +150,12 @@ class ContractorCardWidget extends StatelessWidget {
   Widget _buildDetailRow(IconData icon, String label, String? value) {
     return Row(
       children: [
-        Icon(icon, size: 12, color: Colors.grey),
+        Icon(icon, size: 12, color: const Color(0xFFB0BEC5)),
         const SizedBox(width: 6),
         Text(
           label,
           style: const TextStyle(
-            color: Colors.grey,
+            color: const Color(0xFFB0BEC5),
             fontSize: 9,
             fontWeight: FontWeight.bold,
           ),

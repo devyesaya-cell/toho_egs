@@ -17,7 +17,7 @@ class WorkfileCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isOpen = workfile.status?.toLowerCase() == 'open';
-    Color statusColor = isOpen ? const Color(0xFF2ECC71) : Colors.grey;
+    Color statusColor = isOpen ? const Color(0xFF2ECC71) : const Color(0xFFB0BEC5);
 
     return Container(
       decoration: BoxDecoration(
@@ -139,7 +139,7 @@ class WorkfileCardWidget extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            color: Colors.grey,
+            color: const Color(0xFFB0BEC5),
             fontSize: 10,
             fontWeight: FontWeight.bold,
           ),

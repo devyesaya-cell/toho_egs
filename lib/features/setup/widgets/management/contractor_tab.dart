@@ -154,7 +154,7 @@ class ContractorTab extends ConsumerWidget {
               ref.read(appRepositoryProvider).deleteContractor(contractor.id);
               Navigator.pop(context);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
             child: const Text('Delete'),
           ),
         ],

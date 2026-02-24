@@ -6,8 +6,21 @@ class RadioConfigPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Radio Config')),
-      body: const Center(child: Text('Radio Config Page Placeholder')),
+      backgroundColor: const Color(0xFF0F1410),
+      appBar: AppBar(
+        title: const Text(
+          'Radio Config',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF0F1410),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: const Center(
+        child: Text(
+          'Radio Config Page Placeholder',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
     );
   }
 }

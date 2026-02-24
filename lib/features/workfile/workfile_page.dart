@@ -16,29 +16,58 @@ class WorkfilePage extends ConsumerWidget {
     final workfilesStream = repo.watchWorkFiles();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Workfiles')),
+      backgroundColor:
+          Colors.transparent, // Inherit from parent or set explicitly
+      appBar: AppBar(
+        title: const Text(
+          'WORKFILES',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       body: StreamBuilder<List<WorkFile>>(
         stream: workfilesStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2ECC71)),
+              ),
+            );
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: const TextStyle(color: Colors.redAccent),
+              ),
+            );
           }
           final workfiles = snapshot.data ?? [];
 
           if (workfiles.isEmpty) {
-            return const Center(child: Text('No workfiles found'));
+            return const Center(
+              child: Text(
+                'No workfiles found',
+                style: TextStyle(color: Color(0xFFB0BEC5), fontSize: 16),
+              ),
+            );
           }
 
           return GridView.builder(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16.0),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              crossAxisSpacing: 8.0,
-              mainAxisSpacing: 8.0,
-              childAspectRatio: 4 / 2.4,
+              crossAxisSpacing: 16.0,
+              mainAxisSpacing: 16.0,
+              childAspectRatio:
+                  1.1, // Adjusted ratio to allow more vertical space for the card details
             ),
             itemCount: workfiles.length,
             itemBuilder: (context, index) {
@@ -51,14 +80,6 @@ class WorkfilePage extends ConsumerWidget {
                     context,
                     MaterialPageRoute(builder: (_) => const MapPage()),
                   );
-                  // Placeholder for MapPage navigation
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Navigate to MapPage for ${workfile.areaName}',
-                      ),
-                    ),
-                  );
                 },
               );
             },
@@ -66,6 +87,8 @@ class WorkfilePage extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF2ECC71),
+        foregroundColor: const Color(0xFF0F1410),
         onPressed: () {
           Navigator.push(
             context,

@@ -20,7 +20,7 @@ class PersonCardWidget extends StatelessWidget {
     bool isActive =
         (person.loginState?.toUpperCase() == 'ON' ||
         person.loginState?.toUpperCase() == 'ACTIVE'); // Changed condition
-    Color statusColor = isActive ? const Color(0xFF2ECC71) : Colors.grey;
+    Color statusColor = isActive ? const Color(0xFF2ECC71) : const Color(0xFFB0BEC5);
     Color glowColor = isActive
         ? const Color(0xFF2ECC71).withOpacity(0.3)
         : Colors.transparent;
@@ -143,11 +143,11 @@ class PersonCardWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.badge, size: 12, color: Colors.grey),
+              const Icon(Icons.badge, size: 12, color: const Color(0xFFB0BEC5)),
               const SizedBox(width: 4),
               Text(
                 person.driverID ?? '---',
-                style: const TextStyle(color: Colors.grey, fontSize: 10),
+                style: const TextStyle(color: const Color(0xFFB0BEC5), fontSize: 10),
               ),
             ],
           ),
@@ -158,7 +158,7 @@ class PersonCardWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFF16231B), // Darker inner box
+              color: const Color(0xFF1E293B), // Darker inner box
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -228,7 +228,7 @@ class PersonCardWidget extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              color: Colors.grey,
+              color: const Color(0xFFB0BEC5),
               fontSize: 8,
               fontWeight: FontWeight.bold,
             ),

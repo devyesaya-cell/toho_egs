@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'profile_widget.dart';
@@ -28,26 +29,20 @@ class SideMenu extends ConsumerWidget {
     final selectedIndex = ref.watch(selectedMenuProvider);
 
     return Container(
-      width: 250,
-      color: Colors.white,
+      width: MediaQuery.of(context).size.width * 0.25,
+      decoration: const BoxDecoration(
+        color: Color(0xFF0F1410), // Main Page Backgrounds
+        border: Border(right: BorderSide(color: Color(0xFF1E3A2A), width: 1.5)),
+      ),
       child: Column(
         children: [
           // Logo Area
           Padding(
             padding: const EdgeInsets.all(24.0),
-            child: Row(
-              children: const [
-                Icon(Icons.location_on, color: Colors.amber, size: 32),
-                SizedBox(width: 12),
-                Text(
-                  'Toho',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
-                  ),
-                ),
-              ],
+            child: Image.asset(
+              'images/banner.png',
+              height: MediaQuery.of(context).size.height * 0.1,
+              fit: BoxFit.contain,
             ),
           ),
 
@@ -109,7 +104,7 @@ class SideMenu extends ConsumerWidget {
                     children: [
                       const Icon(
                         Icons.dark_mode_outlined,
-                        color: Color(0xFF94A3B8),
+                        color: Color(0xFFB0BEC5), // Text Grey
                         size: 20,
                       ),
                       const SizedBox(width: 12),
@@ -117,15 +112,17 @@ class SideMenu extends ConsumerWidget {
                         child: Text(
                           'Dark Mode',
                           style: TextStyle(
-                            color: Color(0xFF94A3B8),
+                            color: Color(0xFFB0BEC5), // Text Grey
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
                       Switch(
-                        value: false,
+                        value:
+                            true, // Switched to true since we are in dark mode
                         onChanged: (val) {},
-                        activeTrackColor: Colors.blue,
+                        activeTrackColor: const Color(0xFF2ECC71),
+                        activeColor: Colors.black,
                       ),
                     ],
                   ),
@@ -138,50 +135,10 @@ class SideMenu extends ConsumerWidget {
             ),
           ),
 
-          // Date Time Placeholder
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    '2\nFeb',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: const [
-                    Text(
-                      '17:20',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                    Text(
-                      'Mon, 2026',
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          // Real-time Date & Time
+          const _DateTimeWidget(),
 
-          const Divider(),
+          const Divider(color: Color(0xFF1E3A2A)),
           const ProfileWidget(),
         ],
       ),
@@ -192,11 +149,12 @@ class SideMenu extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Text(
-        title,
+        title.toUpperCase(),
         style: const TextStyle(
-          color: Color(0xFF94A3B8),
-          fontSize: 12,
+          color: Color(0xFFB0BEC5), // Text Grey
+          fontSize: 10,
           fontWeight: FontWeight.bold,
+          letterSpacing: 1.1,
         ),
       ),
     );
@@ -219,7 +177,7 @@ class SideMenu extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: isSelected
             ? const BoxDecoration(
-                color: Color(0xFFF1F5F9), // Light background for selected
+                color: Color(0xFF1E3A2A), // Light hint of green
                 borderRadius: BorderRadius.horizontal(
                   right: Radius.circular(30),
                 ),
@@ -231,17 +189,15 @@ class SideMenu extends ConsumerWidget {
               icon,
               size: 20,
               color: isSelected
-                  ? const Color(0xFF1E293B)
-                  : const Color(0xFF94A3B8),
+                  ? const Color(0xFF2ECC71)
+                  : const Color(0xFFB0BEC5),
             ),
             const SizedBox(width: 12),
             Text(
               label,
               style: TextStyle(
-                color: isSelected
-                    ? const Color(0xFF1E293B)
-                    : const Color(0xFF94A3B8),
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: isSelected ? Colors.white : const Color(0xFFB0BEC5),
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               ),
             ),
           ],
@@ -267,7 +223,7 @@ class SideMenu extends ConsumerWidget {
     final mode = authState.mode;
     String modeLabel = 'UNKNOWN';
     IconData modeIcon = Icons.help_outline;
-    Color modeColor = Colors.grey;
+    Color modeColor = const Color(0xFFB0BEC5);
 
     switch (mode) {
       case SystemMode.spot:
@@ -281,7 +237,7 @@ class SideMenu extends ConsumerWidget {
         modeColor = Colors.blue;
         break;
       case SystemMode.maintenance:
-        modeLabel = 'MAINT';
+        modeLabel = 'MAINTENANCE';
         modeIcon = Icons.build;
         modeColor = Colors.red;
         break;
@@ -296,13 +252,13 @@ class SideMenu extends ConsumerWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: isUsbActive
-                  ? Colors.green.withOpacity(0.1)
-                  : Colors.red.withOpacity(0.1),
+                  ? const Color(0xFF1E3A2A) // Dark Green Hint
+                  : const Color(0xFF3F1D1D), // Dark Red Hint
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isUsbActive
-                    ? Colors.green.withOpacity(0.3)
-                    : Colors.red.withOpacity(0.3),
+                    ? const Color(0xFF2ECC71).withOpacity(0.5)
+                    : const Color(0xFFEF4444).withOpacity(0.5),
               ),
             ),
             child: Row(
@@ -310,7 +266,9 @@ class SideMenu extends ConsumerWidget {
                 Icon(
                   Icons.usb,
                   size: 16,
-                  color: isUsbActive ? Colors.green : Colors.red,
+                  color: isUsbActive
+                      ? const Color(0xFF2ECC71)
+                      : const Color(0xFFEF4444),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -319,11 +277,12 @@ class SideMenu extends ConsumerWidget {
                       const Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'RS232 Connection',
+                          'RS232 CONNECTION',
                           style: TextStyle(
                             fontSize: 10,
-                            color: Color(0xFF64748B),
+                            color: Color(0xFFB0BEC5),
                             fontWeight: FontWeight.bold,
+                            letterSpacing: 1.1,
                           ),
                         ),
                       ),
@@ -334,7 +293,9 @@ class SideMenu extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: isUsbActive ? Colors.green : Colors.red,
+                              color: isUsbActive
+                                  ? const Color(0xFF2ECC71)
+                                  : const Color(0xFFEF4444),
                             ),
                           ),
                           const Spacer(),
@@ -342,12 +303,16 @@ class SideMenu extends ConsumerWidget {
                             width: 8,
                             height: 8,
                             decoration: BoxDecoration(
-                              color: isUsbActive ? Colors.green : Colors.red,
+                              color: isUsbActive
+                                  ? const Color(0xFF2ECC71)
+                                  : const Color(0xFFEF4444),
                               shape: BoxShape.circle,
                               boxShadow: isUsbActive
                                   ? [
                                       BoxShadow(
-                                        color: Colors.green.withOpacity(0.6),
+                                        color: const Color(
+                                          0xFF2ECC71,
+                                        ).withOpacity(0.6),
                                         blurRadius: 4,
                                         spreadRadius: 1,
                                       ),
@@ -369,9 +334,9 @@ class SideMenu extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: const Color(0xFF1E293B), // Surface Dark
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: const Color(0xFF1E3A2A)),
             ),
             child: Row(
               children: [
@@ -381,24 +346,140 @@ class SideMenu extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'System Mode',
+                      'SYSTEM MODE',
                       style: TextStyle(
                         fontSize: 10,
-                        color: Color(0xFF64748B),
+                        color: Color(0xFFB0BEC5),
                         fontWeight: FontWeight.bold,
+                        letterSpacing: 1.1,
                       ),
                     ),
                     Text(
                       modeLabel,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1E293B),
+                        color: Colors.white,
                       ),
                     ),
                   ],
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DateTimeWidget extends StatefulWidget {
+  const _DateTimeWidget();
+
+  @override
+  State<_DateTimeWidget> createState() => _DateTimeWidgetState();
+}
+
+class _DateTimeWidgetState extends State<_DateTimeWidget> {
+  late Timer _timer;
+  late DateTime _now;
+
+  @override
+  void initState() {
+    super.initState();
+    _now = DateTime.now();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {
+        _now = DateTime.now();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final timeString =
+        "${_now.hour.toString().padLeft(2, '0')}:${_now.minute.toString().padLeft(2, '0')}:${_now.second.toString().padLeft(2, '0')}";
+
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    final monthString = monthNames[_now.month - 1];
+    final dayString = dayNames[_now.weekday - 1];
+    final dateString = "$dayString, ${_now.day} $monthString ${_now.year}";
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1E3A2A), Color(0xFF0F1410)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF2ECC71).withOpacity(0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                timeString,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  color: Color(0xFF2ECC71),
+                  letterSpacing: 2.0,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                dateString,
+                style: const TextStyle(
+                  color: Color(0xFFB0BEC5),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2ECC71).withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.access_time_filled,
+              color: Color(0xFF2ECC71),
+              size: 24,
             ),
           ),
         ],
