@@ -11,6 +11,7 @@ class CalibrationPresenter {
 
     // 1. Header: 0xAA55AA55 -> [0x55, 0xAA, 0x55, 0xAA] (Little-Endian matches ComService)
     frame.addAll([0x55, 0xAA, 0x55, 0xAA]);
+    // frame.addAll([0x01]);
 
     // 2. Length: Opcode (1) + Payload Length (N) + CRC16 (2)
     int length = 1 + payload.length + 2;
@@ -30,13 +31,13 @@ class CalibrationPresenter {
 
   Future<void> setConfig(UsbPort port) async {
     // Opcode: 0x50, Payload: [0x01, 0x02] (Assuming this matches the structure)
-    final frame = _buildFrame(opcode: 0x50, payload: [0x01, 0x02]);
+    final frame = _buildFrame(opcode: 0x50, payload: [0x02]);
     await port.write(Uint8List.fromList(frame));
   }
 
   Future<void> setNormal(UsbPort port) async {
     // Opcode: 0x50, Payload: [0x01, 0x01]
-    final frame = _buildFrame(opcode: 0x50, payload: [0x01, 0x01]);
+    final frame = _buildFrame(opcode: 0x50, payload: [0x01]);
     await port.write(Uint8List.fromList(frame));
   }
 

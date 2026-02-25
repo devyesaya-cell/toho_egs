@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'widgets/side_menu.dart';
+import '../workfile/workfile_page.dart';
 import '../dashboard/dashboard_page.dart';
 import '../timesheet/timesheet_page.dart';
-import '../workfile/workfile_page.dart';
+import '../alarm/alarm_page.dart';
 import '../setup/setup_page.dart';
 import '../../core/coms/com_service.dart';
 
@@ -65,9 +66,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         content = const TimesheetPage();
         break;
       case 3:
-        content = const Scaffold(
-          body: Center(child: Text('Alarm Page')),
-        ); // Placeholder
+        content = const AlarmPage();
         break;
       case 4:
         content = const SetupPage();

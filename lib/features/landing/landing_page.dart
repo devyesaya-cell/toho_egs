@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/state/auth_state.dart';
 import '../../features/home/home_page.dart';
 import '../../features/auth/login_page.dart';
+import '../../features/setup/presenter/calibration_presenter.dart';
 import '../../core/coms/com_service.dart';
 
 class LandingPage extends ConsumerStatefulWidget {
@@ -18,8 +19,13 @@ class _LandingPageState extends ConsumerState<LandingPage> {
     super.initState();
     // Auto-connect to USB on app start (empty filter matches all)
     // Using Future.microtask to avoid build phase issues, though initState is usually fine for read.
-    Future.microtask(() {
-      ref.read(comServiceProvider.notifier).autoConnect("");
+    Future.microtask(() async {
+      await ref.read(comServiceProvider.notifier).autoConnect("CP2102N");
+      final port = ref.read(comServiceProvider).port;
+      if (port != null && mounted) {
+        final presenter = CalibrationPresenter();
+        presenter.setNormal(port); // Inform MCU to stream normal operation data
+      }
     });
   }
 

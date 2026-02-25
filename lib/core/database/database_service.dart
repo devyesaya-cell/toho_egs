@@ -6,6 +6,9 @@ import '../models/workfile.dart';
 import '../models/equipment.dart';
 import '../models/area.dart';
 import '../models/contractor.dart';
+import '../models/timesheet_record.dart';
+import '../models/timesheet_data.dart';
+import '../models/status_timesheet.dart';
 
 class DatabaseService {
   late Isar isar;
@@ -27,6 +30,9 @@ class DatabaseService {
       EquipmentSchema,
       AreaSchema,
       ContractorSchema,
+      TimesheetRecordSchema,
+      TimesheetDataSchema,
+      StatusTimesheetSchema,
     ], directory: dir.path);
   }
 

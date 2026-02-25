@@ -31,31 +31,6 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Title Row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'DASHBOARD',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-                color: Colors.white,
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () {},
-              style: IconButton.styleFrom(
-                backgroundColor: const Color(0xFF1E293B),
-                foregroundColor: Colors.white54,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-
         // Filters & Controls Row (Responsive wrapping)
         LayoutBuilder(
           builder: (context, constraints) {

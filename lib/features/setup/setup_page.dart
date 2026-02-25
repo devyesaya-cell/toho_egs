@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'pages/management_page.dart';
 import 'pages/calibration_page.dart';
-import 'pages/synchronize_page.dart';
-import 'pages/radio_config_page.dart';
-import 'pages/debug_page.dart';
+import '../sync/sync_page.dart';
+import '../radio/radio_page.dart';
+import '../debug/debug_page.dart';
 import 'pages/about_us_page.dart';
 
 class SetupPage extends StatelessWidget {
@@ -29,13 +29,13 @@ class SetupPage extends StatelessWidget {
         'title': 'Synchronize',
         'icon': Icons.sync_alt_rounded,
         'color': Colors.lightGreen,
-        'page': const SynchronizePage(),
+        'page': const SyncPage(),
       },
       {
         'title': 'Radio',
         'icon': Icons.signal_cellular_alt,
         'color': Colors.black87,
-        'page': const RadioConfigPage(),
+        'page': const RadioPage(),
       },
       {
         'title': 'Debug',

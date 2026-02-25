@@ -321,7 +321,9 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                                   ),
                                 ),
                                 Text(
-                                  data?.pitch.toStringAsFixed(2) ?? '0.00',
+                                  data != null
+                                      ? '${(data.pitch > 360 ? 360.0 : data.pitch).toStringAsFixed(2)}°'
+                                      : '0.00°',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -361,7 +363,9 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                                   ),
                                 ),
                                 Text(
-                                  data?.roll.toStringAsFixed(2) ?? '0.00',
+                                  data != null
+                                      ? '${(data.roll > 360 ? 360.0 : data.roll).toStringAsFixed(2)}°'
+                                      : '0.00°',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,

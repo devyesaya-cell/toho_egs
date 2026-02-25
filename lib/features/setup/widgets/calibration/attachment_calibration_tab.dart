@@ -6,17 +6,18 @@ import '../../../../core/coms/com_service.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../presenter/calibration_presenter.dart';
 
-class BoomCalibrationTab extends ConsumerStatefulWidget {
-  const BoomCalibrationTab({super.key});
+class AttachmentCalibrationTab extends ConsumerStatefulWidget {
+  const AttachmentCalibrationTab({super.key});
 
   @override
-  ConsumerState<BoomCalibrationTab> createState() => _BoomCalibrationTabState();
+  ConsumerState<AttachmentCalibrationTab> createState() =>
+      _AttachmentCalibrationTabState();
 }
 
-class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
+class _AttachmentCalibrationTabState
+    extends ConsumerState<AttachmentCalibrationTab> {
   final CalibrationPresenter _presenter = CalibrationPresenter();
 
-  // Dialog for setting parameters
   Future<void> _showSetParamDialog(
     BuildContext context,
     String title,
@@ -188,7 +189,7 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                             ),
                           )
                         : Image.asset(
-                            'images/calibrate_2.png',
+                            'images/calibrate_3.png',
                             fit: BoxFit.contain,
                           ),
                   ),
@@ -210,7 +211,7 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        // Boom Tilt Control
+                        // Bucket Tilt Control
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -218,7 +219,7 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Text(
-                                  'BOOM TILT: ',
+                                  'BUCKET TILT: ',
                                   style: TextStyle(
                                     color: Colors.white54,
                                     fontWeight: FontWeight.bold,
@@ -226,33 +227,33 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                                 ),
                                 Text(
                                   data != null
-                                      ? '${(data.boomTilt > 360 ? 360.0 : data.boomTilt).toStringAsFixed(2)}°'
+                                      ? '${(data.bucketTilt > 360 ? 360.0 : data.bucketTilt).toStringAsFixed(2)}°'
                                       : '0.00°',
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 20,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 4),
                             ElevatedButton(
                               onPressed: () async {
                                 final port = ref.read(comServiceProvider).port;
                                 if (port != null) {
-                                  // Calibrate boom tilt mode 2 with value 0.0
+                                  // Calibrate Bucket tilt mode 4
                                   final command = _presenter.calibrateCommand(
                                     value1: 0.0,
-                                    mode: 2,
+                                    mode: 4,
                                   );
                                   await port.write(Uint8List.fromList(command));
                                   if (context.mounted) {
                                     NotificationService.showCommandNotification(
                                       context,
                                       title: 'CALIBRATE',
-                                      message: 'Boom Tilt calibrated',
-                                      modeStr: 'MODE 2',
+                                      message: 'Bucket Tilt calibrated',
+                                      modeStr: 'MODE 4',
                                       icon: Icons.check_circle,
                                       iconColor: const Color(0xFF2ECC71),
                                       headerColor: const Color(0xFF1E3A2A),
@@ -273,6 +274,82 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF2ECC71),
                                 foregroundColor: Colors.white,
+                                minimumSize: const Size(100, 36),
+                              ),
+                              child: const Text('Calibrate'),
+                            ),
+                          ],
+                        ),
+                        // Vertical Divider
+                        Container(
+                          width: 1,
+                          height: double.infinity,
+                          color: Colors.white24,
+                        ),
+                        // I-Link Tilt Control
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  'I-LINK TILT: ',
+                                  style: TextStyle(
+                                    color: Colors.white54,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  data != null
+                                      ? '${(data.iLinkTilt > 360 ? 360.0 : data.iLinkTilt).toStringAsFixed(2)}°'
+                                      : '0.00°',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            ElevatedButton(
+                              onPressed: () async {
+                                final port = ref.read(comServiceProvider).port;
+                                if (port != null) {
+                                  // Calibrate I-Link tilt mode 5
+                                  final command = _presenter.calibrateCommand(
+                                    value1: 0.0,
+                                    mode: 5,
+                                  );
+                                  await port.write(Uint8List.fromList(command));
+                                  if (context.mounted) {
+                                    NotificationService.showCommandNotification(
+                                      context,
+                                      title: 'CALIBRATE',
+                                      message: 'I-Link Tilt calibrated',
+                                      modeStr: 'MODE 5',
+                                      icon: Icons.check_circle,
+                                      iconColor: const Color(0xFF2ECC71),
+                                      headerColor: const Color(0xFF1E3A2A),
+                                    );
+                                  }
+                                } else if (context.mounted) {
+                                  NotificationService.showCommandNotification(
+                                    context,
+                                    title: 'ERROR',
+                                    message: 'Port not connected',
+                                    modeStr: 'ERROR',
+                                    icon: Icons.error,
+                                    iconColor: const Color(0xFFEF4444),
+                                    headerColor: const Color(0xFF3F1D1D),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF2ECC71),
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size(100, 36),
                               ),
                               child: const Text('Calibrate'),
                             ),
@@ -289,13 +366,14 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text(
-                              'ACCELERO CALIBRATION',
+                              'ACCELERO',
                               style: TextStyle(
                                 color: Colors.white54,
                                 fontWeight: FontWeight.bold,
+                                fontSize: 12,
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 8),
                             Row(
                               children: [
                                 ElevatedButton.icon(
@@ -307,7 +385,7 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                                       final command = _presenter.calibrateCommand(
                                         value1: 0.0,
                                         mode:
-                                            21, // Mode 21 for Start Boom Accelero
+                                            23, // Mode 23 for Start Bucket Accelero
                                       );
                                       await port.write(
                                         Uint8List.fromList(command),
@@ -325,11 +403,18 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                                       }
                                     }
                                   },
-                                  icon: const Icon(Icons.play_arrow),
-                                  label: const Text('START'),
+                                  icon: const Icon(Icons.play_arrow, size: 16),
+                                  label: const Text(
+                                    'START',
+                                    style: TextStyle(fontSize: 12),
+                                  ),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF2ECC71),
                                     foregroundColor: Colors.white,
+                                    minimumSize: const Size(80, 36),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -342,7 +427,7 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                                       final command = _presenter.calibrateCommand(
                                         value1: 0.0,
                                         mode:
-                                            41, // Mode 41 for Stop Boom Accelero
+                                            43, // Mode 43 for Stop Bucket Accelero
                                       );
                                       await port.write(
                                         Uint8List.fromList(command),
@@ -360,11 +445,18 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                                       }
                                     }
                                   },
-                                  icon: const Icon(Icons.stop),
-                                  label: const Text('STOP'),
+                                  icon: const Icon(Icons.stop, size: 16),
+                                  label: const Text(
+                                    'STOP',
+                                    style: TextStyle(fontSize: 12),
+                                  ),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFEF4444),
                                     foregroundColor: Colors.white,
+                                    minimumSize: const Size(80, 36),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -411,17 +503,45 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                       children: [
                         _buildParamCard(
                           context,
-                          'Boom Length',
-                          'BL',
-                          0, // Type 2
-                          data?.boomLenght ?? 0,
+                          'Bucket Length',
+                          'BCL',
+                          2,
+                          data?.bucketLenght ?? 0,
                         ),
                         _buildParamCard(
                           context,
-                          'Boom Base Height',
-                          'BBH',
-                          10, // Type 10
-                          data?.boomBaseHeight ?? 0,
+                          'Bucket Width',
+                          'BCW',
+                          4,
+                          data?.bucketWidth ?? 0,
+                        ),
+                        _buildParamCard(
+                          context,
+                          'I-Link Length',
+                          'ILK',
+                          6,
+                          data?.iLink ?? 0,
+                        ),
+                        _buildParamCard(
+                          context,
+                          'H-Link Length',
+                          'HLK',
+                          7,
+                          data?.hLink ?? 0,
+                        ),
+                        _buildParamCard(
+                          context,
+                          'Bucket Pivot Disc',
+                          'BPD',
+                          8,
+                          data?.bpd ?? 0,
+                        ),
+                        _buildParamCard(
+                          context,
+                          'Stick Pivot Disc',
+                          'SPD',
+                          9,
+                          data?.spd ?? 0,
                         ),
                       ],
                     ),

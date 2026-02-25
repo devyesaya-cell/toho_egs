@@ -4,9 +4,12 @@ import '../../../core/coms/com_service.dart';
 import '../presenter/calibration_presenter.dart';
 import 'package:usb_serial/usb_serial.dart';
 
+import '../../../core/state/auth_state.dart';
 import '../widgets/calibration/offset_calibration_tab.dart';
 import '../widgets/calibration/body_calibration_tab.dart';
 import '../widgets/calibration/boom_calibration_tab.dart';
+import '../widgets/calibration/stick_calibration_tab.dart';
+import '../widgets/calibration/attachment_calibration_tab.dart';
 
 class CalibrationPage extends ConsumerStatefulWidget {
   const CalibrationPage({super.key});
@@ -88,130 +91,8 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
                 ],
               ),
               const Spacer(),
-              Consumer(
-                builder: (context, ref, child) {
-                  final usbState = ref.watch(comServiceProvider);
-                  final calibAsync = ref.watch(calibStreamProvider);
-                  bool hasDataStream = false;
-                  if (usbState.lastDataReceived != null) {
-                    final diff = DateTime.now().difference(
-                      usbState.lastDataReceived!,
-                    );
-                    if (diff.inSeconds < 2) {
-                      hasDataStream = true;
-                    }
-                  }
-                  final bool isActive = usbState.isConnected && hasDataStream;
-                  final bool isCalibActive =
-                      calibAsync.hasValue && hasDataStream;
-
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.usb,
-                            color: isActive
-                                ? Colors.greenAccent
-                                : Colors.white54,
-                            size: 14,
-                          ),
-                          const SizedBox(width: 4),
-                          const Text(
-                            'Connection to RS232 : ',
-                            style: TextStyle(
-                              color: Colors.white54,
-                              fontSize: 12,
-                            ),
-                          ),
-                          Text(
-                            isActive ? 'Active' : 'Inactive',
-                            style: TextStyle(
-                              color: isActive ? Colors.greenAccent : Colors.red,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: isActive ? Colors.greenAccent : Colors.red,
-                              shape: BoxShape.circle,
-                              boxShadow: isActive
-                                  ? [
-                                      BoxShadow(
-                                        color: Colors.greenAccent.withOpacity(
-                                          0.6,
-                                        ),
-                                        blurRadius: 4,
-                                        spreadRadius: 1,
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.stream,
-                            color: isCalibActive
-                                ? Colors.greenAccent
-                                : Colors.white54,
-                            size: 14,
-                          ),
-                          const SizedBox(width: 4),
-                          const Text(
-                            'Calibration Stream : ',
-                            style: TextStyle(
-                              color: Colors.white54,
-                              fontSize: 12,
-                            ),
-                          ),
-                          Text(
-                            isCalibActive ? 'Active' : 'Inactive',
-                            style: TextStyle(
-                              color: isCalibActive
-                                  ? Colors.greenAccent
-                                  : Colors.red,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: isCalibActive
-                                  ? Colors.greenAccent
-                                  : Colors.red,
-                              shape: BoxShape.circle,
-                              boxShadow: isCalibActive
-                                  ? [
-                                      BoxShadow(
-                                        color: Colors.greenAccent.withOpacity(
-                                          0.6,
-                                        ),
-                                        blurRadius: 4,
-                                        spreadRadius: 1,
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
-              ),
+              _buildAppBarActions(context, ref),
+              const SizedBox(width: 16),
             ],
           ),
           backgroundColor: const Color(0xFF0F1410), // Dark background
@@ -238,35 +119,183 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
           ),
           child: Consumer(
             builder: (context, ref, child) {
-              final calibData = ref.watch(calibStreamProvider).asData?.value;
-              final dataString = calibData != null
-                  ? 'Pitch: ${calibData.pitch}\nRoll: ${calibData.roll}\nBoom: ${calibData.boomTilt}\nStick: ${calibData.stickTilt}\nBucket: ${calibData.bucketTilt}'
-                  : 'No Calibration Data';
-
               return TabBarView(
                 children: [
                   const OffsetCalibrationTab(),
                   const BodyCalibrationTab(),
                   const BoomCalibrationTab(),
-                  Center(
-                    child: Text(
-                      'Stick Calibration Placeholder\n\n$dataString',
-                      style: const TextStyle(color: Colors.white),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Center(
-                    child: Text(
-                      'Attachment Calibration Placeholder\n\n$dataString',
-                      style: const TextStyle(color: Colors.white),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
+                  const StickCalibrationTab(),
+                  const AttachmentCalibrationTab(),
                 ],
               );
             },
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAppBarActions(BuildContext context, WidgetRef ref) {
+    final usbState = ref.watch(comServiceProvider);
+    final calibAsync = ref.watch(calibStreamProvider);
+    bool hasDataStream = false;
+    if (usbState.lastDataReceived != null) {
+      final diff = DateTime.now().difference(usbState.lastDataReceived!);
+      if (diff.inSeconds < 2) {
+        hasDataStream = true;
+      }
+    }
+    final bool isActive = usbState.isConnected && hasDataStream;
+    final bool isCalibActive = calibAsync.hasValue && hasDataStream;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Connection Status
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.usb,
+                  color: isActive ? Colors.greenAccent : Colors.red,
+                  size: 14,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  isActive ? 'RS232 Active' : 'RS232 Inactive',
+                  style: TextStyle(
+                    color: isActive ? Colors.greenAccent : Colors.red,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(
+                  Icons.stream,
+                  color: isCalibActive ? Colors.greenAccent : Colors.red,
+                  size: 14,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  isCalibActive ? 'Stream Active' : 'Stream Inactive',
+                  style: TextStyle(
+                    color: isCalibActive ? Colors.greenAccent : Colors.red,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(width: 16),
+        Container(width: 1, height: 24, color: const Color(0xFF1E3A2A)),
+        const SizedBox(width: 16),
+        // Profile Widget
+        Builder(
+          builder: (context) {
+            final authState = ref.watch(authProvider);
+            final person = authState.currentUser;
+            final name = person != null
+                ? '${person.firstName} ${person.lastName}'
+                : 'Unknown';
+            final contractor = person?.kontraktor ?? 'Unknown';
+            final photoUrl = person?.picURL;
+
+            return InkWell(
+              onTap: () {
+                _showLogoutDialog(context, ref);
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 4.0,
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 16,
+                      backgroundImage: photoUrl != null && photoUrl.isNotEmpty
+                          ? AssetImage(photoUrl)
+                          : const AssetImage('images/avatar_person.png'),
+                      backgroundColor: const Color(0xFF1E293B),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                        Text(
+                          contractor,
+                          style: const TextStyle(
+                            color: Color(0xFF2ECC71),
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: const Row(
+          children: [
+            Icon(Icons.logout, color: Colors.orange),
+            SizedBox(width: 8),
+            Text('Sign Out', style: TextStyle(color: Colors.white)),
+          ],
+        ),
+        content: const Text(
+          'Are you sure you want to sign out?',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text(
+              'CANCEL',
+              style: TextStyle(color: Colors.white54),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              ref.read(authProvider.notifier).logout();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('SIGN OUT'),
+          ),
+        ],
       ),
     );
   }

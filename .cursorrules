@@ -105,3 +105,13 @@ The application follows a dark green theme. When implementing UI components, use
 - **Text Grey / Inactive**: `Color(0xFFB0BEC5)` (For secondary text, unselected menu items)
 - **Red / Error**: `Color(0xFFEF4444)` (For error status text and icons)
 - **Dark Red Hint**: `Color(0xFF3F1D1D)` (For error status background containers)
+
+## Architecture & Layout Rules
+1. **Presenter Pattern (MVVM)**: Every major feature or page must have its logic separated into a `Presenter` class (implementing Riverpod's `Notifier` or `StateNotifier`).
+2. **Clean UI**: UI components (`Widget` classes) must remain as thin as possible. Avoid writing complex logic, boolean toggles, timers, or DB transactions directly in `StatefulWidget` states. Use `ConsumerWidget` and delegate all actions to the Presenter. 
+3. **Stream Management**: Never use the classic Flutter `StreamBuilder` for fetching asynchronous list operations from Isar or APIs. Always wrap streams in a Riverpod `StreamProvider` and use the `.when(data: , loading: , error: )` syntax in the UI. This provides better caching and prevents UI flickering.
+4. **Scaffold & AppBar**: When creating a new page's Scaffold, the standard `AppBar` should consist of:
+   - A `title` on the left.
+   - The reusable `StatusBar` (containing the USB connection indicator and user `ProfileWidget`) placed in the `actions` array on the right.
+
+**Example implementation reference**: `lib/features/timesheet/timesheet_page.dart` and `lib/features/timesheet/presenter/timesheet_presenter.dart`.

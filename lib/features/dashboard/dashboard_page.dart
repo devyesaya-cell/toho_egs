@@ -5,6 +5,7 @@ import 'widgets/dashboard_header.dart';
 import 'widgets/progress_card.dart';
 import 'widgets/summary_card.dart';
 import 'widgets/trend_chart.dart';
+import '../../core/widgets/global_app_bar_actions.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -15,6 +16,55 @@ class DashboardPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F1410), // Dark background
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0F1410),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: Row(
+          children: [
+            // Green Icon Box
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E3A2A),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.dashboard,
+                color: Color(0xFF2ECC71),
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            // Titles
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'DASHBOARD',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                    fontSize: 18,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'EGS DASHBOARD V4.0.0',
+                  style: TextStyle(
+                    color: Color(0xFF2ECC71), // Primary Green
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: const [GlobalAppBarActions(), SizedBox(width: 16)],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

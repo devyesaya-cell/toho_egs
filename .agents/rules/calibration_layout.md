@@ -61,6 +61,11 @@ Card(
 )
 ```
 
+## 5. Tilt and Angle Values (Crucial Constraint)
+- **Capping Constraint**: ANY value representing an Angle or Tilt (e.g., Pitch, Roll, Boom Tilt, Stick Tilt) MUST be visually capped at a maximum of `360.00`. If the raw sensor value exceeds 360, it should be displayed as 360.00 (or use modulo `% 360` if wrap-around is intended, but explicit instruction was "max cap at 360").
+- **Formatting**: ALWAYS append the degree symbol `°` to the displayed Tilt/Angle value.
+  - Example formatting logic: `(rawValue > 360 ? 360.0 : rawValue).toStringAsFixed(2) + '°'`
+
 ## 5. Parameter Input Form Modal (`_showSetParamDialog`)
 If tapping a Card opens an edit prompt:
 - Component: `AlertDialog` with `backgroundColor: const Color(0xFF1E293B)`

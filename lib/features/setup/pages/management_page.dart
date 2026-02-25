@@ -5,6 +5,7 @@ import '../widgets/management/workfile_tab.dart';
 import '../widgets/management/contractor_tab.dart';
 import '../widgets/management/equipment_tab.dart';
 import '../widgets/management/area_tab.dart';
+import '../widgets/management/timesheet_data_tab.dart';
 
 class ManagementPage extends ConsumerWidget {
   const ManagementPage({super.key});
@@ -12,7 +13,7 @@ class ManagementPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
-      length: 5,
+      length: 6,
       child: Scaffold(
         backgroundColor: const Color(0xFF0F1410), // Dark background
         appBar: AppBar(
@@ -35,6 +36,7 @@ class ManagementPage extends ConsumerWidget {
               Tab(text: 'CONTRACTOR', icon: Icon(Icons.business)),
               Tab(text: 'EQUIPMENT', icon: Icon(Icons.handyman)),
               Tab(text: 'AREA', icon: Icon(Icons.map)),
+              Tab(text: 'TIMESHEET', icon: Icon(Icons.timer)),
             ],
           ),
         ),
@@ -49,6 +51,7 @@ class ManagementPage extends ConsumerWidget {
               ContractorTab(),
               EquipmentTab(),
               AreaTab(),
+              TimesheetDataTab(),
             ],
           ),
         ),

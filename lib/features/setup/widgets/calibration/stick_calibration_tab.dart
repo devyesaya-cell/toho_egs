@@ -6,17 +6,17 @@ import '../../../../core/coms/com_service.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../presenter/calibration_presenter.dart';
 
-class BoomCalibrationTab extends ConsumerStatefulWidget {
-  const BoomCalibrationTab({super.key});
+class StickCalibrationTab extends ConsumerStatefulWidget {
+  const StickCalibrationTab({super.key});
 
   @override
-  ConsumerState<BoomCalibrationTab> createState() => _BoomCalibrationTabState();
+  ConsumerState<StickCalibrationTab> createState() =>
+      _StickCalibrationTabState();
 }
 
-class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
+class _StickCalibrationTabState extends ConsumerState<StickCalibrationTab> {
   final CalibrationPresenter _presenter = CalibrationPresenter();
 
-  // Dialog for setting parameters
   Future<void> _showSetParamDialog(
     BuildContext context,
     String title,
@@ -188,7 +188,7 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                             ),
                           )
                         : Image.asset(
-                            'images/calibrate_2.png',
+                            'images/calibrate_1.png',
                             fit: BoxFit.contain,
                           ),
                   ),
@@ -210,7 +210,7 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        // Boom Tilt Control
+                        // Stick Tilt Control
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -218,7 +218,7 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Text(
-                                  'BOOM TILT: ',
+                                  'STICK TILT: ',
                                   style: TextStyle(
                                     color: Colors.white54,
                                     fontWeight: FontWeight.bold,
@@ -226,7 +226,7 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                                 ),
                                 Text(
                                   data != null
-                                      ? '${(data.boomTilt > 360 ? 360.0 : data.boomTilt).toStringAsFixed(2)}°'
+                                      ? '${(data.stickTilt > 360 ? 360.0 : data.stickTilt).toStringAsFixed(2)}°'
                                       : '0.00°',
                                   style: const TextStyle(
                                     color: Colors.white,
@@ -241,18 +241,18 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                               onPressed: () async {
                                 final port = ref.read(comServiceProvider).port;
                                 if (port != null) {
-                                  // Calibrate boom tilt mode 2 with value 0.0
+                                  // Calibrate stick tilt mode 3 with value 0.0
                                   final command = _presenter.calibrateCommand(
                                     value1: 0.0,
-                                    mode: 2,
+                                    mode: 3,
                                   );
                                   await port.write(Uint8List.fromList(command));
                                   if (context.mounted) {
                                     NotificationService.showCommandNotification(
                                       context,
                                       title: 'CALIBRATE',
-                                      message: 'Boom Tilt calibrated',
-                                      modeStr: 'MODE 2',
+                                      message: 'Stick Tilt calibrated',
+                                      modeStr: 'MODE 3',
                                       icon: Icons.check_circle,
                                       iconColor: const Color(0xFF2ECC71),
                                       headerColor: const Color(0xFF1E3A2A),
@@ -307,7 +307,7 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                                       final command = _presenter.calibrateCommand(
                                         value1: 0.0,
                                         mode:
-                                            21, // Mode 21 for Start Boom Accelero
+                                            22, // Mode 22 for Start Stick Accelero
                                       );
                                       await port.write(
                                         Uint8List.fromList(command),
@@ -342,7 +342,7 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                                       final command = _presenter.calibrateCommand(
                                         value1: 0.0,
                                         mode:
-                                            41, // Mode 41 for Stop Boom Accelero
+                                            42, // Mode 42 for Stop Stick Accelero
                                       );
                                       await port.write(
                                         Uint8List.fromList(command),
@@ -411,17 +411,10 @@ class _BoomCalibrationTabState extends ConsumerState<BoomCalibrationTab> {
                       children: [
                         _buildParamCard(
                           context,
-                          'Boom Length',
-                          'BL',
-                          0, // Type 2
-                          data?.boomLenght ?? 0,
-                        ),
-                        _buildParamCard(
-                          context,
-                          'Boom Base Height',
-                          'BBH',
-                          10, // Type 10
-                          data?.boomBaseHeight ?? 0,
+                          'Stick Length',
+                          'SL',
+                          1, // Type 1
+                          data?.stickLenght ?? 0,
                         ),
                       ],
                     ),

@@ -56,9 +56,27 @@ class ComService extends Notifier<UsbState> {
   // USB Transaction
   Transaction<Uint8List>? _txn;
   StreamSubscription<Uint8List>? _txnSub;
+  StreamSubscription<UsbEvent>? _usbEventSub;
 
   @override
   UsbState build() {
+    // Listen for USB connection state changes dynamically
+    _usbEventSub = UsbSerial.usbEventStream?.listen((UsbEvent event) {
+      if (event.event == UsbEvent.ACTION_USB_DETACHED) {
+        debugPrint("USB Detached!");
+        disconnect();
+      } else if (event.event == UsbEvent.ACTION_USB_ATTACHED) {
+        debugPrint("USB Attached!");
+        autoConnect(
+          "CP2102N",
+        ); // Attempt to reconnect automatically when a cable is plugged in
+      }
+    });
+
+    ref.onDispose(() {
+      _usbEventSub?.cancel();
+    });
+
     return UsbState();
   }
 
@@ -131,31 +149,23 @@ class ComService extends Notifier<UsbState> {
   Future<void> _startUsb(UsbPort port) async {
     debugPrint('Starting USB data listener on port: $port');
 
+    // Intercept raw stream to update lastDataReceived regardless of framing/opcode
+    final Stream<Uint8List> rawStream = port.inputStream!.map((data) {
+      final now = DateTime.now();
+      if (state.lastDataReceived == null ||
+          now.difference(state.lastDataReceived!).inMilliseconds > 500) {
+        Future.microtask(() {
+          state = state.copyWith(lastDataReceived: now);
+        });
+      }
+      return data;
+    });
+
     // Magic header: 0x55, 0xAA, 0x55, 0xAA -> [85, 170, 85, 170]
-    _txn = Transaction.magicHeader(port.inputStream!, [
-      85,
-      170,
-      85,
-      170,
-    ], maxLen: 200);
+    _txn = Transaction.magicHeader(rawStream, [85, 170, 85, 170], maxLen: 200);
 
     _txnSub = _txn!.stream.listen(
       (Uint8List framed) {
-        // Update state to reflect active data stream
-        // optimization: maybe don't update state on EVERY packet if it causes too many rebuilds,
-        // but for now, let's update it. Or maybe just update if it's been > 1 second since last update?
-        // Actually, updating state triggers notifyListeners(), which rebuilds widgets.
-        // Doing this 10hz (GPS rate) might be okay, but let's be careful.
-        // Let's settle for updating it throttled, or just relying on the fact that isConnected is true.
-        // User asked: "connection active when state.isconnected and have a stream data"
-        // I will update it.
-
-        final now = DateTime.now();
-        if (state.lastDataReceived == null ||
-            now.difference(state.lastDataReceived!).inMilliseconds > 500) {
-          state = state.copyWith(lastDataReceived: now);
-        }
-
         final packet = framed.toList();
 
         // Basic validation (optional CRC check here)
@@ -199,9 +209,11 @@ class ComService extends Notifier<UsbState> {
       },
       onError: (e) {
         debugPrint('Transaction stream error: $e');
+        disconnect();
       },
       onDone: () {
         debugPrint('Transaction stream done');
+        disconnect();
       },
     );
   }

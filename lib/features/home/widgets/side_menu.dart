@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'profile_widget.dart';
 import '../../../core/coms/com_service.dart';
 import '../../../core/state/auth_state.dart';
 
@@ -94,52 +93,17 @@ class SideMenu extends ConsumerWidget {
                   label: 'Setup',
                   isSelected: selectedIndex == 4,
                 ),
-                // Dark Mode Toggle (Placeholder)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.dark_mode_outlined,
-                        color: Color(0xFFB0BEC5), // Text Grey
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          'Dark Mode',
-                          style: TextStyle(
-                            color: Color(0xFFB0BEC5), // Text Grey
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      Switch(
-                        value:
-                            true, // Switched to true since we are in dark mode
-                        onChanged: (val) {},
-                        activeTrackColor: const Color(0xFF2ECC71),
-                        activeColor: Colors.black,
-                      ),
-                    ],
-                  ),
-                ),
-
                 const SizedBox(height: 24),
-                _buildSectionHeader('Status'),
+                // _buildSectionHeader('Status'),
                 _buildSystemStatus(ref),
               ],
             ),
           ),
 
           // Real-time Date & Time
+          // const _DateTimeWidget(),
           const _DateTimeWidget(),
-
-          const Divider(color: Color(0xFF1E3A2A)),
-          const ProfileWidget(),
+          const SizedBox(height: 16),
         ],
       ),
     );
@@ -248,87 +212,87 @@ class SideMenu extends ConsumerWidget {
       child: Column(
         children: [
           // USB Status
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isUsbActive
-                  ? const Color(0xFF1E3A2A) // Dark Green Hint
-                  : const Color(0xFF3F1D1D), // Dark Red Hint
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isUsbActive
-                    ? const Color(0xFF2ECC71).withOpacity(0.5)
-                    : const Color(0xFFEF4444).withOpacity(0.5),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.usb,
-                  size: 16,
-                  color: isUsbActive
-                      ? const Color(0xFF2ECC71)
-                      : const Color(0xFFEF4444),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    children: [
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'RS232 CONNECTION',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Color(0xFFB0BEC5),
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.1,
-                          ),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            isUsbActive ? 'Active' : 'Inactive',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: isUsbActive
-                                  ? const Color(0xFF2ECC71)
-                                  : const Color(0xFFEF4444),
-                            ),
-                          ),
-                          const Spacer(),
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: isUsbActive
-                                  ? const Color(0xFF2ECC71)
-                                  : const Color(0xFFEF4444),
-                              shape: BoxShape.circle,
-                              boxShadow: isUsbActive
-                                  ? [
-                                      BoxShadow(
-                                        color: const Color(
-                                          0xFF2ECC71,
-                                        ).withOpacity(0.6),
-                                        blurRadius: 4,
-                                        spreadRadius: 1,
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
+          // Container(
+          //   padding: const EdgeInsets.all(12),
+          //   decoration: BoxDecoration(
+          //     color: isUsbActive
+          //         ? const Color(0xFF1E3A2A) // Dark Green Hint
+          //         : const Color(0xFF3F1D1D), // Dark Red Hint
+          //     borderRadius: BorderRadius.circular(12),
+          //     border: Border.all(
+          //       color: isUsbActive
+          //           ? const Color(0xFF2ECC71).withOpacity(0.5)
+          //           : const Color(0xFFEF4444).withOpacity(0.5),
+          //     ),
+          //   ),
+          //   child: Row(
+          //     children: [
+          //       Icon(
+          //         Icons.usb,
+          //         size: 16,
+          //         color: isUsbActive
+          //             ? const Color(0xFF2ECC71)
+          //             : const Color(0xFFEF4444),
+          //       ),
+          //       const SizedBox(width: 8),
+          //       Expanded(
+          //         child: Column(
+          //           children: [
+          //             const Align(
+          //               alignment: Alignment.centerLeft,
+          //               child: Text(
+          //                 'RS232 CONNECTION',
+          //                 style: TextStyle(
+          //                   fontSize: 10,
+          //                   color: Color(0xFFB0BEC5),
+          //                   fontWeight: FontWeight.bold,
+          //                   letterSpacing: 1.1,
+          //                 ),
+          //               ),
+          //             ),
+          //             Row(
+          //               children: [
+          //                 Text(
+          //                   isUsbActive ? 'Active' : 'Inactive',
+          //                   style: TextStyle(
+          //                     fontSize: 12,
+          //                     fontWeight: FontWeight.bold,
+          //                     color: isUsbActive
+          //                         ? const Color(0xFF2ECC71)
+          //                         : const Color(0xFFEF4444),
+          //                   ),
+          //                 ),
+          //                 const Spacer(),
+          //                 Container(
+          //                   width: 8,
+          //                   height: 8,
+          //                   decoration: BoxDecoration(
+          //                     color: isUsbActive
+          //                         ? const Color(0xFF2ECC71)
+          //                         : const Color(0xFFEF4444),
+          //                     shape: BoxShape.circle,
+          //                     boxShadow: isUsbActive
+          //                         ? [
+          //                             BoxShadow(
+          //                               color: const Color(
+          //                                 0xFF2ECC71,
+          //                               ).withOpacity(0.6),
+          //                               blurRadius: 4,
+          //                               spreadRadius: 1,
+          //                             ),
+          //                           ]
+          //                         : null,
+          //                   ),
+          //                 ),
+          //               ],
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // const SizedBox(height: 12),
 
           // System Mode
           Container(

@@ -5,6 +5,7 @@ import '../../core/models/workfile.dart';
 import '../map/map_page.dart';
 import 'widgets/workfile_card.dart';
 import 'create_workfile_page.dart';
+import '../../core/widgets/global_app_bar_actions.dart';
 // import '../map/map_page.dart'; // Assuming MapPage exists
 
 class WorkfilePage extends ConsumerWidget {
@@ -19,17 +20,53 @@ class WorkfilePage extends ConsumerWidget {
       backgroundColor:
           Colors.transparent, // Inherit from parent or set explicitly
       appBar: AppBar(
-        title: const Text(
-          'WORKFILES',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFF0F1410),
+        foregroundColor: Colors.white,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Row(
+          children: [
+            // Green Icon Box
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E3A2A),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.folder,
+                color: Color(0xFF2ECC71),
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            // Titles
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'WORKFILES',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                    fontSize: 18,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'EGS WORKFILE V4.0.0',
+                  style: TextStyle(
+                    color: Color(0xFF2ECC71), // Primary Green
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: const [GlobalAppBarActions(), SizedBox(width: 16)],
       ),
       body: StreamBuilder<List<WorkFile>>(
         stream: workfilesStream,
