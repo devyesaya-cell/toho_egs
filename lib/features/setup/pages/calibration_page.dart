@@ -184,7 +184,7 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  isCalibActive ? 'Stream Active' : 'Stream Inactive',
+                  isCalibActive ? 'Config Active' : 'Config Inactive',
                   style: TextStyle(
                     color: isCalibActive ? Colors.greenAccent : Colors.red,
                     fontSize: 12,

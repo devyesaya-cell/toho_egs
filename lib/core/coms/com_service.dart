@@ -10,6 +10,7 @@ import '../models/base_status.dart';
 import '../models/calibration_data.dart';
 import '../models/error_alert.dart';
 import '../models/gps_loc.dart';
+import '../models/radio_config.dart';
 import '../utils/parsing.dart';
 
 // --- State Class ---
@@ -52,6 +53,8 @@ class ComService extends Notifier<UsbState> {
       StreamController<ErrorAlert>.broadcast();
   final StreamController<CalibrationData> _calibController =
       StreamController<CalibrationData>.broadcast();
+  final StreamController<RadioConfig> _radioController =
+      StreamController<RadioConfig>.broadcast();
 
   // USB Transaction
   Transaction<Uint8List>? _txn;
@@ -85,6 +88,7 @@ class ComService extends Notifier<UsbState> {
   Stream<Basestatus> get bsStream => _bsController.stream;
   Stream<ErrorAlert> get errorStream => _errorController.stream;
   Stream<CalibrationData> get calibStream => _calibController.stream;
+  Stream<RadioConfig> get radioStream => _radioController.stream;
 
   // --- Device Management ---
 
@@ -205,6 +209,14 @@ class ComService extends Notifier<UsbState> {
           } catch (e) {
             debugPrint('Error parsing CalibrationData: $e');
           }
+        } else if (opcode == 0x86) {
+          // Radio Config
+          try {
+            final config = _parseRadioConfig(packet);
+            _radioController.add(config);
+          } catch (e) {
+            debugPrint('Error parsing RadioConfig: $e');
+          }
         }
       },
       onError: (e) {
@@ -300,32 +312,52 @@ class ComService extends Notifier<UsbState> {
 
   CalibrationData _parseCalibrationData(List<int> socketData) {
     return CalibrationData(
-      pitch: Parsing.parseFromFloat_32(socketData.sublist(7, 11)),
-      roll: Parsing.parseFromFloat_32(socketData.sublist(11, 15)),
-      boomTilt: Parsing.parseFromFloat_32(socketData.sublist(15, 19)),
-      stickTilt: Parsing.parseFromFloat_32(socketData.sublist(19, 23)),
-      bucketTilt: Parsing.parseFromFloat_32(socketData.sublist(23, 27)),
-      iLinkTilt: Parsing.parseFromFloat_32(socketData.sublist(27, 31)),
-      bucketLayTilt: Parsing.parseFromFloat_32(socketData.sublist(31, 35)),
-      boomLenght: Parsing.parseFromUint_16(socketData.sublist(35, 37)),
-      stickLenght: Parsing.parseFromUint_16(socketData.sublist(37, 39)),
-      bucketLenght: Parsing.parseFromUint_16(socketData.sublist(39, 41)),
-      bucketWidth: Parsing.parseFromUint_16(socketData.sublist(43, 45)),
-      iLink: Parsing.parseFromUint_16(socketData.sublist(47, 49)),
-      hLink: Parsing.parseFromUint_16(socketData.sublist(49, 51)),
-      bpd: Parsing.parseFromUint_16(socketData.sublist(51, 53)),
-      spd: Parsing.parseFromUint_16(socketData.sublist(53, 55)),
-      boomBaseHeight: Parsing.parseFromUint_16(socketData.sublist(55, 57)),
-      bcx: Parsing.parseFromINT_16(socketData.sublist(57, 59)),
-      bcy: Parsing.parseFromINT_16(socketData.sublist(59, 61)),
-      acx: Parsing.parseFromINT_16(socketData.sublist(61, 63)),
-      acy: Parsing.parseFromINT_16(socketData.sublist(63, 65)),
-      antHeight: Parsing.parseFromUint_16(socketData.sublist(65, 67)),
-      antPole: Parsing.parseFromUint_16(socketData.sublist(67, 69)),
-      heading: Parsing.parseFromFloat_32(socketData.sublist(77, 81)),
-      akurasi1: Parsing.parseFromUint_16(socketData.sublist(81, 83)),
-      akurasi2: Parsing.parseFromUint_16(socketData.sublist(85, 87)),
-      calStatus: socketData[89],
+      // Packet ID is at 6-9 (4 bytes, uint32_t) - not in model, ignored
+      pitch: Parsing.parseFromFloat_32(socketData.sublist(10, 14)),
+      roll: Parsing.parseFromFloat_32(socketData.sublist(14, 18)),
+      boomTilt: Parsing.parseFromFloat_32(socketData.sublist(18, 22)),
+      stickTilt: Parsing.parseFromFloat_32(socketData.sublist(22, 26)),
+      bucketTilt: Parsing.parseFromFloat_32(socketData.sublist(26, 30)),
+      iLinkTilt: Parsing.parseFromFloat_32(socketData.sublist(30, 34)),
+      bucketLayTilt: Parsing.parseFromFloat_32(
+        socketData.sublist(34, 38),
+      ), // "Bucket Back Tilt" in spreadsheet?
+      boomLenght: Parsing.parseFromUint_16(socketData.sublist(38, 40)),
+      stickLenght: Parsing.parseFromUint_16(socketData.sublist(40, 42)),
+      bucketLenght: Parsing.parseFromUint_16(socketData.sublist(42, 44)),
+      boomBaseHeight: Parsing.parseFromUint_16(
+        socketData.sublist(44, 46),
+      ), // "Bucket Base length" in spreadsheet
+      bucketWidth: Parsing.parseFromUint_16(socketData.sublist(46, 48)),
+      // BTW is at 48-49 - not explicitly in model, skipped or mapped differently by user before?
+      iLink: Parsing.parseFromUint_16(socketData.sublist(50, 52)),
+      hLink: Parsing.parseFromUint_16(socketData.sublist(52, 54)),
+      bpd: Parsing.parseFromUint_16(socketData.sublist(54, 56)),
+      spd: Parsing.parseFromUint_16(socketData.sublist(56, 58)),
+      // BPH is at 58-59 - previously mapped to boomBaseHeight which was at 55-57. I'll stick to model mapping.
+      bcx: Parsing.parseFromINT_16(socketData.sublist(60, 62)),
+      bcy: Parsing.parseFromINT_16(socketData.sublist(62, 64)),
+      acx: Parsing.parseFromINT_16(socketData.sublist(64, 66)),
+      acy: Parsing.parseFromINT_16(socketData.sublist(66, 68)),
+      antHeight: Parsing.parseFromUint_16(socketData.sublist(68, 70)),
+      antPole: Parsing.parseFromUint_16(socketData.sublist(70, 72)),
+      // Antennas Dist 72-73, Antenna 2 Offset 74-75, OGL 76-79
+      heading: Parsing.parseFromFloat_32(socketData.sublist(80, 84)),
+      akurasi1: Parsing.parseFromUint_16(socketData.sublist(84, 86)), // H Acc 1
+      akurasi2: Parsing.parseFromUint_16(socketData.sublist(88, 90)), // H Acc 2
+      // V Acc 1 (86-87), V Acc 2 (90-91) exist but aren't in CalibrationData model currently.
+      calStatus: socketData[92],
+    );
+  }
+
+  RadioConfig _parseRadioConfig(List<int> packet) {
+    return RadioConfig(
+      channel: packet[7],
+      key: Parsing.parseFromUint_16(packet.sublist(8, 10)),
+      address: Parsing.parseFromUint_16(packet.sublist(10, 12)),
+      netID: packet[12],
+      airDataRate: packet[13],
+      lastUpdate: DateTime.now().millisecondsSinceEpoch,
     );
   }
 
@@ -419,18 +451,27 @@ final comServiceProvider = NotifierProvider<ComService, UsbState>(
   ComService.new,
 );
 
-final gpsStreamProvider = StreamProvider<GPSLoc>((ref) {
+final gpsStreamProvider = StreamProvider.autoDispose<GPSLoc>((ref) {
+  ref.keepAlive();
   return ref.watch(comServiceProvider.notifier).gpsStream;
 });
 
-final bsStreamProvider = StreamProvider<Basestatus>((ref) {
+final bsStreamProvider = StreamProvider.autoDispose<Basestatus>((ref) {
+  ref.keepAlive();
   return ref.watch(comServiceProvider.notifier).bsStream;
 });
 
-final errorStreamProvider = StreamProvider<ErrorAlert>((ref) {
+final errorStreamProvider = StreamProvider.autoDispose<ErrorAlert>((ref) {
+  ref.keepAlive();
   return ref.watch(comServiceProvider.notifier).errorStream;
 });
 
-final calibStreamProvider = StreamProvider<CalibrationData>((ref) {
+final calibStreamProvider = StreamProvider.autoDispose<CalibrationData>((ref) {
+  ref.keepAlive();
   return ref.watch(comServiceProvider.notifier).calibStream;
+});
+
+final radioStreamProvider = StreamProvider.autoDispose<RadioConfig>((ref) {
+  ref.keepAlive();
+  return ref.watch(comServiceProvider.notifier).radioStream;
 });

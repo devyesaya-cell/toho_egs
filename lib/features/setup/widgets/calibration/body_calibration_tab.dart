@@ -253,324 +253,325 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
   @override
   Widget build(BuildContext context) {
     final calibAsync = ref.watch(calibStreamProvider);
-    final data = calibAsync.asData?.value;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // LEFT COLUMN (3/4 of width)
-          Expanded(
-            flex: 3,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // TOP LEFT (3/4 of height of left column) - IMAGE
-                Expanded(
-                  flex: 3,
-                  child: Container(
-                    // color: Colors.transparent,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E293B),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF1E3A2A)),
-                    ),
-                    padding: const EdgeInsets.all(16.0),
-                    child: data == null
-                        ? const Center(
-                            child: CircularProgressIndicator(
-                              color: Color(0xFF2ECC71),
-                            ),
-                          )
-                        : Image.asset(
-                            'images/calibrate_1.png',
-                            fit: BoxFit.contain,
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // BOTTOM LEFT (1/4 of height of left column) - CONTROLS
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E293B),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF1E3A2A)),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24.0,
-                      vertical: 16.0,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // Pitch Control
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
-                                  'PITCH: ',
-                                  style: TextStyle(
-                                    color: Colors.white54,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  data != null
-                                      ? '${(data.pitch > 360 ? 360.0 : data.pitch).toStringAsFixed(2)}°'
-                                      : '0.00°',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            ElevatedButton(
-                              onPressed: () => _showCalibrateDialog(
-                                context,
-                                'Pitch',
-                                0, // Mode 0 according to user provided values
-                                data?.pitch ?? 0.0,
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2ECC71),
-                                foregroundColor: Colors.white,
-                              ),
-                              child: const Text('Calibrate'),
-                            ),
-                          ],
-                        ),
-                        // Roll Control
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
-                                  'ROLL: ',
-                                  style: TextStyle(
-                                    color: Colors.white54,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  data != null
-                                      ? '${(data.roll > 360 ? 360.0 : data.roll).toStringAsFixed(2)}°'
-                                      : '0.00°',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            ElevatedButton(
-                              onPressed: () => _showCalibrateDialog(
-                                context,
-                                'Roll',
-                                1, // Mode 1 according to user provided values
-                                data?.roll ?? 0.0,
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2ECC71),
-                                foregroundColor: Colors.white,
-                              ),
-                              child: const Text('Calibrate'),
-                            ),
-                          ],
-                        ),
-                        // Vertical Divider
-                        Container(
-                          width: 1,
-                          height: double.infinity,
-                          color: Colors.white24,
-                        ),
-                        // Accelero Controls
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'ACCELERO CALIBRATION',
-                              style: TextStyle(
-                                color: Colors.white54,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: () async {
-                                    final port = ref
-                                        .read(comServiceProvider)
-                                        .port;
-                                    if (port != null) {
-                                      final command = _presenter
-                                          .calibrateCommand(
-                                            value1: 0.0,
-                                            mode: 20, // Mode 20 for Start Body
-                                          );
-                                      await port.write(
-                                        Uint8List.fromList(command),
-                                      );
-                                      if (context.mounted) {
-                                        NotificationService.showCommandNotification(
-                                          context,
-                                          title: 'ACCELERO',
-                                          message: 'Calibration Started',
-                                          modeStr: 'START',
-                                          icon: Icons.play_arrow,
-                                          iconColor: const Color(0xFF2ECC71),
-                                          headerColor: const Color(0xFF1E3A2A),
-                                        );
-                                      }
-                                    }
-                                  },
-                                  icon: const Icon(Icons.play_arrow),
-                                  label: const Text('START'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF2ECC71),
-                                    foregroundColor: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                ElevatedButton.icon(
-                                  onPressed: () async {
-                                    final port = ref
-                                        .read(comServiceProvider)
-                                        .port;
-                                    if (port != null) {
-                                      final command = _presenter
-                                          .calibrateCommand(
-                                            value1: 0.0,
-                                            mode: 40, // Mode 40 for Stop Body
-                                          );
-                                      await port.write(
-                                        Uint8List.fromList(command),
-                                      );
-                                      if (context.mounted) {
-                                        NotificationService.showCommandNotification(
-                                          context,
-                                          title: 'ACCELERO',
-                                          message: 'Calibration Stopped',
-                                          modeStr: 'STOP',
-                                          icon: Icons.stop,
-                                          iconColor: const Color(0xFFEF4444),
-                                          headerColor: const Color(0xFF3F1D1D),
-                                        );
-                                      }
-                                    }
-                                  },
-                                  icon: const Icon(Icons.stop),
-                                  label: const Text('STOP'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFEF4444),
-                                    foregroundColor: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          // RIGHT COLUMN (1/4 of width)
-          Expanded(
-            flex: 1,
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF1E3A2A)),
-              ),
-              padding: const EdgeInsets.all(12.0),
+      child: calibAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: Color(0xFF2ECC71)),
+        ),
+        error: (err, stack) => Center(
+          child: Text('Error: $err', style: const TextStyle(color: Colors.red)),
+        ),
+        data: (data) => Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // LEFT COLUMN (3/4 of width)
+            Expanded(
+              flex: 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      'PARAMETERS',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                        fontSize: 16,
+                  // TOP LEFT (3/4 of height of left column) - IMAGE
+                  Expanded(
+                    flex: 3,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E293B),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFF1E3A2A)),
                       ),
-                      textAlign: TextAlign.center,
+                      padding: const EdgeInsets.all(16.0),
+                      child: Image.asset(
+                        'images/calibrate_1.png',
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
-                  const Divider(color: Color(0xFF1E3A2A)),
+                  const SizedBox(height: 16),
+                  // BOTTOM LEFT (1/4 of height of left column) - CONTROLS
                   Expanded(
-                    child: ListView(
-                      children: [
-                        _buildParamCard(
-                          context,
-                          'Antenna Height',
-                          'Ant Height',
-                          15, // Type 15
-                          data?.antHeight ?? 0,
-                        ),
-                        _buildParamCard(
-                          context,
-                          'Boom Center X',
-                          'BCX',
-                          11, // Type 11
-                          data?.bcx ?? 0,
-                        ),
-                        _buildParamCard(
-                          context,
-                          'Boom Center Y',
-                          'BCY',
-                          12, // Type 12
-                          data?.bcy ?? 0,
-                        ),
-                        _buildParamCard(
-                          context,
-                          'Axis Center X',
-                          'ACX',
-                          13, // Type 13
-                          data?.acx ?? 0,
-                        ),
-                        _buildParamCard(
-                          context,
-                          'Axis Center Y',
-                          'ACY',
-                          14, // Type 14
-                          data?.acy ?? 0,
-                        ),
-                        _buildParamCard(
-                          context,
-                          'Antenna Pole',
-                          'Ant Pole Height',
-                          16, // Type 16
-                          data?.antPole ?? 0,
-                        ),
-                      ],
+                    flex: 1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E293B),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFF1E3A2A)),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                        vertical: 16.0,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // Pitch Control
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    'PITCH: ',
+                                    style: TextStyle(
+                                      color: Colors.white54,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${(data.pitch > 360 ? 360.0 : data.pitch).toStringAsFixed(2)}°',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              ElevatedButton(
+                                onPressed: () => _showCalibrateDialog(
+                                  context,
+                                  'Pitch',
+                                  0, // Mode 0 according to user provided values
+                                  data.pitch,
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF2ECC71),
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text('Calibrate'),
+                              ),
+                            ],
+                          ),
+                          // Roll Control
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    'ROLL: ',
+                                    style: TextStyle(
+                                      color: Colors.white54,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${(data.roll > 360 ? 360.0 : data.roll).toStringAsFixed(2)}°',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              ElevatedButton(
+                                onPressed: () => _showCalibrateDialog(
+                                  context,
+                                  'Roll',
+                                  1, // Mode 1 according to user provided values
+                                  data.roll,
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF2ECC71),
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text('Calibrate'),
+                              ),
+                            ],
+                          ),
+                          // Vertical Divider
+                          Container(
+                            width: 1,
+                            height: double.infinity,
+                            color: Colors.white24,
+                          ),
+                          // Accelero Controls
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'ACCELERO CALIBRATION',
+                                style: TextStyle(
+                                  color: Colors.white54,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  ElevatedButton.icon(
+                                    onPressed: () async {
+                                      final port = ref
+                                          .read(comServiceProvider)
+                                          .port;
+                                      if (port != null) {
+                                        final command = _presenter
+                                            .calibrateCommand(
+                                              value1: 0.0,
+                                              mode:
+                                                  20, // Mode 20 for Start Body
+                                            );
+                                        await port.write(
+                                          Uint8List.fromList(command),
+                                        );
+                                        if (context.mounted) {
+                                          NotificationService.showCommandNotification(
+                                            context,
+                                            title: 'ACCELERO',
+                                            message: 'Calibration Started',
+                                            modeStr: 'START',
+                                            icon: Icons.play_arrow,
+                                            iconColor: const Color(0xFF2ECC71),
+                                            headerColor: const Color(
+                                              0xFF1E3A2A,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.play_arrow),
+                                    label: const Text('START'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF2ECC71),
+                                      foregroundColor: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ElevatedButton.icon(
+                                    onPressed: () async {
+                                      final port = ref
+                                          .read(comServiceProvider)
+                                          .port;
+                                      if (port != null) {
+                                        final command = _presenter
+                                            .calibrateCommand(
+                                              value1: 0.0,
+                                              mode: 40, // Mode 40 for Stop Body
+                                            );
+                                        await port.write(
+                                          Uint8List.fromList(command),
+                                        );
+                                        if (context.mounted) {
+                                          NotificationService.showCommandNotification(
+                                            context,
+                                            title: 'ACCELERO',
+                                            message: 'Calibration Stopped',
+                                            modeStr: 'STOP',
+                                            icon: Icons.stop,
+                                            iconColor: const Color(0xFFEF4444),
+                                            headerColor: const Color(
+                                              0xFF3F1D1D,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.stop),
+                                    label: const Text('STOP'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFFEF4444),
+                                      foregroundColor: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: 16),
+            // RIGHT COLUMN (1/4 of width)
+            Expanded(
+              flex: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFF1E3A2A)),
+                ),
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        'PARAMETERS',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const Divider(color: Color(0xFF1E3A2A)),
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          _buildParamCard(
+                            context,
+                            'Antenna Height',
+                            'Ant Height',
+                            15, // Type 15
+                            data.antHeight,
+                          ),
+                          _buildParamCard(
+                            context,
+                            'Boom Center X',
+                            'BCX',
+                            11, // Type 11
+                            data.bcx,
+                          ),
+                          _buildParamCard(
+                            context,
+                            'Boom Center Y',
+                            'BCY',
+                            12, // Type 12
+                            data.bcy,
+                          ),
+                          _buildParamCard(
+                            context,
+                            'Axis Center X',
+                            'ACX',
+                            13, // Type 13
+                            data.acx,
+                          ),
+                          _buildParamCard(
+                            context,
+                            'Axis Center Y',
+                            'ACY',
+                            14, // Type 14
+                            data.acy,
+                          ),
+                          _buildParamCard(
+                            context,
+                            'Antenna Pole',
+                            'Ant Pole Height',
+                            16, // Type 16
+                            data.antPole,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
