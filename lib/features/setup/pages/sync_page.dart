@@ -15,13 +15,12 @@ class _SyncPageState extends ConsumerState<SyncPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(syncPresenterProvider.notifier).startDiscovery();
+      ref.read(syncPresenterProvider.notifier).startSync();
     });
   }
 
   @override
   void deactivate() {
-    ref.read(syncPresenterProvider.notifier).stopSync();
     super.deactivate();
   }
 

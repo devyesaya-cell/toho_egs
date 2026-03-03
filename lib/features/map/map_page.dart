@@ -147,7 +147,9 @@ class _MapPageState extends ConsumerState<MapPage> {
                     icon: mapState.isWorkMode ? Icons.stop : Icons.play_arrow,
                     color: mapState.isWorkMode ? Colors.red : Colors.green,
                     onPressed: () {
-                      ref.read(mapPresenterProvider.notifier).toggleWorkMode();
+                      ref
+                          .read(mapPresenterProvider.notifier)
+                          .toggleWorkMode(_controller);
                     },
                   ),
                   const SizedBox(height: 10),

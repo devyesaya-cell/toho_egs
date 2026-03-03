@@ -123,9 +123,10 @@ class DashboardPage extends ConsumerWidget {
                           Expanded(
                             child: SummaryCard(
                               title: 'Productivity',
-                              value: '${data.productivity}',
+                              value: data.productivity.toStringAsFixed(0),
                               subUnit: 'spots/hr',
-                              subValue: '${data.productivitySpotsHr} spots/Hr',
+                              subValue:
+                                  '${data.productivitySpotsHr.toStringAsFixed(0)} spots/Hr',
                               percent: data.percentageProductivity,
                               progressColor: const Color(0xFF3B82F6), // Blue
                             ),

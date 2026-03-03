@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:usb_serial/transaction.dart';
 import 'package:usb_serial/usb_serial.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../models/base_status.dart';
 import '../models/calibration_data.dart';
@@ -20,11 +23,19 @@ class UsbState {
   final List<UsbDevice> devices;
   final DateTime? lastDataReceived; // New field
 
+  // WebSocket / Sync state properties
+  final bool isWsConnected;
+  final String? wsAddress;
+  final dynamic wsData;
+
   UsbState({
     this.isConnected = false,
     this.port,
     this.devices = const [],
     this.lastDataReceived,
+    this.isWsConnected = false,
+    this.wsAddress,
+    this.wsData,
   });
 
   UsbState copyWith({
@@ -32,12 +43,18 @@ class UsbState {
     UsbPort? port,
     List<UsbDevice>? devices,
     DateTime? lastDataReceived,
+    bool? isWsConnected,
+    String? wsAddress,
+    dynamic wsData,
   }) {
     return UsbState(
       isConnected: isConnected ?? this.isConnected,
       port: port ?? this.port,
       devices: devices ?? this.devices,
       lastDataReceived: lastDataReceived ?? this.lastDataReceived,
+      isWsConnected: isWsConnected ?? this.isWsConnected,
+      wsAddress: wsAddress ?? this.wsAddress,
+      wsData: wsData ?? this.wsData,
     );
   }
 }
@@ -54,6 +71,10 @@ class ComService extends Notifier<UsbState> {
   Transaction<Uint8List>? _txn;
   StreamSubscription<Uint8List>? _txnSub;
   StreamSubscription<UsbEvent>? _usbEventSub;
+
+  // WebSocket Connection
+  WebSocketChannel? _wsChannel;
+  StreamSubscription? _wsSubscription;
 
   @override
   UsbState build() {
@@ -72,6 +93,7 @@ class ComService extends Notifier<UsbState> {
 
     ref.onDispose(() {
       _usbEventSub?.cancel();
+      disconnectWebSocket();
     });
 
     return UsbState();
@@ -80,6 +102,97 @@ class ComService extends Notifier<UsbState> {
   // Getters for Streams
   Stream<GPSLoc> get gpsStream => _gpsController.stream;
   Stream<CalibrationData> get calibStream => _calibController.stream;
+
+  // --- WebSocket Management ---
+
+  /// Attempts to find the host's IP and establish a WebSocket connection.
+  /// Typically, the Rover connects to the Basestation's hotspot, meaning the
+  /// Basestation is the Gateway/Router IP for the Rover.
+  Future<bool> connectToHostWebSocket({int port = 8080}) async {
+    try {
+      final info = NetworkInfo();
+      // On Android connected to a hotspot, the Gateway IP is usually the Hotspot owner
+      // String? gatewayIp = await info.getWifiGatewayIP();
+      String? gatewayIp = "192.168.100.117";
+
+      if (gatewayIp == null || gatewayIp.isEmpty) {
+        // Fallback or explicit IP if needed, modify here if you have a rigid IP structure
+        // Often hotspot gateway defaults to 192.168.43.1 on older Android, 192.168.x.x on newer
+        debugPrint(
+          "Failed to get Gateway IP from NetworkInfo. Reverting to manual entry or aborting.",
+        );
+        return false;
+      }
+
+      final wsUrl = Uri.parse('ws://$gatewayIp:$port');
+      debugPrint("Attempting WebSocket connection to: $wsUrl");
+
+      _wsChannel = WebSocketChannel.connect(wsUrl);
+
+      // Successfully constructed the channel (Actual connection state requires awaiting `.ready` or ping response,
+      // but creating it without exception means we can start listening)
+      await _wsChannel!.ready;
+
+      state = state.copyWith(isWsConnected: true, wsAddress: wsUrl.toString());
+
+      _wsSubscription = _wsChannel!.stream.listen(
+        (data) {
+          debugPrint("WebSocket Data Received: $data");
+          try {
+            final decoded = jsonDecode(data);
+            state = state.copyWith(wsData: decoded);
+          } catch (e) {
+            state = state.copyWith(wsData: data); // Raw string fallback
+          }
+        },
+        onError: (error) {
+          debugPrint("WebSocket Error: $error");
+          _handleWsDisconnect();
+        },
+        onDone: () {
+          debugPrint("WebSocket Closed");
+          _handleWsDisconnect();
+        },
+      );
+
+      return true;
+    } catch (e) {
+      debugPrint("WebSocket Connection Failed: $e");
+      _handleWsDisconnect();
+      return false;
+    }
+  }
+
+  /// Sends a dynamically serialized Map over the active WebSocket channel.
+  void sendDataToHost(Map<String, dynamic> data) {
+    if (_wsChannel != null && state.isWsConnected) {
+      try {
+        final jsonString = jsonEncode(data);
+        _wsChannel!.sink.add(jsonString);
+        debugPrint("WebSocket Payload Sent: $jsonString");
+      } catch (e) {
+        debugPrint("WebSocket Send Error: $e");
+      }
+    } else {
+      debugPrint(
+        "Attempted to send WebSocket data but connection is not active.",
+      );
+    }
+  }
+
+  void _handleWsDisconnect() {
+    _wsSubscription?.cancel();
+    _wsSubscription = null;
+    _wsChannel = null;
+    state = state.copyWith(isWsConnected: false, wsAddress: null, wsData: null);
+  }
+
+  void disconnectWebSocket() {
+    if (_wsChannel != null) {
+      _wsChannel!.sink.close();
+      _handleWsDisconnect();
+    }
+  }
 
   // --- Device Management ---
 

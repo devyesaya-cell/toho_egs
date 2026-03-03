@@ -131,6 +131,8 @@ class MapState {
 class MapPresenter extends Notifier<MapState> {
   StreamSubscription<GPSLoc>? _gpsSub;
   Timer? _paramTimer;
+  Timer? _mockSpotTimer;
+  int _mockSpotIndex = 0;
 
   @override
   MapState build() {
@@ -144,6 +146,7 @@ class MapPresenter extends Notifier<MapState> {
     ref.onDispose(() {
       _gpsSub?.cancel();
       _paramTimer?.cancel();
+      _mockSpotTimer?.cancel();
     });
 
     return MapState();
@@ -167,8 +170,58 @@ class MapPresenter extends Notifier<MapState> {
     }
   }
 
-  void toggleWorkMode() {
-    state = state.copyWith(isWorkMode: !state.isWorkMode);
+  void toggleWorkMode(maplibre.MapController? controller) {
+    final newMode = !state.isWorkMode;
+    state = state.copyWith(isWorkMode: newMode);
+
+    if (newMode) {
+      _startMocking(controller);
+    } else {
+      _stopMocking();
+    }
+  }
+
+  void _startMocking(maplibre.MapController? controller) {
+    if (_mockSpotTimer != null && _mockSpotTimer!.isActive) return;
+
+    _mockSpotTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+      try {
+        final isar = DatabaseService().isar;
+        final spots = await isar.workingSpots.where().findAll();
+
+        if (spots.isEmpty) return;
+
+        // Loop back to 0 if out of bounds
+        if (_mockSpotIndex >= spots.length) {
+          _mockSpotIndex = 0;
+        }
+
+        final targetSpot = spots[_mockSpotIndex];
+
+        // Update fields: lastUpdate -> date now, status -> 1, akurasi -> random 4-10
+        targetSpot.lastUpdate = DateTime.now().millisecondsSinceEpoch;
+        targetSpot.status = 1;
+        targetSpot.akurasi = 4.0 + (math.Random().nextDouble() * 6.0);
+
+        await isar.writeTxn(() async {
+          await isar.workingSpots.put(targetSpot);
+        });
+
+        _mockSpotIndex++;
+
+        // Refresh UI points on map
+        if (controller != null) {
+          loadSpots(controller);
+        }
+      } catch (e) {
+        print("Mock Spot Timer Error: \$e");
+      }
+    });
+  }
+
+  void _stopMocking() {
+    _mockSpotTimer?.cancel();
+    _mockSpotTimer = null;
   }
 
   void _subscribe() {
