@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'pages/management_page.dart';
 import 'pages/calibration_page.dart';
-import '../sync/sync_page.dart';
-import '../radio/radio_page.dart';
-import '../debug/debug_page.dart';
+import 'pages/sync_page.dart';
+import 'pages/radio_page.dart';
+import 'pages/debug_page.dart';
 import 'pages/about_us_page.dart';
 
 class SetupPage extends StatelessWidget {

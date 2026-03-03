@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/coms/com_service.dart';
-import '../../core/models/radio_config.dart';
-import '../../core/widgets/global_app_bar_actions.dart';
-import 'presenter/radio_presenter.dart';
+import '../../../core/coms/com_service.dart';
+import '../../../core/models/radio_config.dart';
+import '../../../core/widgets/global_app_bar_actions.dart';
+import '../presenter/radio_presenter.dart';
 
 class RadioPage extends ConsumerStatefulWidget {
   const RadioPage({super.key});
@@ -29,7 +29,7 @@ class _RadioPageState extends ConsumerState<RadioPage> {
 
   @override
   Widget build(BuildContext context) {
-    final radioAsync = ref.watch(radioStreamProvider);
+    final radioData = ref.watch(radioProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F1410),
@@ -107,8 +107,7 @@ class _RadioPageState extends ConsumerState<RadioPage> {
                     width: double.infinity,
                     height: 64,
                     child: ElevatedButton.icon(
-                      onPressed: () =>
-                          _showSaveDialog(context, radioAsync.value),
+                      onPressed: () => _showSaveDialog(context, radioData),
                       icon: const Icon(Icons.save, size: 28),
                       label: const Text(
                         'SAVE CONFIG',
@@ -193,7 +192,7 @@ class _RadioPageState extends ConsumerState<RadioPage> {
                         tooltip: 'Request config from device',
                       ),
                       const SizedBox(width: 8),
-                      if (radioAsync.hasValue)
+                      if (radioData != null)
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
@@ -220,72 +219,63 @@ class _RadioPageState extends ConsumerState<RadioPage> {
                     thickness: 1,
                   ),
                   Expanded(
-                    child: radioAsync.when(
-                      data: (config) {
-                        return SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              _buildConfigItem(
-                                'Channel',
-                                config.channel.toString(),
-                                Icons.tune,
-                              ),
-                              _buildConfigItem(
-                                'Key',
-                                '0x${config.key.toRadixString(16).padLeft(4, '0').toUpperCase()}',
-                                Icons.vpn_key,
-                              ),
-                              _buildConfigItem(
-                                'Address',
-                                '0x${config.address.toRadixString(16).padLeft(4, '0').toUpperCase()}',
-                                Icons.location_on,
-                              ),
-                              _buildConfigItem(
-                                'Net ID',
-                                config.netID.toString(),
-                                Icons.router,
-                              ),
-                              _buildConfigItem(
-                                'Air Data Rate',
-                                config.airDataRate.toString(),
-                                Icons.speed,
-                              ),
-                              _buildConfigItem(
-                                'Last Update',
-                                _formatTime(config.lastUpdate),
-                                Icons.access_time,
-                              ),
-                            ],
+                    child: radioData != null
+                        ? SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                _buildConfigItem(
+                                  'Channel',
+                                  radioData.channel.toString(),
+                                  Icons.tune,
+                                ),
+                                _buildConfigItem(
+                                  'Key',
+                                  '0x${radioData.key.toRadixString(16).padLeft(4, '0').toUpperCase()}',
+                                  Icons.vpn_key,
+                                ),
+                                _buildConfigItem(
+                                  'Address',
+                                  '0x${radioData.address.toRadixString(16).padLeft(4, '0').toUpperCase()}',
+                                  Icons.location_on,
+                                ),
+                                _buildConfigItem(
+                                  'Net ID',
+                                  radioData.netID.toString(),
+                                  Icons.router,
+                                ),
+                                _buildConfigItem(
+                                  'Air Data Rate',
+                                  radioData.airDataRate.toString(),
+                                  Icons.speed,
+                                ),
+                                _buildConfigItem(
+                                  'Last Update',
+                                  _formatTime(radioData.lastUpdate),
+                                  Icons.access_time,
+                                ),
+                              ],
+                            ),
+                          )
+                        : const Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.wifi_off,
+                                  size: 48,
+                                  color: Colors.white24,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Waiting for radio data stream...',
+                                  style: TextStyle(
+                                    color: Colors.white54,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        );
-                      },
-                      loading: () => const Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.wifi_off,
-                              size: 48,
-                              color: Colors.white24,
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              'Waiting for radio data stream...',
-                              style: TextStyle(
-                                color: Colors.white54,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      error: (err, stack) => Center(
-                        child: Text(
-                          'Error loading stream: $err',
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),

@@ -130,8 +130,6 @@ class MapState {
 // --- Presenter ---
 class MapPresenter extends Notifier<MapState> {
   StreamSubscription<GPSLoc>? _gpsSub;
-  StreamSubscription<Basestatus>? _bsSub;
-  StreamSubscription<ErrorAlert>? _errSub;
   Timer? _paramTimer;
 
   @override
@@ -145,8 +143,6 @@ class MapPresenter extends Notifier<MapState> {
 
     ref.onDispose(() {
       _gpsSub?.cancel();
-      _bsSub?.cancel();
-      _errSub?.cancel();
       _paramTimer?.cancel();
     });
 
@@ -253,22 +249,23 @@ class MapPresenter extends Notifier<MapState> {
       );
     });
 
-    // Base Status Stream
-    _bsSub = comService.bsStream.listen((bs) {
-      state = state.copyWith(
-        batteryVoltage: bs.batteryVoltage,
-        fullBase: bs,
-        lastDataTime:
-            DateTime.now(), // Also count base messages as data? Probably yes.
-      );
+    // Base Status
+    ref.listen<Basestatus?>(bsProvider, (previous, next) {
+      if (next != null) {
+        state = state.copyWith(
+          batteryVoltage: next.batteryVoltage,
+          fullBase: next,
+          lastDataTime: DateTime.now(),
+        );
+      }
     });
 
-    // Error Stream
-    _errSub = comService.errorStream.listen((err) {
-      if (state.lastError != err) {
-        NotificationService.showError('Error: ${err.message}');
+    // Error Alert
+    ref.listen<ErrorAlert?>(errorProvider, (previous, next) {
+      if (next != null && state.lastError != next) {
+        NotificationService.showError('Error: ${next.message}');
+        state = state.copyWith(lastError: next);
       }
-      state = state.copyWith(lastError: err);
     });
   }
 

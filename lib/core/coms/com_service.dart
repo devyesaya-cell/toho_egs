@@ -47,14 +47,8 @@ class ComService extends Notifier<UsbState> {
   // Stream Controllers
   final StreamController<GPSLoc> _gpsController =
       StreamController<GPSLoc>.broadcast();
-  final StreamController<Basestatus> _bsController =
-      StreamController<Basestatus>.broadcast();
-  final StreamController<ErrorAlert> _errorController =
-      StreamController<ErrorAlert>.broadcast();
   final StreamController<CalibrationData> _calibController =
       StreamController<CalibrationData>.broadcast();
-  final StreamController<RadioConfig> _radioController =
-      StreamController<RadioConfig>.broadcast();
 
   // USB Transaction
   Transaction<Uint8List>? _txn;
@@ -85,10 +79,7 @@ class ComService extends Notifier<UsbState> {
 
   // Getters for Streams
   Stream<GPSLoc> get gpsStream => _gpsController.stream;
-  Stream<Basestatus> get bsStream => _bsController.stream;
-  Stream<ErrorAlert> get errorStream => _errorController.stream;
   Stream<CalibrationData> get calibStream => _calibController.stream;
-  Stream<RadioConfig> get radioStream => _radioController.stream;
 
   // --- Device Management ---
 
@@ -189,7 +180,7 @@ class ComService extends Notifier<UsbState> {
           // Base Status
           try {
             final bs = _parseBasestatus(packet);
-            _bsController.add(bs);
+            ref.read(bsProvider.notifier).updateState(bs);
           } catch (e) {
             debugPrint('Error parsing BaseStatus: $e');
           }
@@ -197,7 +188,7 @@ class ComService extends Notifier<UsbState> {
           // Error Alert
           try {
             final error = _parseErrorAlert(packet);
-            _errorController.add(error);
+            ref.read(errorProvider.notifier).updateState(error);
           } catch (e) {
             debugPrint('Error parsing Alert: $e');
           }
@@ -213,7 +204,7 @@ class ComService extends Notifier<UsbState> {
           // Radio Config
           try {
             final config = _parseRadioConfig(packet);
-            _radioController.add(config);
+            ref.read(radioProvider.notifier).updateState(config);
           } catch (e) {
             debugPrint('Error parsing RadioConfig: $e');
           }
@@ -456,22 +447,35 @@ final gpsStreamProvider = StreamProvider.autoDispose<GPSLoc>((ref) {
   return ref.watch(comServiceProvider.notifier).gpsStream;
 });
 
-final bsStreamProvider = StreamProvider.autoDispose<Basestatus>((ref) {
-  ref.keepAlive();
-  return ref.watch(comServiceProvider.notifier).bsStream;
-});
+class BsNotifier extends Notifier<Basestatus?> {
+  @override
+  Basestatus? build() => null;
+  void updateState(Basestatus bs) => state = bs;
+}
 
-final errorStreamProvider = StreamProvider.autoDispose<ErrorAlert>((ref) {
-  ref.keepAlive();
-  return ref.watch(comServiceProvider.notifier).errorStream;
-});
+final bsProvider = NotifierProvider<BsNotifier, Basestatus?>(BsNotifier.new);
+
+class ErrorNotifier extends Notifier<ErrorAlert?> {
+  @override
+  ErrorAlert? build() => null;
+  void updateState(ErrorAlert err) => state = err;
+}
+
+final errorProvider = NotifierProvider<ErrorNotifier, ErrorAlert?>(
+  ErrorNotifier.new,
+);
+
+class RadioNotifier extends Notifier<RadioConfig?> {
+  @override
+  RadioConfig? build() => null;
+  void updateState(RadioConfig conf) => state = conf;
+}
+
+final radioProvider = NotifierProvider<RadioNotifier, RadioConfig?>(
+  RadioNotifier.new,
+);
 
 final calibStreamProvider = StreamProvider.autoDispose<CalibrationData>((ref) {
   ref.keepAlive();
   return ref.watch(comServiceProvider.notifier).calibStream;
-});
-
-final radioStreamProvider = StreamProvider.autoDispose<RadioConfig>((ref) {
-  ref.keepAlive();
-  return ref.watch(comServiceProvider.notifier).radioStream;
 });
