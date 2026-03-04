@@ -41,16 +41,23 @@ class MapInfoPanel extends ConsumerWidget {
           _buildDivider(),
 
           // 2. Progress Widget
-          // Tree Icon (Progress) | 0/0 / 0%
-          // Also Add Lat/Lng? User said "tambahkan lat/lng ambil dari nilai bucketLat and BucketLong"
-          // Maybe separate lines or compact? "0/0 | 0% \n Lat: ... Lng: ..."
-          _buildPanelItem(
-            context: context,
-            icon: Icons.forest_rounded,
-            label: '0/0 | 0%',
-            color: Colors.green,
-            width: 160,
-            onTap: () => _showProgressDetail(context),
+          Builder(
+            builder: (context) {
+              final done = mapState.spotDone;
+              final total = mapState.totalSpot;
+              final pct = total > 0
+                  ? (done / total * 100).toStringAsFixed(0)
+                  : '0';
+
+              return _buildPanelItem(
+                context: context,
+                icon: Icons.forest_rounded,
+                label: '$done/$total | $pct%',
+                color: Colors.green,
+                width: 160,
+                onTap: () => _showProgressDetail(context),
+              );
+            },
           ),
           _buildDivider(),
 

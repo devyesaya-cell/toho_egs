@@ -53,6 +53,81 @@ class AppRepository {
     }
   }
 
+  // --- Sync Data Queries ---
+  Future<Person?> getLoggedInPerson() async {
+    return await _isar.persons.filter().loginStateEqualTo('ON').findFirst();
+  }
+
+  Future<List<WorkingSpot>> getWorkingSpotsForSync(
+    String driverId,
+    DateTime currentTime,
+  ) async {
+    final hour = currentTime.hour;
+    DateTime startTime;
+    DateTime endTime;
+
+    if (hour >= 7 && hour < 19) {
+      // Shift 1: 07:00 to 19:00 today
+      startTime = DateTime(
+        currentTime.year,
+        currentTime.month,
+        currentTime.day,
+        7,
+        0,
+        0,
+      );
+      endTime = DateTime(
+        currentTime.year,
+        currentTime.month,
+        currentTime.day,
+        19,
+        0,
+        0,
+      );
+    } else if (hour < 7) {
+      // Shift 2 (Morning): 19:00 yesterday to 07:00 today
+      final yesterday = currentTime.subtract(const Duration(days: 1));
+      startTime = DateTime(
+        yesterday.year,
+        yesterday.month,
+        yesterday.day,
+        19,
+        0,
+        0,
+      );
+      endTime = DateTime(
+        currentTime.year,
+        currentTime.month,
+        currentTime.day,
+        7,
+        0,
+        0,
+      );
+    } else {
+      // Shift 2 (Night): 19:00 today to 07:00 tomorrow
+      final tomorrow = currentTime.add(const Duration(days: 1));
+      startTime = DateTime(
+        currentTime.year,
+        currentTime.month,
+        currentTime.day,
+        19,
+        0,
+        0,
+      );
+      endTime = DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 7, 0, 0);
+    }
+
+    final startEpoch = startTime.millisecondsSinceEpoch;
+    final endEpoch = endTime.millisecondsSinceEpoch;
+
+    return await _isar.workingSpots
+        .filter()
+        .driverIDEqualTo(driverId)
+        .statusEqualTo(1)
+        .lastUpdateBetween(startEpoch, endEpoch)
+        .findAll();
+  }
+
   // --- Person ---
   Future<List<Person>> getAllPersons() async {
     return await _isar.persons.where().findAll();

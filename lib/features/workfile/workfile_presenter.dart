@@ -156,9 +156,20 @@ class WorkfilePresenter extends Notifier<WorkfileState> {
 
       // Prepare spots
       final spotsToSave = state.parsedSpots.map((spot) {
-        spot.fileID = fileIdString;
-        spot.status = 0; // Default status 0
-        return spot;
+        return WorkingSpot(
+          status: 0,
+          driverID: ref.read(authProvider).currentUser?.uid ?? '',
+          fileID: fileIdString,
+          spotID: spot.spotID,
+          mode: state.selectedMode.name.toUpperCase(),
+          totalTime: spot.totalTime,
+          akurasi: spot.akurasi,
+          deep: spot.deep,
+          lat: spot.lat,
+          lng: spot.lng,
+          alt: spot.alt,
+          lastUpdate: spot.lastUpdate,
+        );
       }).toList();
 
       // 1. Save Spots FIRST

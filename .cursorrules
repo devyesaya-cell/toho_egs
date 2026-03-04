@@ -115,3 +115,6 @@ The application follows a dark green theme. When implementing UI components, use
    - The reusable `StatusBar` (containing the USB connection indicator and user `ProfileWidget`) placed in the `actions` array on the right.
 
 **Example implementation reference**: `lib/features/timesheet/timesheet_page.dart` and `lib/features/timesheet/presenter/timesheet_presenter.dart`.
+
+## Riverpod Standard Rules
+1. **Riverpod Lifecycle Side-Effects**: Never modify another provider's state or call synchronous functions that mutate other providers directly inside `onDispose` (e.g., `ref.onDispose()`) or other lifecycle hooks. This will throw the assertion error: *"Cannot use Ref or modify other providers inside life-cycles/selectors."* Instead, wrap the state mutation or disconnect logic in a `Future.microtask(() => ...);` to safely push the execution to the next event loop.

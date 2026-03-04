@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/coms/com_service.dart';
+import '../../../../core/state/auth_state.dart';
+import '../../../../core/repositories/app_repository.dart';
+import '../../../../core/utils/payload_builder.dart';
 
 // --- State Status Enum ---
 enum SyncConnectionStatus {
@@ -58,7 +61,9 @@ class SyncPresenter extends Notifier<SyncState> {
 
     ref.onDispose(() {
       _isDisposed = true;
-      _comService.disconnectWebSocket();
+      // Wrap in microtask to avoid modifying other providers (ComService)
+      // synchronously during the dispose phase of this provider.
+      Future.microtask(() => _comService.disconnectWebSocket());
     });
 
     return const SyncState();
@@ -93,26 +98,48 @@ class SyncPresenter extends Notifier<SyncState> {
     }
 
     // Automatically trigger test payload on successful connection
-    _sendTestPayload();
+    _sendWorkingspotPayload();
   }
 
-  Future<void> _sendTestPayload() async {
+  Future<void> _sendWorkingspotPayload() async {
     if (_isDisposed) return;
 
     state = state.copyWith(
       status: SyncConnectionStatus.sendingPayload,
-      statusText: 'Sending test payload...',
-      progress: 0.8,
+      statusText: 'Querying Data...',
+      progress: 0.6,
     );
 
     try {
-      // Create a test payload dictionary
-      final payload = {
-        'type': 'test_sync',
-        'data': [1, 2, 3, 4, 5],
-      };
+      final appRepo = ref.read(appRepositoryProvider);
 
-      _comService.sendDataToHost(payload);
+      // 1. Get logged in person directly from authProvider
+      final auth = ref.read(authProvider);
+      final driverID = auth.currentUser?.uid;
+
+      if (driverID == null || driverID.isEmpty) {
+        throw Exception('No active user found in session');
+      }
+
+      // 2. Fetch Workingspots for sync based on shift
+      final currentTime = DateTime.now();
+      final spots = await appRepo.getWorkingSpotsForSync(driverID, currentTime);
+
+      if (!_isDisposed) {
+        state = state.copyWith(
+          statusText: 'Sending ${spots.length} Records...',
+          progress: 0.8,
+        );
+      }
+
+      // 3. Build ByteArray Payload
+      final payloadBytes = PayloadBuilder.buildSyncPayload(
+        packageId: 0,
+        workingSpots: spots,
+      );
+
+      // 4. Send via WebSocket (raw)
+      _comService.sendRawDataToHost(payloadBytes);
 
       // Simulate a slight delay for UI impact
       await Future.delayed(const Duration(milliseconds: 500));
@@ -128,7 +155,7 @@ class SyncPresenter extends Notifier<SyncState> {
       if (!_isDisposed) {
         state = state.copyWith(
           status: SyncConnectionStatus.error,
-          statusText: 'Failed to send payload',
+          statusText: 'Failed to sync: $e',
           progress: 0.75,
         );
       }

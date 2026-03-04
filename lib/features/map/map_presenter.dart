@@ -10,9 +10,10 @@ import '../../core/models/error_alert.dart';
 import '../../core/models/gps_loc.dart';
 import '../../core/services/coordinate_service.dart';
 import '../../core/services/notification_service.dart';
-import 'package:isar_community/isar.dart';
 import '../../core/models/working_spot.dart';
 import '../../core/database/database_service.dart';
+import '../../core/state/auth_state.dart';
+import 'package:isar_community/isar.dart';
 
 // --- State Class ---
 class MapState {
@@ -42,6 +43,7 @@ class MapState {
 
   // Arm Length
   final double armLength;
+  final double armBearing;
 
   // Full Objects for Dialogs
   final GPSLoc? fullGps;
@@ -53,6 +55,14 @@ class MapState {
   final double? lastTrackLng;
   // Work Mode
   final bool isWorkMode;
+
+  // Spot Data
+  final int totalSpot;
+  final int spotDone;
+  final WorkingSpot? targetSpot;
+  final double? devX;
+  final double? devY;
+  final double? targetBearing;
 
   MapState({
     this.currentLat,
@@ -70,12 +80,19 @@ class MapState {
     this.stickTilt = 0,
     this.attachTilt = 0,
     this.armLength = 0.0,
+    this.armBearing = 0.0,
     this.fullGps,
     this.fullBase,
     this.trackHeading = 0.0,
     this.lastTrackLat,
     this.lastTrackLng,
     this.isWorkMode = false,
+    this.totalSpot = 0,
+    this.spotDone = 0,
+    this.targetSpot,
+    this.devX,
+    this.devY,
+    this.targetBearing,
   });
 
   MapState copyWith({
@@ -94,12 +111,19 @@ class MapState {
     double? stickTilt,
     double? attachTilt,
     double? armLength,
+    double? armBearing,
     GPSLoc? fullGps,
     Basestatus? fullBase,
     double? trackHeading,
     double? lastTrackLat,
     double? lastTrackLng,
     bool? isWorkMode,
+    int? totalSpot,
+    int? spotDone,
+    WorkingSpot? targetSpot,
+    double? devX,
+    double? devY,
+    double? targetBearing,
   }) {
     return MapState(
       currentLat: currentLat ?? this.currentLat,
@@ -117,12 +141,19 @@ class MapState {
       stickTilt: stickTilt ?? this.stickTilt,
       attachTilt: attachTilt ?? this.attachTilt,
       armLength: armLength ?? this.armLength,
+      armBearing: armBearing ?? this.armBearing,
       fullGps: fullGps ?? this.fullGps,
       fullBase: fullBase ?? this.fullBase,
       trackHeading: trackHeading ?? this.trackHeading,
       lastTrackLat: lastTrackLat ?? this.lastTrackLat,
       lastTrackLng: lastTrackLng ?? this.lastTrackLng,
       isWorkMode: isWorkMode ?? this.isWorkMode,
+      totalSpot: totalSpot ?? this.totalSpot,
+      spotDone: spotDone ?? this.spotDone,
+      targetSpot: targetSpot ?? this.targetSpot,
+      devX: devX ?? this.devX,
+      devY: devY ?? this.devY,
+      targetBearing: targetBearing ?? this.targetBearing,
     );
   }
 }
@@ -133,6 +164,7 @@ class MapPresenter extends Notifier<MapState> {
   Timer? _paramTimer;
   Timer? _mockSpotTimer;
   int _mockSpotIndex = 0;
+  List<WorkingSpot> _loadedSpots = [];
 
   @override
   MapState build() {
@@ -186,8 +218,19 @@ class MapPresenter extends Notifier<MapState> {
 
     _mockSpotTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
       try {
+        final auth = ref.read(authProvider);
+        final activeWorkfile = auth.activeWorkfile;
+        if (activeWorkfile == null) return;
+
+        final fileID = activeWorkfile.uid.toString();
+
         final isar = DatabaseService().isar;
-        final spots = await isar.workingSpots.where().findAll();
+        // Filter by fileID and status == 0
+        final spots = await isar.workingSpots
+            .filter()
+            .fileIDEqualTo(fileID)
+            .statusEqualTo(0)
+            .findAll();
 
         if (spots.isEmpty) return;
 
@@ -229,7 +272,10 @@ class MapPresenter extends Notifier<MapState> {
 
     // GPS Stream
     _gpsSub = comService.gpsStream.listen((gps) {
-      // Calculate Arm Length
+      // Calculate Arm Length & Bearing
+      final excaObj = Position(gps.bucketLong, gps.bucketLat);
+      final attachObj = Position(gps.attachLng, gps.attachLat);
+
       final dist = _calculate3DDistance(
         gps.boomLat,
         gps.boomLng,
@@ -238,6 +284,8 @@ class MapPresenter extends Notifier<MapState> {
         gps.attachLng,
         gps.attachAlt,
       );
+
+      final bearing = _calc.getBearing(excaObj, attachObj);
 
       // RTK Logic
       String newRtkStatus = 'FLOAT';
@@ -282,6 +330,58 @@ class MapPresenter extends Notifier<MapState> {
         }
       }
 
+      WorkingSpot? newTargetSpot;
+      double? newDevX;
+      double? newDevY;
+      double? newTargetBearing;
+
+      if (state.isWorkMode) {
+        final excaPos = Position(gps.bucketLong, gps.bucketLat);
+        final bucketPos = Position(gps.attachLng, gps.attachLat);
+
+        // 1. Find spots within 7.5m from Exca (using loaded spots)
+        final nearbySpots = _loadedSpots.where((spot) {
+          if (spot.status != 0 || spot.lat == null || spot.lng == null)
+            return false;
+          final spotPos = Position(spot.lng!, spot.lat!);
+          final dist = _calc.getDistance(excaPos, spotPos);
+          return dist <= 7.5;
+        }).toList();
+
+        // 2. Find closest spot to Bucket within 0.5m
+        double closestDist = double.infinity;
+        for (var spot in nearbySpots) {
+          final spotPos = Position(spot.lng!, spot.lat!);
+          final distToBucket = _calc.getDistance(bucketPos, spotPos);
+          if (distToBucket <= 0.5 && distToBucket < closestDist) {
+            closestDist = distToBucket;
+            newTargetSpot = spot;
+          }
+        }
+
+        if (newTargetSpot != null &&
+            newTargetSpot.lat != null &&
+            newTargetSpot.lng != null) {
+          final targetPos = Position(newTargetSpot.lng!, newTargetSpot.lat!);
+
+          // Calculate Target Bearing relative to EXCAVATOR (As requested)
+          newTargetBearing = _calc.getBearing(excaPos, targetPos);
+
+          // Calculate Target Distance & Bearing relative to bucket for DevX/DevY
+          final bearing = _calc.getBearing(bucketPos, targetPos);
+          final dist = _calc.getDistance(bucketPos, targetPos);
+
+          // Theta: angle difference between Bucket-Target bearing vs Exca Machine Heading
+          // This aligns the X,Y coordinates to the direction the machine is facing.
+          final thetaRad = (bearing - gps.heading) * (math.pi / 180.0);
+
+          // Forward/Backward deviation (Y): positive is forward
+          // Left/Right deviation (X): positive is right
+          newDevY = dist * math.cos(thetaRad);
+          newDevX = dist * math.sin(thetaRad);
+        }
+      }
+
       state = state.copyWith(
         currentLat: gps.bucketLat,
         currentLng: gps.bucketLong,
@@ -294,11 +394,16 @@ class MapPresenter extends Notifier<MapState> {
         attachTilt: gps.attachTilt,
         baseSatellites: gps.satelit2,
         armLength: dist,
+        armBearing: bearing,
         fullGps: gps,
         lastDataTime: DateTime.now(), // Update timestamp
         trackHeading: newTrackHeading,
         lastTrackLat: newLastTrackLat,
         lastTrackLng: newLastTrackLng,
+        targetSpot: newTargetSpot,
+        devX: newDevX,
+        devY: newDevY,
+        targetBearing: newTargetBearing,
       );
     });
 
@@ -840,8 +945,35 @@ class MapPresenter extends Notifier<MapState> {
   // --- Spot Logic ---
   Future<void> loadSpots(maplibre.MapController controller) async {
     try {
+      final auth = ref.read(authProvider);
+      final activeFile = auth.activeWorkfile;
+      final driver = auth.currentUser;
+
+      if (activeFile == null || driver == null) {
+        return; // Wait until session is ready
+      }
+
+      final fileID = activeFile.uid.toString();
+      final driverID = driver.uid.toString();
+
       final isar = DatabaseService().isar;
-      final spots = await isar.workingSpots.where().findAll();
+
+      // Query specific spots for this person and workfile
+      final spots = await isar.workingSpots
+          .filter()
+          .driverIDEqualTo(driverID)
+          .fileIDEqualTo(fileID)
+          .findAll();
+
+      // Store in memory for proximity targeting
+      _loadedSpots = spots;
+
+      // Calculate totals
+      final total = spots.length;
+      final done = spots.where((s) => s.status == 1).length;
+
+      // Update State for Info Panel
+      state = state.copyWith(totalSpot: total, spotDone: done);
 
       if (spots.isEmpty) return;
 
@@ -849,7 +981,6 @@ class MapPresenter extends Notifier<MapState> {
 
       for (var spot in spots) {
         if (spot.lat != null && spot.lng != null) {
-          // Use Point Geometry for CircleLayer
           features.add({
             "type": "Feature",
             "geometry": {

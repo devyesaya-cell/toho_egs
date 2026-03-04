@@ -43,6 +43,7 @@ class _MapPageState extends ConsumerState<MapPage> {
         if (next.isWorkMode || !_hasInitialCenter) {
           _controller?.moveCamera(
             center: Geographic(lon: next.currentLng!, lat: next.currentLat!),
+            bearing: next.targetBearing ?? next.heading,
           );
           if (!_hasInitialCenter) {
             _hasInitialCenter = true;

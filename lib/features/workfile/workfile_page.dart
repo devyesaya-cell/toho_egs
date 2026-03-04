@@ -5,6 +5,7 @@ import '../../core/models/workfile.dart';
 import '../map/map_page.dart';
 import 'widgets/workfile_card.dart';
 import 'create_workfile_page.dart';
+import '../../core/state/auth_state.dart';
 import '../../core/widgets/global_app_bar_actions.dart';
 // import '../map/map_page.dart'; // Assuming MapPage exists
 
@@ -112,6 +113,7 @@ class WorkfilePage extends ConsumerWidget {
               return WorkfileCard(
                 workfile: workfile,
                 onTap: () {
+                  ref.read(authProvider.notifier).setActiveWorkfile(workfile);
                   // Navigate to MapPage
                   Navigator.push(
                     context,

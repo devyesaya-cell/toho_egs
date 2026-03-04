@@ -33,10 +33,11 @@ const WorkingSpotSchema = CollectionSchema(
     ),
     r'lat': PropertySchema(id: 6, name: r'lat', type: IsarType.double),
     r'lng': PropertySchema(id: 7, name: r'lng', type: IsarType.double),
-    r'spotID': PropertySchema(id: 8, name: r'spotID', type: IsarType.long),
-    r'status': PropertySchema(id: 9, name: r'status', type: IsarType.long),
+    r'mode': PropertySchema(id: 8, name: r'mode', type: IsarType.string),
+    r'spotID': PropertySchema(id: 9, name: r'spotID', type: IsarType.long),
+    r'status': PropertySchema(id: 10, name: r'status', type: IsarType.long),
     r'totalTime': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'totalTime',
       type: IsarType.long,
     ),
@@ -100,6 +101,19 @@ const WorkingSpotSchema = CollectionSchema(
         ),
       ],
     ),
+    r'mode': IndexSchema(
+      id: 7416084707875161816,
+      name: r'mode',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'mode',
+          type: IndexType.hash,
+          caseSensitive: true,
+        ),
+      ],
+    ),
   },
   links: {},
   embeddedSchemas: {},
@@ -128,6 +142,12 @@ int _workingSpotEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  {
+    final value = object.mode;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   return bytesCount;
 }
 
@@ -145,9 +165,10 @@ void _workingSpotSerialize(
   writer.writeLong(offsets[5], object.lastUpdate);
   writer.writeDouble(offsets[6], object.lat);
   writer.writeDouble(offsets[7], object.lng);
-  writer.writeLong(offsets[8], object.spotID);
-  writer.writeLong(offsets[9], object.status);
-  writer.writeLong(offsets[10], object.totalTime);
+  writer.writeString(offsets[8], object.mode);
+  writer.writeLong(offsets[9], object.spotID);
+  writer.writeLong(offsets[10], object.status);
+  writer.writeLong(offsets[11], object.totalTime);
 }
 
 WorkingSpot _workingSpotDeserialize(
@@ -165,9 +186,10 @@ WorkingSpot _workingSpotDeserialize(
     lastUpdate: reader.readLongOrNull(offsets[5]),
     lat: reader.readDoubleOrNull(offsets[6]),
     lng: reader.readDoubleOrNull(offsets[7]),
-    spotID: reader.readLongOrNull(offsets[8]),
-    status: reader.readLongOrNull(offsets[9]),
-    totalTime: reader.readLongOrNull(offsets[10]),
+    mode: reader.readStringOrNull(offsets[8]),
+    spotID: reader.readLongOrNull(offsets[9]),
+    status: reader.readLongOrNull(offsets[10]),
+    totalTime: reader.readLongOrNull(offsets[11]),
   );
   object.id = id;
   return object;
@@ -197,10 +219,12 @@ P _workingSpotDeserializeProp<P>(
     case 7:
       return (reader.readDoubleOrNull(offset)) as P;
     case 8:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 9:
       return (reader.readLongOrNull(offset)) as P;
     case 10:
+      return (reader.readLongOrNull(offset)) as P;
+    case 11:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -720,6 +744,81 @@ extension WorkingSpotQueryWhere
           includeUpper: includeUpper,
         ),
       );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterWhereClause> modeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'mode', value: [null]),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterWhereClause> modeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'mode',
+          lower: [null],
+          includeLower: false,
+          upper: [],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterWhereClause> modeEqualTo(
+    String? mode,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'mode', value: [mode]),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterWhereClause> modeNotEqualTo(
+    String? mode,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'mode',
+                lower: [],
+                upper: [mode],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'mode',
+                lower: [mode],
+                includeLower: false,
+                upper: [],
+              ),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'mode',
+                lower: [mode],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'mode',
+                lower: [],
+                upper: [mode],
+                includeUpper: false,
+              ),
+            );
+      }
     });
   }
 }
@@ -1608,6 +1707,170 @@ extension WorkingSpotQueryFilter
     });
   }
 
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterFilterCondition> modeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'mode'),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterFilterCondition>
+  modeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'mode'),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterFilterCondition> modeEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'mode',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterFilterCondition> modeGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'mode',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterFilterCondition> modeLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'mode',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterFilterCondition> modeBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'mode',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterFilterCondition> modeStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'mode',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterFilterCondition> modeEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'mode',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterFilterCondition> modeContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'mode',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterFilterCondition> modeMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'mode',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterFilterCondition> modeIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'mode', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterFilterCondition>
+  modeIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'mode', value: ''),
+      );
+    });
+  }
+
   QueryBuilder<WorkingSpot, WorkingSpot, QAfterFilterCondition> spotIDIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1934,6 +2197,18 @@ extension WorkingSpotQuerySortBy
     });
   }
 
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterSortBy> sortByMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'mode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterSortBy> sortByModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'mode', Sort.desc);
+    });
+  }
+
   QueryBuilder<WorkingSpot, WorkingSpot, QAfterSortBy> sortBySpotID() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'spotID', Sort.asc);
@@ -2081,6 +2356,18 @@ extension WorkingSpotQuerySortThenBy
     });
   }
 
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterSortBy> thenByMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'mode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<WorkingSpot, WorkingSpot, QAfterSortBy> thenByModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'mode', Sort.desc);
+    });
+  }
+
   QueryBuilder<WorkingSpot, WorkingSpot, QAfterSortBy> thenBySpotID() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'spotID', Sort.asc);
@@ -2172,6 +2459,14 @@ extension WorkingSpotQueryWhereDistinct
     });
   }
 
+  QueryBuilder<WorkingSpot, WorkingSpot, QDistinct> distinctByMode({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'mode', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<WorkingSpot, WorkingSpot, QDistinct> distinctBySpotID() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'spotID');
@@ -2244,6 +2539,12 @@ extension WorkingSpotQueryProperty
   QueryBuilder<WorkingSpot, double?, QQueryOperations> lngProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lng');
+    });
+  }
+
+  QueryBuilder<WorkingSpot, String?, QQueryOperations> modeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'mode');
     });
   }
 

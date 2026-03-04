@@ -42,7 +42,7 @@ class DashboardPage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'DASHBOARD',
+                  'EGS DASHBOARD',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
@@ -51,7 +51,7 @@ class DashboardPage extends ConsumerWidget {
                 ),
                 SizedBox(height: 2),
                 Text(
-                  'EGS DASHBOARD V4.0.0',
+                  'SYSTEM MODE: SPOT',
                   style: TextStyle(
                     color: Color(0xFF2ECC71), // Primary Green
                     fontSize: 10,

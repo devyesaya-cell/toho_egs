@@ -113,7 +113,7 @@ class ComService extends Notifier<UsbState> {
       final info = NetworkInfo();
       // On Android connected to a hotspot, the Gateway IP is usually the Hotspot owner
       // String? gatewayIp = await info.getWifiGatewayIP();
-      String? gatewayIp = "192.168.100.117";
+      String? gatewayIp = "192.168.100.118";
 
       if (gatewayIp == null || gatewayIp.isEmpty) {
         // Fallback or explicit IP if needed, modify here if you have a rigid IP structure
@@ -176,6 +176,22 @@ class ComService extends Notifier<UsbState> {
     } else {
       debugPrint(
         "Attempted to send WebSocket data but connection is not active.",
+      );
+    }
+  }
+
+  /// Sends raw byte data over the active WebSocket channel.
+  void sendRawDataToHost(Uint8List data) {
+    if (_wsChannel != null && state.isWsConnected) {
+      try {
+        _wsChannel!.sink.add(data);
+        debugPrint("WebSocket Raw Payload Sent: ${data.length} bytes");
+      } catch (e) {
+        debugPrint("WebSocket Send Raw Error: $e");
+      }
+    } else {
+      debugPrint(
+        "Attempted to send WebSocket raw data but connection is not active.",
       );
     }
   }

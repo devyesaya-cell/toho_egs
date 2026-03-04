@@ -10,23 +10,17 @@ class DashboardHeader extends ConsumerStatefulWidget {
 }
 
 class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
-  String selectedWorkfile = 'WF-2023-001';
-
-  final List<String> workfiles = [
-    'WF-2023-001',
-    'WF-2023-002',
-    'Project-Alpha',
-    'Site-B-Grounding',
-  ];
-
   @override
   Widget build(BuildContext context) {
     // Read current state from presenter
     final presenter = ref.read(dashboardPresenterProvider.notifier);
 
-    // Watch provider to get current filter status
-    ref.watch(dashboardPresenterProvider);
+    // Watch provider to get current filter status & workfiles
+    final dashboardAsync = ref.watch(dashboardPresenterProvider);
     final filter = presenter.filter;
+
+    // Get current workfiles list from DashboardData, or default to empty
+    final workfiles = dashboardAsync.value?.workfiles ?? [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +138,7 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
                       alignment: Alignment.center,
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
-                          value: selectedWorkfile,
+                          value: filter.selectedFileID,
                           dropdownColor: const Color(0xFF1E293B),
                           icon: const Icon(
                             Icons.folder_open_outlined,
@@ -152,11 +146,11 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
                             size: 20,
                           ),
                           isDense: true, // Reduce default height
-                          items: workfiles.map((String value) {
+                          items: workfiles.map((workfile) {
                             return DropdownMenuItem<String>(
-                              value: value,
+                              value: workfile.uid.toString(),
                               child: Text(
-                                value,
+                                workfile.uid.toString(),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,
@@ -167,7 +161,7 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
                           }).toList(),
                           onChanged: (newValue) {
                             if (newValue != null) {
-                              setState(() => selectedWorkfile = newValue);
+                              presenter.updateSelectedFileID(newValue);
                             }
                           },
                         ),

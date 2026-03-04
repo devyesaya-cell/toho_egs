@@ -6,6 +6,8 @@ import 'package:isar_community/isar.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../core/database/database_service.dart';
 import '../../core/models/working_spot.dart';
+import '../../core/models/workfile.dart';
+import '../../core/state/auth_state.dart';
 import 'package:intl/intl.dart';
 
 // --- State Class ---
@@ -40,6 +42,9 @@ class DashboardData {
   final double productionMaxY;
   final double trendInterval; // X-Axis Interval in ms
 
+  // New Fields for Workfile selection
+  final List<WorkFile> workfiles;
+
   DashboardData({
     this.productivity = 0,
     this.productivitySpotsHr = 0,
@@ -60,6 +65,7 @@ class DashboardData {
     this.productivityMaxY = 1.0,
     this.productionMaxY = 100.0,
     this.trendInterval = 7200000,
+    this.workfiles = const [],
   });
 }
 
@@ -71,22 +77,26 @@ class DashboardFilter {
   final DateTime
   selectedDate; // The reference date (e.g., today or selected day)
   final DateTimeRange? customRange; // For custom date selection
+  final String? selectedFileID;
 
   DashboardFilter({
     required this.type,
     required this.selectedDate,
     this.customRange,
+    this.selectedFileID,
   });
 
   DashboardFilter copyWith({
     DashboardFilterType? type,
     DateTime? selectedDate,
     DateTimeRange? customRange,
+    String? selectedFileID,
   }) {
     return DashboardFilter(
       type: type ?? this.type,
       selectedDate: selectedDate ?? this.selectedDate,
       customRange: customRange ?? this.customRange,
+      selectedFileID: selectedFileID ?? this.selectedFileID,
     );
   }
 }
@@ -107,11 +117,8 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
     await DatabaseService().init();
     _isar = DatabaseService().isar;
 
-    // Check if we need to seed data
-    final count = await _isar.workingSpots.count();
-    if (count == 0) {
-      await _seedMockData();
-    }
+    // Watch auth state so this provider rebuilds when auth changes
+    ref.watch(authProvider);
 
     // Determine initial filter based on current time if first load?
     // User requested: "flow shift Morning => today 07.00 s/d 18.59"
@@ -119,6 +126,16 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
     final now = DateTime.now();
     if (now.hour >= 19 || now.hour < 7) {
       _filter = _filter.copyWith(type: DashboardFilterType.night);
+    }
+
+    // Set initial fileID if not already set, and load workfiles
+    if (_filter.selectedFileID == null) {
+      final workfiles = await _isar.workFiles.where().findAll();
+      if (workfiles.isNotEmpty) {
+        _filter = _filter.copyWith(
+          selectedFileID: workfiles.first.uid.toString(),
+        );
+      }
     }
 
     return _loadDashboardData();
@@ -145,53 +162,14 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
     refresh();
   }
 
+  void updateSelectedFileID(String fileID) {
+    _filter = _filter.copyWith(selectedFileID: fileID);
+    refresh();
+  }
+
   Future<void> refresh() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() => _loadDashboardData());
-  }
-
-  Future<void> _seedMockData() async {
-    final rng = Random();
-    final now = DateTime.now();
-    // Start of "Today" is 00:00
-    final startOfDay = DateTime(now.year, now.month, now.day);
-
-    final List<WorkingSpot> mockSpots = [];
-
-    // Generate data for the last 35 days to cover monthly/weekly scenarios
-    for (int d = 0; d < 35; d++) {
-      final date = startOfDay.subtract(Duration(days: d));
-      // Generate around 50-100 spots per day
-      final dailySpots = 50 + rng.nextInt(50);
-
-      for (int i = 0; i < dailySpots; i++) {
-        final offsetSeconds = rng.nextInt(86400);
-        final spotTime = date.add(Duration(seconds: offsetSeconds));
-
-        final accuracy = 5.0 + rng.nextDouble() * 3.0; // 5 + (0..3)
-        final deep = rng.nextInt(50);
-
-        mockSpots.add(
-          WorkingSpot(
-            status: 1,
-            driverID: 'Driver-${rng.nextInt(5)}',
-            fileID: 'WF-2023-${rng.nextInt(3) + 1}',
-            spotID: (d * 1000) + i,
-            totalTime: 0,
-            akurasi: accuracy,
-            deep: deep,
-            lat: -6.2 + (rng.nextDouble() * 0.01),
-            lng: 106.8 + (rng.nextDouble() * 0.01),
-            alt: 100,
-            lastUpdate: spotTime.millisecondsSinceEpoch,
-          ),
-        );
-      }
-    }
-
-    await _isar.writeTxn(() async {
-      await _isar.workingSpots.putAll(mockSpots);
-    });
   }
 
   Future<DashboardData> _loadDashboardData() async {
@@ -262,9 +240,21 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
         break;
     }
 
+    final workfiles = await _isar.workFiles.where().findAll();
+
+    // Get Auth Context
+    final auth = ref.read(authProvider);
+    final driverID = auth.currentUser?.uid ?? '';
+    final systemMode = auth.mode.name.toUpperCase(); // 'SPOT' or 'CRUMBLING'
+    final fileID = _filter.selectedFileID ?? '';
+
     // Query Isar
     final spots = await _isar.workingSpots
         .filter()
+        .fileIDEqualTo(fileID)
+        .driverIDEqualTo(driverID)
+        .statusEqualTo(1)
+        .modeEqualTo(systemMode)
         .lastUpdateBetween(
           startTime.millisecondsSinceEpoch,
           endTime.millisecondsSinceEpoch,
@@ -273,7 +263,7 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
         .findAll();
 
     if (spots.isEmpty) {
-      return DashboardData();
+      return DashboardData(workfiles: workfiles);
     }
 
     // --- Calculations ---
@@ -378,12 +368,12 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
     final double chartInterval = durationHours >= 24 ? 86400000.0 : 7200000.0;
 
     return DashboardData(
-      productivity: double.parse(productivity.toStringAsFixed(2)),
-      productivitySpotsHr: double.parse(productivity.toStringAsFixed(2)),
-      percentageProductivity: (productivity / 500).clamp(
+      productivity: double.parse(productivity.toStringAsFixed(0)),
+      productivitySpotsHr: 250.0,
+      percentageProductivity: (productivity / 250).clamp(
         0.0,
         1.0,
-      ), // Mock Target 500
+      ), // Mock Target 250
 
       precision: double.parse(precision.toStringAsFixed(2)),
       percentagePrecision: (precision / 10).clamp(0.0, 1.0), // Mock Max 10 cm?
@@ -408,6 +398,7 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
       productivityMaxY: productivityMaxY,
       productionMaxY: productionMaxY,
       trendInterval: chartInterval,
+      workfiles: workfiles,
     );
   }
 

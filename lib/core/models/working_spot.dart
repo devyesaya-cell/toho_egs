@@ -18,6 +18,9 @@ class WorkingSpot {
   @Index()
   int? spotID;
 
+  @Index()
+  String? mode;
+
   int? totalTime;
   double? akurasi;
   int? deep;
@@ -31,6 +34,7 @@ class WorkingSpot {
     this.driverID,
     this.fileID,
     this.spotID,
+    this.mode,
     this.totalTime,
     this.akurasi,
     this.deep,
@@ -46,6 +50,7 @@ class WorkingSpot {
       driverID: json['driverID'],
       fileID: json['fileID'],
       spotID: json['spotID'],
+      mode: json['mode'],
       totalTime: json['totalTime'],
       akurasi: json['akurasi'],
       deep: json['deep'],
@@ -62,6 +67,7 @@ class WorkingSpot {
       'driverID': driverID,
       'fileID': fileID,
       'spotID': spotID,
+      'mode': mode,
       'totalTime': totalTime,
       'akurasi': akurasi,
       'deep': deep,

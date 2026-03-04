@@ -1,10 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../map_presenter.dart';
 
-class GuidanceWidget extends StatelessWidget {
+class GuidanceWidget extends ConsumerWidget {
   const GuidanceWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mapState = ref.watch(mapPresenterProvider);
+
+    // Deviation Calculation
+    final devX = mapState.devX ?? 0.0;
+    final devY = mapState.devY ?? 0.0;
+
+    // Helper: Each bar represents 10cm up to 40cm+
+    int getActiveBars(double dev) {
+      if (dev < 0.1) return 0;
+      return (dev / 0.1).floor().clamp(0, 4);
+    }
+
+    final int rightActive = getActiveBars(devX);
+    final int leftActive = getActiveBars(-devX);
+    final int topActive = getActiveBars(devY); // Forward
+    final int bottomActive = getActiveBars(-devY); // Backward
+
     // 1. Get Screen Size
     final screenSize = MediaQuery.of(context).size;
 
@@ -18,6 +37,10 @@ class GuidanceWidget extends StatelessWidget {
     final double centerXY = widgetSize / 2;
     // Gap from center: Circle radius is ~20*scale. Clear zone ~30*scale.
     final double centerGap = 19.0 * scale;
+
+    // Center icon logic: If both devX and devY are within a small threshold (e.g. 10cm), it's "Locked"
+    final bool isCenterLocked =
+        mapState.targetSpot != null && devX.abs() < 0.1 && devY.abs() < 0.1;
 
     return SizedBox(
       width: widgetSize,
@@ -35,9 +58,14 @@ class GuidanceWidget extends StatelessWidget {
 
           // Center Target
           Image.asset(
-            'images/ic_cirle.png',
+            isCenterLocked
+                ? 'images/ic_cirle_tg.png'
+                : 'images/ic_cirle.png', // Assuming there's a lit version, or we can tint it. We will use ColorFiltered if no lit image.
             width: 40 * scale,
             height: 40 * scale,
+            color: isCenterLocked
+                ? Colors.greenAccent
+                : null, // Tint green if locked
           ),
 
           // Right Bars (Pointing Left) - East
@@ -51,7 +79,7 @@ class GuidanceWidget extends StatelessWidget {
                 (index) => _buildBar(
                   'images/right_tg.png',
                   'images/right_no_tg.png',
-                  false,
+                  index < rightActive,
                   width: 25 * scale,
                   height: 40 * scale,
                   padding: 2.0 * scale,
@@ -71,7 +99,7 @@ class GuidanceWidget extends StatelessWidget {
                 (index) => _buildBar(
                   'images/left_tg.png',
                   'images/left_no_tg.png',
-                  false,
+                  index < leftActive,
                   width: 25 * scale,
                   height: 40 * scale,
                   padding: 2.0 * scale,
@@ -91,7 +119,7 @@ class GuidanceWidget extends StatelessWidget {
                 (index) => _buildBar(
                   'images/down_tg.png',
                   'images/down_no_tg.png',
-                  false,
+                  index < bottomActive,
                   width: 40 * scale,
                   height: 25 * scale,
                   padding: 2.0 * scale,
@@ -111,7 +139,7 @@ class GuidanceWidget extends StatelessWidget {
                 (index) => _buildBar(
                   'images/top_tg.png',
                   'images/top_no_tg.png',
-                  false,
+                  index < topActive,
                   width: 40 * scale,
                   height: 25 * scale,
                   padding: 2.0 * scale,
