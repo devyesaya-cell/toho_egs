@@ -4,6 +4,8 @@ import 'package:maplibre/maplibre.dart';
 import 'map_presenter.dart';
 import 'widgets/guidance_widget.dart';
 import 'widgets/map_info_panel.dart';
+import 'widgets/timesheet_start_dialog.dart';
+import 'widgets/timesheet_end_dialog.dart';
 
 class MapPage extends ConsumerStatefulWidget {
   const MapPage({super.key});
@@ -20,6 +22,21 @@ class _MapPageState extends ConsumerState<MapPage> {
   // final String _styleString = 'https://demotiles.maplibre.org/style.json';
 
   bool _hasInitialCenter = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final mapState = ref.read(mapPresenterProvider);
+      if (mapState.activeTimesheet == null) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => const TimesheetStartDialog(),
+        );
+      }
+    });
+  }
 
   void _toZoom(double zoom) async {
     if (_controller == null) return;
@@ -56,6 +73,13 @@ class _MapPageState extends ConsumerState<MapPage> {
               .read(mapPresenterProvider.notifier)
               .updateExcavatorPosition(_controller!, next.fullGps!);
         }
+      }
+
+      // Auto-reload Spots if spotDone counter increases (meaning a spot was auto-completed)
+      if (previous != null &&
+          next.spotDone > previous.spotDone &&
+          _controller != null) {
+        ref.read(mapPresenterProvider.notifier).loadSpots(_controller!);
       }
     });
 
@@ -159,7 +183,20 @@ class _MapPageState extends ConsumerState<MapPage> {
                     icon: Icons.settings,
                     color: Colors.amber,
                     onPressed: () {
-                      // TODO: settings
+                      final mapState = ref.read(mapPresenterProvider);
+                      if (mapState.activeTimesheet == null) {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (ctx) => const TimesheetStartDialog(),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Timesheet is already running.'),
+                          ),
+                        );
+                      }
                     },
                   ),
                 ],
@@ -174,43 +211,84 @@ class _MapPageState extends ConsumerState<MapPage> {
               child: const GuidanceWidget(),
             ),
 
-          // ===== TOP RIGHT USB STATUS =====
+          // ===== TOP RIGHT CONNECTION STATUS & EXIT =====
           Positioned(
             top: size.height * 0.05,
             right: size.width * 0.02,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 4),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'USB: ',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+            child: Row(
+              children: [
+                // Status Box
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black12, blurRadius: 4),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.circle,
-                    // Connected (Green) if usbConnected is true, else Red
-                    color: mapState.usbConnected ? Colors.green : Colors.red,
-                    size: 16,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Conn: ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.circle,
+                        color: mapState.usbConnected
+                            ? Colors.green
+                            : Colors.red,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        mapState.usbConnected ? 'Connected' : 'Disconnected',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    mapState.usbConnected ? 'Connected' : 'Not Connected',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+                ),
+                const SizedBox(width: 10),
+                // Exit Button
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black12, blurRadius: 4),
+                    ],
                   ),
-                ],
-              ),
+                  child: IconButton(
+                    onPressed: () async {
+                      final mapState = ref.read(mapPresenterProvider);
+                      if (mapState.activeTimesheet != null) {
+                        // Show End dialog before exiting
+                        final shouldExit = await showDialog<bool>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (ctx) => const TimesheetEndDialog(),
+                        );
+
+                        if (shouldExit == true && context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      } else {
+                        // No active timesheet, just exit
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.exit_to_app, color: Colors.red),
+                    tooltip: 'Exit Map',
+                  ),
+                ),
+              ],
             ),
           ),
 

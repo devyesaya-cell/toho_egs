@@ -6,11 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maplibre/maplibre.dart' as maplibre;
 import '../../core/coms/com_service.dart';
 import '../../core/models/base_status.dart';
-import '../../core/models/error_alert.dart';
-import '../../core/models/gps_loc.dart';
+import 'package:toho_egs/core/models/error_alert.dart';
+import 'package:toho_egs/core/models/gps_loc.dart';
 import '../../core/services/coordinate_service.dart';
-import '../../core/services/notification_service.dart';
-import '../../core/models/working_spot.dart';
+import 'package:toho_egs/core/services/notification_service.dart';
+import 'package:toho_egs/core/models/working_spot.dart';
+import 'package:toho_egs/core/models/workfile.dart';
+import 'package:toho_egs/core/models/timesheet_record.dart';
 import '../../core/database/database_service.dart';
 import '../../core/state/auth_state.dart';
 import 'package:isar_community/isar.dart';
@@ -64,6 +66,13 @@ class MapState {
   final double? devY;
   final double? targetBearing;
 
+  // Query Optimization
+  final double? lastQueriedExcaLat;
+  final double? lastQueriedExcaLng;
+
+  // Timesheet
+  final TimesheetRecord? activeTimesheet;
+
   MapState({
     this.currentLat,
     this.currentLng,
@@ -93,6 +102,9 @@ class MapState {
     this.devX,
     this.devY,
     this.targetBearing,
+    this.activeTimesheet,
+    this.lastQueriedExcaLat,
+    this.lastQueriedExcaLng,
   });
 
   MapState copyWith({
@@ -124,6 +136,9 @@ class MapState {
     double? devX,
     double? devY,
     double? targetBearing,
+    TimesheetRecord? activeTimesheet,
+    double? lastQueriedExcaLat,
+    double? lastQueriedExcaLng,
   }) {
     return MapState(
       currentLat: currentLat ?? this.currentLat,
@@ -151,9 +166,11 @@ class MapState {
       totalSpot: totalSpot ?? this.totalSpot,
       spotDone: spotDone ?? this.spotDone,
       targetSpot: targetSpot ?? this.targetSpot,
-      devX: devX ?? this.devX,
       devY: devY ?? this.devY,
       targetBearing: targetBearing ?? this.targetBearing,
+      activeTimesheet: activeTimesheet ?? this.activeTimesheet,
+      lastQueriedExcaLat: lastQueriedExcaLat ?? this.lastQueriedExcaLat,
+      lastQueriedExcaLng: lastQueriedExcaLng ?? this.lastQueriedExcaLng,
     );
   }
 }
@@ -163,8 +180,10 @@ class MapPresenter extends Notifier<MapState> {
   StreamSubscription<GPSLoc>? _gpsSub;
   Timer? _paramTimer;
   Timer? _mockSpotTimer;
+  Timer? _timesheetTimer;
   int _mockSpotIndex = 0;
   List<WorkingSpot> _loadedSpots = [];
+  List<WorkingSpot> _cachedNearbySpots = [];
 
   @override
   MapState build() {
@@ -179,6 +198,7 @@ class MapPresenter extends Notifier<MapState> {
       _gpsSub?.cancel();
       _paramTimer?.cancel();
       _mockSpotTimer?.cancel();
+      _timesheetTimer?.cancel();
     });
 
     return MapState();
@@ -267,6 +287,84 @@ class MapPresenter extends Notifier<MapState> {
     _mockSpotTimer = null;
   }
 
+  // --- Timesheet Logic ---
+  Future<void> startTimesheet(TimesheetRecord newRecord) async {
+    final isar = DatabaseService().isar;
+    await isar.writeTxn(() async {
+      await isar.timesheetRecords.put(newRecord);
+    });
+
+    state = state.copyWith(activeTimesheet: newRecord);
+
+    _timesheetTimer?.cancel();
+    _timesheetTimer = Timer.periodic(const Duration(minutes: 5), (timer) async {
+      final currentTs = state.activeTimesheet;
+      final currentWorkfile = ref.read(authProvider).activeWorkfile;
+
+      if (currentTs != null && currentWorkfile != null) {
+        final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+        currentTs.endTime = now;
+        currentTs.totalTime = now - currentTs.startTime;
+        currentTs.totalSpots = state.spotDone.toDouble();
+
+        // Calculate workspeed: (spot/hours * (panjang * lebar)) / 10000 -> in Ha
+        if (currentTs.totalTime > 0) {
+          final hours = currentTs.totalTime / 3600.0;
+          final spotsPerHour = currentTs.totalSpots / hours;
+
+          final panjang = currentWorkfile.panjang ?? 0.0;
+          final lebar = currentWorkfile.lebar ?? 0.0;
+
+          currentTs.workspeed = (spotsPerHour * (panjang * lebar)) / 10000.0;
+        }
+
+        await isar.writeTxn(() async {
+          await isar.timesheetRecords.put(currentTs);
+        });
+
+        // Update state to trigger UI changes if any
+        state = state.copyWith(activeTimesheet: currentTs);
+      }
+    });
+  }
+
+  Future<void> stopTimesheet({required int hmEnd}) async {
+    _timesheetTimer?.cancel();
+    _timesheetTimer = null;
+
+    final currentTs = state.activeTimesheet;
+    final currentWorkfile = ref.read(authProvider).activeWorkfile;
+
+    if (currentTs != null && currentWorkfile != null) {
+      final isar = DatabaseService().isar;
+      final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+      currentTs.endTime = now;
+      currentTs.hmEnd = hmEnd;
+      currentTs.totalTime = now - currentTs.startTime;
+      currentTs.totalSpots = state.spotDone.toDouble();
+
+      if (currentTs.totalTime > 0) {
+        final hours = currentTs.totalTime / 3600.0;
+        final spotsPerHour = currentTs.totalSpots / hours;
+        final panjang = currentWorkfile.panjang ?? 0.0;
+        final lebar = currentWorkfile.lebar ?? 0.0;
+        currentTs.workspeed = (spotsPerHour * (panjang * lebar)) / 10000.0;
+      }
+
+      currentWorkfile.spotDone = state.spotDone;
+      currentWorkfile.lastUpdate = now;
+      currentWorkfile.status = 'on progress';
+
+      await isar.writeTxn(() async {
+        await isar.timesheetRecords.put(currentTs);
+        await isar.workFiles.put(currentWorkfile);
+      });
+
+      state = state.copyWith(activeTimesheet: null);
+    }
+  }
+
   void _subscribe() {
     final comService = ref.read(comServiceProvider.notifier);
 
@@ -336,21 +434,48 @@ class MapPresenter extends Notifier<MapState> {
       double? newTargetBearing;
 
       if (state.isWorkMode) {
-        final excaPos = Position(gps.bucketLong, gps.bucketLat);
+        final excaPos = Position(
+          gps.bucketLong,
+          gps.bucketLat,
+        ); // NOTE: usually bucketLong/Lat refer to machine body in these variable namings.
         final bucketPos = Position(gps.attachLng, gps.attachLat);
 
-        // 1. Find spots within 7.5m from Exca (using loaded spots)
-        final nearbySpots = _loadedSpots.where((spot) {
-          if (spot.status != 0 || spot.lat == null || spot.lng == null)
-            return false;
-          final spotPos = Position(spot.lng!, spot.lat!);
-          final dist = _calc.getDistance(excaPos, spotPos);
-          return dist <= 7.5;
-        }).toList();
+        // Optimization: Only update nearby spots if machine moved > 3m from last query
+        bool shouldQueryNearby = false;
+        if (state.lastQueriedExcaLat == null ||
+            state.lastQueriedExcaLng == null) {
+          shouldQueryNearby = true;
+        } else {
+          final lastQueryPos = Position(
+            state.lastQueriedExcaLng!,
+            state.lastQueriedExcaLat!,
+          );
+          final distFromLastQuery = _calc.getDistance(lastQueryPos, excaPos);
+          if (distFromLastQuery > 3.0) {
+            shouldQueryNearby = true;
+          }
+        }
+
+        if (shouldQueryNearby) {
+          // Find spots within 7.5m from Exca (using loaded spots)
+          _cachedNearbySpots = _loadedSpots.where((spot) {
+            if (spot.status != 0 || spot.lat == null || spot.lng == null) {
+              return false;
+            }
+            final spotPos = Position(spot.lng!, spot.lat!);
+            final dist = _calc.getDistance(excaPos, spotPos);
+            return dist <= 7.5;
+          }).toList();
+
+          state = state.copyWith(
+            lastQueriedExcaLat: gps.bucketLat,
+            lastQueriedExcaLng: gps.bucketLong,
+          );
+        }
 
         // 2. Find closest spot to Bucket within 0.5m
         double closestDist = double.infinity;
-        for (var spot in nearbySpots) {
+        for (var spot in _cachedNearbySpots) {
           final spotPos = Position(spot.lng!, spot.lat!);
           final distToBucket = _calc.getDistance(bucketPos, spotPos);
           if (distToBucket <= 0.5 && distToBucket < closestDist) {
@@ -371,14 +496,57 @@ class MapPresenter extends Notifier<MapState> {
           final bearing = _calc.getBearing(bucketPos, targetPos);
           final dist = _calc.getDistance(bucketPos, targetPos);
 
-          // Theta: angle difference between Bucket-Target bearing vs Exca Machine Heading
-          // This aligns the X,Y coordinates to the direction the machine is facing.
-          final thetaRad = (bearing - gps.heading) * (math.pi / 180.0);
+          // Auto-Complete Spot Logic (< 10cm)
+          // NOTE: Time delay (> 2 sec) removed for simulation as requested by user.
+          if (dist <= 0.1) {
+            // Update entity
+            newTargetSpot.lastUpdate =
+                DateTime.now().millisecondsSinceEpoch ~/ 1000;
+            newTargetSpot.lat = gps.attachLat;
+            newTargetSpot.lng = gps.attachLng;
+            newTargetSpot.status = 1;
+            newTargetSpot.akurasi = dist * 100; // in cm
 
-          // Forward/Backward deviation (Y): positive is forward
-          // Left/Right deviation (X): positive is right
-          newDevY = dist * math.cos(thetaRad);
-          newDevX = dist * math.sin(thetaRad);
+            final rand = math.Random();
+            newTargetSpot.deep = 60 + rand.nextInt(21); // 60-80
+            newTargetSpot.alt = 60 + rand.nextInt(21); // 60-80
+
+            // Save to Isar DB
+            final isar = DatabaseService().isar;
+            isar.writeTxn(() async {
+              await isar.workingSpots.put(newTargetSpot!);
+            });
+
+            // Update Memory Map & state counter
+            _loadedSpots.removeWhere((s) => s.id == newTargetSpot!.id);
+            // We increment spotDone without full reload for immediate UI feedback.
+            // When map moves or refreshes, it will call loadSpots anyway.
+            state = state.copyWith(spotDone: state.spotDone + 1);
+
+            // Trigger Map Update immediately so spot turns green
+            // (Assuming there is a way to access controller, otherwise it updates next refresh)
+            // Ideally we'd trigger a reload event here, but without easy access to the MapController inside Notifier's `_gpsSub`,
+            // the user might just see the status increment.
+            // The map spots are loaded in `loadSpots` taking the controller.
+            // In Flutter Riverpod, best way is to expose a mechanism, or reload next time `loadSpots` is called.
+
+            // Nullify targetSpot so GuidanceWidget flashes back to searching
+            newTargetSpot = null;
+            newDevX = null;
+            newDevY = null;
+            newTargetBearing = null;
+
+            NotificationService.showSuccess('Spot Completed!');
+          } else {
+            // Theta: angle difference between Bucket-Target bearing vs Exca Machine Heading
+            // This aligns the X,Y coordinates to the direction the machine is facing.
+            final thetaRad = (bearing - gps.heading) * (math.pi / 180.0);
+
+            // Forward/Backward deviation (Y): positive is forward
+            // Left/Right deviation (X): positive is right
+            newDevY = dist * math.cos(thetaRad);
+            newDevX = dist * math.sin(thetaRad);
+          }
         }
       }
 
@@ -480,8 +648,9 @@ class MapPresenter extends Notifier<MapState> {
             'circle-color': [
               'match',
               ['get', 'status'],
-              0, '#FF0000', // Status 0 = Red
-              '#00FF00', // Default = Green
+              1, '#00FF00', // Status 1 = Green (Done)
+              0, '#FF0000', // Status 0 = Red (Todo)
+              '#808080', // Default = Grey
             ],
             'circle-radius': 5.0,
             'circle-opacity': 0.8,
@@ -576,6 +745,23 @@ class MapPresenter extends Notifier<MapState> {
           paint: {'fill-color': '#E78A00'}, // Example color
         ),
       );
+
+      // Guidance Line Source & Layer (Bucket to Target)
+      await controller.style!.addSource(
+        maplibre.GeoJsonSource(id: 'guidance_line_source', data: emptyGeoJson),
+      );
+
+      await controller.style!.addLayer(
+        const maplibre.LineStyleLayer(
+          id: 'guidance_line_layer',
+          sourceId: 'guidance_line_source',
+          paint: {
+            'line-color': '#0000FF', // Blue line
+            'line-width': 4.0,
+            'line-dasharray': [2, 2], // Optional: dashed line
+          },
+        ),
+      );
     } catch (e) {
       print('Error adding excavator layers: $e');
     }
@@ -592,6 +778,50 @@ class MapPresenter extends Notifier<MapState> {
     await _updateCockpit(controller, gps);
     // Update Attachment
     await _updateAttachment(controller, gps);
+    // Update Guidance Line
+    await _updateGuidanceLine(controller, gps);
+  }
+
+  Future<void> _updateGuidanceLine(
+    maplibre.MapController controller,
+    GPSLoc gps,
+  ) async {
+    try {
+      final target = state.targetSpot;
+
+      if (target != null && target.lat != null && target.lng != null) {
+        final geoJson = {
+          "type": "FeatureCollection",
+          "features": [
+            {
+              "type": "Feature",
+              "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                  [gps.attachLng, gps.attachLat],
+                  [target.lng, target.lat],
+                ],
+              },
+              "properties": {},
+            },
+          ],
+        };
+
+        await controller.style!.updateGeoJsonSource(
+          id: "guidance_line_source",
+          data: jsonEncode(geoJson),
+        );
+      } else {
+        // Clear the line
+        final emptyGeoJson = {"type": "FeatureCollection", "features": []};
+        await controller.style!.updateGeoJsonSource(
+          id: "guidance_line_source",
+          data: jsonEncode(emptyGeoJson),
+        );
+      }
+    } catch (e) {
+      print('Error update Guidance Line: $e');
+    }
   }
 
   Future<void> _updateBody(

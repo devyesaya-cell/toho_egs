@@ -71,7 +71,7 @@ class TimesheetNotifier extends Notifier<TimesheetState> {
 
       if (activeRecord != null) {
         final startDateTime = DateTime.fromMillisecondsSinceEpoch(
-          activeRecord.startTime,
+          activeRecord.startTime * 1000,
         );
         final elapsed = DateTime.now().difference(startDateTime).inSeconds;
 
@@ -116,7 +116,7 @@ class TimesheetNotifier extends Notifier<TimesheetState> {
     final modSys = authState.mode.name;
 
     final generatedId = Random().nextInt(90000) + 10000;
-    final now = DateTime.now().millisecondsSinceEpoch;
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
     final record = TimesheetRecord(
       id: generatedId,
@@ -155,11 +155,11 @@ class TimesheetNotifier extends Notifier<TimesheetState> {
         .firstOrNull;
 
     if (activeRecord != null) {
-      final now = DateTime.now().millisecondsSinceEpoch;
+      final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
       activeRecord.endTime = now;
-      final diffMinutes = DateTime.fromMillisecondsSinceEpoch(now)
+      final diffMinutes = DateTime.fromMillisecondsSinceEpoch(now * 1000)
           .difference(
-            DateTime.fromMillisecondsSinceEpoch(activeRecord.startTime),
+            DateTime.fromMillisecondsSinceEpoch(activeRecord.startTime * 1000),
           )
           .inMinutes;
       activeRecord.totalTime = diffMinutes;

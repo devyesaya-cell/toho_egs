@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/repositories/app_repository.dart';
 import '../../core/services/geojson_service.dart';
@@ -108,7 +109,9 @@ class WorkfilePresenter extends Notifier<WorkfileState> {
       final result = await ref.read(geoJsonServiceProvider).pickGeoJsonFile();
       if (result != null && result.files.isNotEmpty) {
         final path = result.files.single.path!;
-        final spots = await ref.read(geoJsonServiceProvider).parseGeoJson(path);
+        final spots = await ref
+            .read(geoJsonServiceProvider)
+            .parseGeoJson(path, state.selectedMode);
         state = state.copyWith(filePath: path, parsedSpots: spots);
         _calculateArea();
       }
@@ -131,14 +134,66 @@ class WorkfilePresenter extends Notifier<WorkfileState> {
         final panjang = double.tryParse(parts[0]) ?? 0;
         final lebar = double.tryParse(parts[1]) ?? 0;
 
-        final totalSpot = state.parsedSpots.length;
-        // Rumus: totalSpot x (panjang x lebar) / 10000
-        final area = (totalSpot * (panjang * lebar)) / 10000;
+        double area = 0.0;
+
+        if (state.selectedMode == SystemMode.spot) {
+          final totalSpot = state.parsedSpots.length;
+          // Rumus: totalSpot x (panjang x lebar) / 10000
+          area = (totalSpot * (panjang * lebar)) / 10000;
+        } else if (state.selectedMode == SystemMode.crumbling) {
+          // Calculate distance per spotID
+          Map<int, List<WorkingSpot>> groupedSpots = {};
+          for (var spot in state.parsedSpots) {
+            final id = spot.spotID ?? 0;
+            if (!groupedSpots.containsKey(id)) {
+              groupedSpots[id] = [];
+            }
+            groupedSpots[id]!.add(spot);
+          }
+
+          double totalArea = 0.0;
+          for (var group in groupedSpots.values) {
+            double lineDistance = 0.0;
+            for (int i = 0; i < group.length - 1; i++) {
+              final spot1 = group[i];
+              final spot2 = group[i + 1];
+              if (spot1.lat != null &&
+                  spot1.lng != null &&
+                  spot2.lat != null &&
+                  spot2.lng != null) {
+                lineDistance += _haversineDistance(
+                  spot1.lat!,
+                  spot1.lng!,
+                  spot2.lat!,
+                  spot2.lng!,
+                );
+              }
+            }
+            // area = (distance x 4) / 10000
+            totalArea += (lineDistance * 4) / 10000;
+          }
+          area = totalArea;
+        }
+
         state = state.copyWith(computedArea: area);
       }
     } catch (e) {
       print('Error calculating area: $e');
     }
+  }
+
+  double _haversineDistance(
+    double lat1,
+    double lon1,
+    double lat2,
+    double lon2,
+  ) {
+    const p = 0.017453292519943295;
+    final a =
+        0.5 -
+        cos((lat2 - lat1) * p) / 2 +
+        cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2;
+    return 12742000 * asin(sqrt(a));
   }
 
   Future<bool> saveWorkfile() async {

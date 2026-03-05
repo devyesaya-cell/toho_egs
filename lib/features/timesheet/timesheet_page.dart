@@ -653,7 +653,7 @@ class TimesheetPage extends ConsumerWidget {
                     if (record.personID != currentPersonId) return false;
 
                     final recordStart = DateTime.fromMillisecondsSinceEpoch(
-                      record.startTime,
+                      record.startTime * 1000,
                     );
                     // We only check if the startTime falls within the shift
                     return recordStart.isAfter(
@@ -800,9 +800,11 @@ class TimesheetPage extends ConsumerWidget {
         ),
         // Data Rows
         ...records.map((record) {
-          final startDt = DateTime.fromMillisecondsSinceEpoch(record.startTime);
+          final startDt = DateTime.fromMillisecondsSinceEpoch(
+            record.startTime * 1000,
+          );
           final endDt = record.endTime > record.startTime
-              ? DateTime.fromMillisecondsSinceEpoch(record.endTime)
+              ? DateTime.fromMillisecondsSinceEpoch(record.endTime * 1000)
               : null;
 
           String hourDiff = "00:00";
@@ -897,9 +899,9 @@ class TimesheetPage extends ConsumerWidget {
 
     for (var r in records) {
       // Use totalTime field or recalculate
-      final s = DateTime.fromMillisecondsSinceEpoch(r.startTime);
+      final s = DateTime.fromMillisecondsSinceEpoch(r.startTime * 1000);
       final e = r.endTime > r.startTime
-          ? DateTime.fromMillisecondsSinceEpoch(r.endTime)
+          ? DateTime.fromMillisecondsSinceEpoch(r.endTime * 1000)
           : null;
       int mins = r.totalTime;
       if (mins == 0 && e != null) {

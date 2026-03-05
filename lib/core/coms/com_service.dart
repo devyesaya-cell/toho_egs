@@ -113,7 +113,7 @@ class ComService extends Notifier<UsbState> {
       final info = NetworkInfo();
       // On Android connected to a hotspot, the Gateway IP is usually the Hotspot owner
       // String? gatewayIp = await info.getWifiGatewayIP();
-      String? gatewayIp = "192.168.100.118";
+      String? gatewayIp = "192.168.100.88";
 
       if (gatewayIp == null || gatewayIp.isEmpty) {
         // Fallback or explicit IP if needed, modify here if you have a rigid IP structure
