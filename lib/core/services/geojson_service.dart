@@ -24,6 +24,7 @@ class GeoJsonService {
       if (data['type'] == 'FeatureCollection' && data['features'] != null) {
         final List<dynamic> features = data['features'];
         List<WorkingSpot> allSpots = [];
+        int crumblingLineId = 1;
 
         for (var feature in features) {
           final geometry = feature['geometry'];
@@ -40,7 +41,7 @@ class GeoJsonService {
                 allSpots.add(
                   WorkingSpot(
                     status: 0,
-                    spotID: properties['ORIG_FID'] ?? properties['Id'] ?? 0,
+                    spotID: properties['OBJECTID'] ?? properties['Id'] ?? 0,
                     lat: lat,
                     lng: lng,
                     alt: 0,
@@ -59,14 +60,11 @@ class GeoJsonService {
             if (geometry['type'] == 'MultiLineString' &&
                 geometry['coordinates'] != null) {
               final List<dynamic> lines = geometry['coordinates'];
-              final spotIdGroup =
-                  properties['id'] ??
-                  properties['ORIG_FID'] ??
-                  properties['Id'] ??
-                  0;
 
               for (var line in lines) {
                 final List<dynamic> points = line;
+                final currentSpotId = crumblingLineId++;
+
                 for (var point in points) {
                   if (point is List && point.length >= 2) {
                     final lng = (point[0] as num).toDouble();
@@ -75,8 +73,7 @@ class GeoJsonService {
                     allSpots.add(
                       WorkingSpot(
                         status: 0,
-                        spotID:
-                            spotIdGroup, // Group ID mapped to spotID per requirements
+                        spotID: currentSpotId,
                         lat: lat,
                         lng: lng,
                         alt: 0,
@@ -88,6 +85,31 @@ class GeoJsonService {
                       ),
                     );
                   }
+                }
+              }
+            } else if (geometry['type'] == 'LineString' &&
+                geometry['coordinates'] != null) {
+              final List<dynamic> points = geometry['coordinates'];
+              final currentSpotId = crumblingLineId++;
+
+              for (var point in points) {
+                if (point is List && point.length >= 2) {
+                  final lng = (point[0] as num).toDouble();
+                  final lat = (point[1] as num).toDouble();
+
+                  allSpots.add(
+                    WorkingSpot(
+                      status: 0,
+                      spotID: currentSpotId,
+                      lat: lat,
+                      lng: lng,
+                      alt: 0,
+                      akurasi: 0.0,
+                      deep: 0,
+                      totalTime: 0,
+                      lastUpdate: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+                    ),
+                  );
                 }
               }
             }

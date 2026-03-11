@@ -6,6 +6,8 @@ import 'widgets/guidance_widget.dart';
 import 'widgets/map_info_panel.dart';
 import 'widgets/timesheet_start_dialog.dart';
 import 'widgets/timesheet_end_dialog.dart';
+import 'widgets/crumbling_deviation_bar.dart';
+import '../../core/state/auth_state.dart';
 
 class MapPage extends ConsumerStatefulWidget {
   const MapPage({super.key});
@@ -47,6 +49,8 @@ class _MapPageState extends ConsumerState<MapPage> {
   Widget build(BuildContext context) {
     // Map State
     final mapState = ref.watch(mapPresenterProvider);
+    final authState = ref.watch(authProvider);
+    final isCrumblingMode = authState.mode.name.toUpperCase() == 'CRUMBLING';
     final size = MediaQuery.of(context).size;
 
     // Listen for Location Updates to move camera & Update Excavator
@@ -116,10 +120,11 @@ class _MapPageState extends ConsumerState<MapPage> {
             left: size.width * 0.02,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: const Color(0xFF1E241E).withOpacity(0.9),
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.withOpacity(0.5)),
                 boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 4),
+                  BoxShadow(color: Colors.black26, blurRadius: 4),
                 ],
               ),
               child: IconButton(
@@ -128,7 +133,7 @@ class _MapPageState extends ConsumerState<MapPage> {
                     _showMenu = !_showMenu;
                   });
                 },
-                icon: const Icon(Icons.menu_rounded),
+                icon: const Icon(Icons.menu_rounded, color: Colors.greenAccent),
                 tooltip: 'Menu',
               ),
             ),
@@ -204,11 +209,23 @@ class _MapPageState extends ConsumerState<MapPage> {
             ),
 
           // ===== GUIDANCE WIDGET =====
-          if (mapState.isWorkMode)
+          if (mapState.isWorkMode && !isCrumblingMode)
             Positioned(
               right: size.width * 0.01,
               top: size.height * 0.09,
               child: const GuidanceWidget(),
+            ),
+
+          // ===== CRUMBLING DEVIATION BAR =====
+          if (mapState.isWorkMode && isCrumblingMode)
+            Positioned(
+              top: size.height * 0.05,
+              left: 0,
+              right: 0,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: const CrumblingDeviationBar(),
+              ),
             ),
 
           // ===== TOP RIGHT CONNECTION STATUS & EXIT =====
@@ -221,10 +238,11 @@ class _MapPageState extends ConsumerState<MapPage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFF1E241E).withOpacity(0.9),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green.withOpacity(0.5)),
                     boxShadow: const [
-                      BoxShadow(color: Colors.black12, blurRadius: 4),
+                      BoxShadow(color: Colors.black26, blurRadius: 4),
                     ],
                   ),
                   child: Row(
@@ -232,20 +250,26 @@ class _MapPageState extends ConsumerState<MapPage> {
                     children: [
                       const Text(
                         'Conn: ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white70,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Icon(
                         Icons.circle,
                         color: mapState.usbConnected
-                            ? Colors.green
-                            : Colors.red,
+                            ? Colors.greenAccent
+                            : Colors.redAccent,
                         size: 16,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         mapState.usbConnected ? 'Connected' : 'Disconnected',
-                        style: const TextStyle(
+                        style: TextStyle(
+                          color: mapState.usbConnected
+                              ? Colors.greenAccent
+                              : Colors.redAccent,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -257,10 +281,11 @@ class _MapPageState extends ConsumerState<MapPage> {
                 // Exit Button
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFF1E241E).withOpacity(0.9),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green.withOpacity(0.5)),
                     boxShadow: const [
-                      BoxShadow(color: Colors.black12, blurRadius: 4),
+                      BoxShadow(color: Colors.black26, blurRadius: 4),
                     ],
                   ),
                   child: IconButton(
@@ -307,14 +332,24 @@ class _MapPageState extends ConsumerState<MapPage> {
   Widget _buildFloatingButton({
     required IconData icon,
     required VoidCallback onPressed,
-    Color color = Colors.blue,
+    Color? color,
   }) {
-    return FloatingActionButton(
-      mini: true,
-      backgroundColor: color == Colors.blue ? Colors.white : color,
-      foregroundColor: color == Colors.blue ? Colors.blue : Colors.white,
-      onPressed: onPressed,
-      child: Icon(icon),
+    final bgColor = const Color(0xFF1E241E).withOpacity(0.9);
+    final fgColor = color ?? Colors.greenAccent;
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.green.withOpacity(0.5)),
+        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
+      ),
+      child: FloatingActionButton(
+        mini: true,
+        backgroundColor: bgColor,
+        foregroundColor: fgColor,
+        elevation: 0,
+        onPressed: onPressed,
+        child: Icon(icon),
+      ),
     );
   }
 }

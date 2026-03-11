@@ -15,6 +15,8 @@ class WorkfilePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final repo = ref.watch(appRepositoryProvider);
+    final authState = ref.watch(authProvider);
+    final currentSystemMode = authState.mode.name.toUpperCase();
     final workfilesStream = repo.watchWorkFiles();
 
     return Scaffold(
@@ -87,7 +89,10 @@ class WorkfilePage extends ConsumerWidget {
               ),
             );
           }
-          final workfiles = snapshot.data ?? [];
+          final allWorkfiles = snapshot.data ?? [];
+          final workfiles = allWorkfiles
+              .where((w) => w.equipment?.toUpperCase() == currentSystemMode)
+              .toList();
 
           if (workfiles.isEmpty) {
             return const Center(

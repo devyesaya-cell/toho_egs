@@ -6,6 +6,7 @@ class ProgressCard extends StatelessWidget {
   final double maxAreaHa;
   final double percentage;
   final int totalSpots;
+  final String spacing;
 
   const ProgressCard({
     super.key,
@@ -13,6 +14,7 @@ class ProgressCard extends StatelessWidget {
     this.maxAreaHa = 5,
     this.percentage = 0,
     this.totalSpots = 0,
+    this.spacing = '4.0 m x 1.87 m',
   });
 
   @override
@@ -45,7 +47,7 @@ class ProgressCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "/ $maxAreaHa ha",
+                      "/ ${maxAreaHa.toStringAsFixed(3)} ha",
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 10,
@@ -108,7 +110,7 @@ class ProgressCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       const Text(
-                        'spots',
+                        'm2',
                         style: TextStyle(
                           fontSize: 10,
                           color: Color(0xFFB0BEC5),
@@ -140,9 +142,9 @@ class ProgressCard extends StatelessWidget {
                 'Spacing',
                 style: TextStyle(fontSize: 12, color: Color(0xFFB0BEC5)),
               ),
-              const Text(
-                '4.0 m x 1.87 m',
-                style: TextStyle(
+              Text(
+                spacing,
+                style: const TextStyle(
                   fontSize: 12,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -159,7 +161,7 @@ class ProgressCard extends StatelessWidget {
                 style: TextStyle(fontSize: 12, color: Color(0xFFB0BEC5)),
               ),
               Text(
-                '$maxAreaHa Ha',
+                '${maxAreaHa.toStringAsFixed(3)} Ha',
                 style: const TextStyle(
                   fontSize: 12,
                   color: Colors.white,

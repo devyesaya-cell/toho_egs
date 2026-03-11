@@ -23,9 +23,10 @@ class MapInfoPanel extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF1E241E).withOpacity(0.95),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8)],
+        border: Border.all(color: Colors.green.withOpacity(0.4), width: 1),
+        boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 8)],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -103,7 +104,10 @@ class MapInfoPanel extends ConsumerWidget {
                   mapState.fullGps?.pitch ?? 0,
                 ),
                 const SizedBox(width: 4),
-                Text((mapState.fullGps?.pitch ?? 0).toStringAsFixed(1)),
+                Text(
+                  (mapState.fullGps?.pitch ?? 0).toStringAsFixed(1),
+                  style: const TextStyle(color: Colors.white),
+                ),
                 const SizedBox(width: 12),
                 // Roll (Back View) -> Back Color
                 _buildRotatedImage(
@@ -111,7 +115,10 @@ class MapInfoPanel extends ConsumerWidget {
                   mapState.fullGps?.roll ?? 0,
                 ),
                 const SizedBox(width: 4),
-                Text((mapState.fullGps?.roll ?? 0).toStringAsFixed(1)),
+                Text(
+                  (mapState.fullGps?.roll ?? 0).toStringAsFixed(1),
+                  style: const TextStyle(color: Colors.white),
+                ),
               ],
             ),
           ),
@@ -156,7 +163,7 @@ class MapInfoPanel extends ConsumerWidget {
                   label ?? '',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: isTextOnly ? color : Colors.black87,
+                    color: isTextOnly ? color : Colors.white70,
                     fontSize: 14,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -171,7 +178,7 @@ class MapInfoPanel extends ConsumerWidget {
     return Container(
       height: 24,
       width: 1,
-      color: Colors.grey.shade300,
+      color: Colors.green.withOpacity(0.3),
       margin: const EdgeInsets.symmetric(horizontal: 4),
     );
   }

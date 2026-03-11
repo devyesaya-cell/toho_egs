@@ -1,0 +1,109 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset="utf-8">
+<style>
+body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; }
+h1 { color: #2E7D32; text-align: center; border-bottom: 2px solid #2E7D32; padding-bottom: 10px; }
+h2 { color: #1B5E20; margin-top: 30px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+h3 { color: #388E3C; }
+ul { margin-bottom: 20px; }
+li { margin-bottom: 5px; }
+.note { background-color: #E8F5E9; padding: 10px; border-left: 4px solid #4CAF50; margin: 20px 0; }
+.header-box { text-align: center; margin-bottom: 40px; }
+</style>
+</head>
+<body>
+
+<div class="header-box">
+  <h1>MANUAL BOOK PENGGUNAAN APLIKASI</h1>
+  <h2>APP TOHO EGS</h2>
+  <p><strong>Dokumen Panduan Fitur & Operasional</strong></p>
+</div>
+
+<h2>Daftar Isi</h2>
+<ul>
+  <li>1. Pendahuluan</li>
+  <li>2. Fitur Autentikasi (Login)</li>
+  <li>3. Halaman Dashboard & Metrik Kerja</li>
+  <li>4. Fitur Workfile (Manajemen Lokasi Kerja)</li>
+  <li>5. Halaman Map (Peta Pengerjaan)</li>
+  <li>6. Fitur Setup & Sinkronisasi (Sync)</li>
+  <li>7. Fitur Timesheet & Manajemen Waktu</li>
+  <li>8. Alarm Sistem</li>
+</ul>
+
+<h2>1. Pendahuluan</h2>
+<p>
+  Aplikasi <strong>Toho EGS</strong> dirancang khusus untuk memenuhi kebutuhan pengawasan lahan, dengan fitur pemetaan interaktif, perhitungan progress pengerjaan, manajemen mode operasional (seperti mode Spot dan Crumbling), serta fitur sinkronisasi offline antar-perangkat menggunakan jaringan lokal (WebSocket).
+</p>
+
+<h2>2. Fitur Autentikasi (Login)</h2>
+<p>Fitur ini membatasi akses aplikasi sesuai dengan otorisasi keamanan.</p>
+<ul>
+  <li><strong>Login Kredensial:</strong> Masukkan <em>Username</em> (misal: ID Supervisor) dan masuk menggunakan kata sandi yang terdaftar.</li>
+  <li><strong>Peran (Role):</strong> Sebagian besar fitur admin atau pemantauan dioptimalkan untuk Supervisor atau Manager.</li>
+</ul>
+
+<h2>3. Halaman Dashboard & Metrik Kerja</h2>
+<p>
+  Halaman dashboard merupakan pusat pemantauan performa harian yang secara otomatis menghitung efisiensi pengerjaan tim. Nilai metrik akan menyesuaikan secara dinamis tergantung <em>System Mode</em> yang aktif (Spot Mode atau Crumbling Mode).
+</p>
+<ul>
+  <li><strong>Pilihan Area/Workfile:</strong> Anda bisa memilih workfile aktif berdasarkan nama area (<em>Area Name</em>).</li>
+  <li><strong>Working Progress:</strong> Menampilkan pencapaian (misal dalam satuan Hektar/Ha). Pada mode Crumbling, perhitungan dihitung dari jarak lintasan selesai dikalikan lebar kerja ideal.</li>
+  <li><strong>Productivity:</strong> Menampilkan efisiensi kecepatan kerja (seperti jarak per jam atau spot per jam).</li>
+  <li><strong>Production:</strong> Menampilkan total produksi keseluruhan dari awal pengerjaan.</li>
+  <li><strong>Spot/Line Precision:</strong> Tingkat presisi pengerjaan dari target awal yang sudah direncanakan (akurasi & deviasi lintasan).</li>
+  <li><strong>Work Hours:</strong> Menampilkan durasi jam kerja aktif berdasarkan timestamp pekerjaan terakhir.</li>
+</ul>
+
+<h2>4. Fitur Workfile (Manajemen Lokasi Kerja)</h2>
+<p>Fitur untuk mempersiapkan, menambah, atau memuat peta rancangan (Blueprint lahan) sebelum proses pengerjaan lapangan dimulai.</p>
+<ul>
+  <li><strong>Create Workfile:</strong> Membuat berkas area kerja baru.</li>
+  <li><strong>Penyetelan Parameter Kerja:</strong> Anda dapat mengatur Contractor (Kontraktor pelaksana), Spacing (Jarak penanaman/pengerjaan), dan Equipment (Alat yang digunakan mode otomatis menyesuaikan mode sistem).</li>
+  <li><strong>Unggah Denah / GeoJSON Parsing:</strong>
+    <ul>
+      <li>Pengguna diwajibkan mengunggah berkas format <strong>.geojson</strong>.</li>
+      <li>Pada <strong>Crumbling Mode</strong>: Sistem otomatis membaca geometri berupa garis panjang (<em>LineString/MultiLineString</em>), memilahnya ke dalam segmen, dan membuat GroupID khusus untuk melacak progres jarak per jalur.</li>
+      <li>Pada <strong>Spot Mode</strong>: Sistem akan memproses data berformat titik-titik koordinat lokasi spot kerja individual.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>5. Halaman Map (Peta Pengerjaan)</h2>
+<p>Fitur peta interaktif untuk mengarahkan pengguna atau operator langsung di lokasi lapangan kerja.</p>
+<ul>
+  <li><strong>Tampilan GeoJSON & Spot:</strong> Area atau lintasan yang dikerjakan akan ditampilkan secara jelas di peta. Biru/abu untuk area belum dikerjakan, dan akan berubah warna (menjadi hijau) saat bagian tersebut selesai.</li>
+  <li><strong>Geo-Tracking (GPS):</strong> Aplikasi secara langsung memantau posisi perangkat untuk mencocokkan koordinat dengan spot target.</li>
+  <li><strong>Penyelesaian Otomatis:</strong> Saat operator melewati jalur atau titik target dengan akurasi ideal, titik kerja otomatis tersimpan sebagai 'Selesai' (Status = 1).</li>
+</ul>
+
+<h2>6. Fitur Setup & Sinkronisasi (Sync)</h2>
+<p>Fitur pengaturan (Setup) memungkinkan penyesuaian aplikasi dan mekanisme Backup/Sinkronisasi pengerjaan secara offline antarmesin-supervisor.</p>
+<ul>
+  <li><strong>Pengaturan Mode Sistem (System Mode):</strong> Menentukan aplikasi berjalan pada skema pekerjaan "Spot" atau "Crumbling".</li>
+  <li><strong>Data Synchronization (ComServices):</strong> 
+    <ul>
+      <li>Pertukaran data jarak dekat menggunakan teknologi WebSocket di jaringan Wi-Fi lokal atau Hotspot Portable.</li>
+      <li>Saat disambungkan, layar <em>Sync Page</em> akan menunjukkan status berhasil, lalu mengirim dan menerima kumpulan berkas Workfile dan Working Spot (titik progress) antar perangkat tanpa butuh jaringan internet global.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>7. Fitur Timesheet & Manajemen Waktu</h2>
+<p>Melacak kehadiran, alur jadwal shift (pagi/malam), serta jam efektif yang terkumpul dari para pekerja atau operator mesin.</p>
+
+<h2>8. Alarm Sistem</h2>
+<p>Fitur mitigasi risiko berupa peringatan sistem secara berkala:</p>
+<ul>
+  <li>Alarm akan menyala (bunyi/notifikasi visual) manakala posisi operator melenceng terlalu jauh (keluar radius deviasi presisi garis).</li>
+  <li>Alarm juga menandakan peringatan pergantian wilayah atau putusnya koneksi antarperangkat.</li>
+</ul>
+
+<div class="note">
+  <strong>Catatan:</strong> Dokumen ini dapat diubah atau disesuikan untuk pelatihan tingkat lanjut terkait pemahaman visualisasi pada peta UI (User Interface) aplikasi.
+</div>
+
+</body>
+</html>

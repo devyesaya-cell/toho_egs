@@ -147,10 +147,14 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
                           ),
                           isDense: true, // Reduce default height
                           items: workfiles.map((workfile) {
+                            final displayName =
+                                workfile.areaName?.isNotEmpty == true
+                                ? workfile.areaName!
+                                : workfile.uid?.toString() ?? 'Unknown';
                             return DropdownMenuItem<String>(
                               value: workfile.uid.toString(),
                               child: Text(
-                                workfile.uid.toString(),
+                                displayName,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,

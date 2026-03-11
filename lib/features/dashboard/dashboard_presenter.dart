@@ -8,7 +8,7 @@ import '../../core/database/database_service.dart';
 import '../../core/models/working_spot.dart';
 import '../../core/models/workfile.dart';
 import '../../core/state/auth_state.dart';
-import 'package:intl/intl.dart';
+import '../../core/services/coordinate_service.dart';
 
 // --- State Class ---
 class DashboardData {
@@ -36,6 +36,7 @@ class DashboardData {
   final double areaHa; // Current Area in Ha
   final double maxAreaHa; // Target Area in Ha
   final double percentageProgress; // areaHa / maxAreaHa
+  final String spacing;
 
   // New Fields for Charts
   final double productivityMaxY;
@@ -62,6 +63,7 @@ class DashboardData {
     this.areaHa = 0,
     this.maxAreaHa = 1,
     this.percentageProgress = 0,
+    this.spacing = '4.0 m x 1.87 m',
     this.productivityMaxY = 1.0,
     this.productionMaxY = 100.0,
     this.trendInterval = 7200000,
@@ -248,6 +250,14 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
     final systemMode = auth.mode.name.toUpperCase(); // 'SPOT' or 'CRUMBLING'
     final fileID = _filter.selectedFileID ?? '';
 
+    final activeWorkfile = workfiles.firstWhere(
+      (w) => w.uid.toString() == fileID,
+      orElse: () => WorkFile(),
+    );
+
+    final currentSpacing =
+        '${activeWorkfile.panjang ?? 4.0} m x ${activeWorkfile.lebar ?? 1.87} m';
+
     // Query Isar
     final spots = await _isar.workingSpots
         .filter()
@@ -263,22 +273,44 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
         .findAll();
 
     if (spots.isEmpty) {
-      return DashboardData(workfiles: workfiles);
+      return DashboardData(workfiles: workfiles, spacing: currentSpacing);
     }
 
     // --- Calculations ---
 
     // 8. WorkHours
     double workHoursSeconds = 0;
+    double totalDistance = 0;
+
+    // Load CoordinateService if crumbling
+    // We assume it's imported at the top. Let's make sure to use it.
+    // If dart complains, we'll fix import next.
+    final _calc = CoordinateService();
+
     if (spots.length > 1) {
       for (int i = 0; i < spots.length - 1; i++) {
         final current = spots[i];
         final next = spots[i + 1];
+
+        // Workhours
         if (current.lastUpdate != null && next.lastUpdate != null) {
           final diff = next.lastUpdate! - current.lastUpdate!;
           final diffSec = diff / 1000.0;
           if (diffSec <= 300) {
             workHoursSeconds += diffSec;
+          }
+        }
+
+        // Distance for Crumbling
+        if (systemMode == 'CRUMBLING') {
+          if (current.lat != null &&
+              current.lng != null &&
+              next.lat != null &&
+              next.lng != null) {
+            totalDistance += _calc.getDistance(
+              Position(current.lng!, current.lat!),
+              Position(next.lng!, next.lat!),
+            );
           }
         }
       }
@@ -289,8 +321,11 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
     final minutes = (whDuration.inMinutes % 60).toString().padLeft(2, '0');
     final workHoursStr = "$hours:$minutes";
 
-    // 9. Production = spots.length
-    final production = spots.length;
+    // 9. Production
+    // For Spot mode: count of spots. For Crumbling: Total Distance (meters)
+    final double production = systemMode == 'CRUMBLING'
+        ? totalDistance
+        : spots.length.toDouble();
 
     // 10. Productivity
     double productivity = 0;
@@ -298,34 +333,30 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
       productivity = (production / workHoursSeconds) * 3600;
     }
 
-    // 11. Spot Precision
+    // 11. Spot/Line Precision
     double totalAccuracy = 0;
     for (var spot in spots) {
       totalAccuracy += (spot.akurasi ?? 0);
     }
     final precision = spots.isNotEmpty ? totalAccuracy / spots.length : 0.0;
 
-    // --- New: Area Calculation (Ha) ---
-    // User: "rubah total spot yg di kerjakan menjadi Ha"
-    // Formula: Spots * (4.0 * 1.87) / 10000
-    final areaM2 = production * (4.0 * 1.87);
+    // --- Area Calculation (Ha) ---
+    // If CRUMBLING: distance * panjang / 10000
+    // If SPOT: Spots * (4.0 * 1.87) / 10000
+    final areaM2 = systemMode == 'CRUMBLING'
+        ? totalDistance * (activeWorkfile.panjang ?? 4.0)
+        : production * (4.0 * 1.87);
     final areaHa = areaM2 / 10000.0;
 
-    // Max Area (Hardcoded for now as requested)
-    const maxAreaHa = 5.0; // Mock Target
+    // Max Area (From Workfile, fallback to 5.0 Ha)
+    final maxAreaHa = activeWorkfile.luasArea ?? 5.0;
 
     // Indicator Progress
-    final percentageProgress = (areaHa / maxAreaHa).clamp(0.0, 1.0);
+    final percentageProgress = maxAreaHa > 0
+        ? (areaHa / maxAreaHa).clamp(0.0, 1.0)
+        : 0.0;
 
-    // Trend Calculation
-    // User: "ganti sumbu X dari index hardcode menjadi lastUpdate"
-    // To make X axis time-based in FL Chart, we usually use millisecondsSinceEpoch.toDouble()
-    // But FL Chart works best with smaller numbers.
-    // We can map X to "Hours from Start of Selected Period".
-    // 07:00 -> 0, 07:30 -> 0.5 etc if Morning.
-    // But Custom Range could be days.
-    // Let's stick to using timestamp.toDouble() and formatting it in the widget.
-
+    // --- Trend Calculation ---
     final durationHours = endTime.difference(startTime).inHours;
     int intervalMinutes = 30;
     if (durationHours > 24) {
@@ -337,8 +368,29 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
       startTime: startTime,
       intervalMinutes: intervalMinutes,
       valueMapper: (groupSpots) {
-        final areaM2 = groupSpots.length * (4 * 1.87);
-        return areaM2 / 10000.0; // Ha
+        if (systemMode == 'CRUMBLING') {
+          double dist = 0;
+          if (groupSpots.length > 1) {
+            for (int i = 0; i < groupSpots.length - 1; i++) {
+              final cur = groupSpots[i];
+              final nxt = groupSpots[i + 1];
+              if (cur.lat != null &&
+                  cur.lng != null &&
+                  nxt.lat != null &&
+                  nxt.lng != null) {
+                dist += _calc.getDistance(
+                  Position(cur.lng!, cur.lat!),
+                  Position(nxt.lng!, nxt.lat!),
+                );
+              }
+            }
+          }
+          final m2 = dist * (activeWorkfile.panjang ?? 4.0);
+          return m2 / 10000.0;
+        } else {
+          final m2 = groupSpots.length * (4.0 * 1.87);
+          return m2 / 10000.0; // Ha
+        }
       },
     );
 
@@ -346,7 +398,29 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
       spots,
       startTime: startTime,
       intervalMinutes: intervalMinutes,
-      valueMapper: (groupSpots) => groupSpots.length.toDouble(),
+      valueMapper: (groupSpots) {
+        if (systemMode == 'CRUMBLING') {
+          double dist = 0;
+          if (groupSpots.length > 1) {
+            for (int i = 0; i < groupSpots.length - 1; i++) {
+              final cur = groupSpots[i];
+              final nxt = groupSpots[i + 1];
+              if (cur.lat != null &&
+                  cur.lng != null &&
+                  nxt.lat != null &&
+                  nxt.lng != null) {
+                dist += _calc.getDistance(
+                  Position(cur.lng!, cur.lat!),
+                  Position(nxt.lng!, nxt.lat!),
+                );
+              }
+            }
+          }
+          return dist;
+        } else {
+          return groupSpots.length.toDouble();
+        }
+      },
     );
 
     // Dynamic Max Y Calculations (with padding)
@@ -363,8 +437,6 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
     final productionMaxY = productionMax == 0 ? 10.0 : productionMax * 1.2;
 
     // Chart Interval
-    // If < 24h, use 2 hours (7200000 ms)
-    // If >= 24h, use 1 day (86400000 ms)
     final double chartInterval = durationHours >= 24 ? 86400000.0 : 7200000.0;
 
     return DashboardData(
@@ -378,8 +450,8 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
       precision: double.parse(precision.toStringAsFixed(2)),
       percentagePrecision: (precision / 10).clamp(0.0, 1.0), // Mock Max 10 cm?
 
-      productionSpots: production,
-      productionSpotsTotal: production,
+      productionSpots: production.toInt(),
+      productionSpotsTotal: production.toInt(),
       percentageProduction: (production / 5000).clamp(0.0, 1.0), // Mock Target
 
       workHours: workHoursStr,
@@ -389,9 +461,10 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
         1.0,
       ), // Target 12h
       // New Progress Data
-      areaHa: double.parse(areaHa.toStringAsFixed(4)),
+      areaHa: double.parse(areaHa.toStringAsFixed(3)),
       maxAreaHa: maxAreaHa,
       percentageProgress: percentageProgress,
+      spacing: currentSpacing,
 
       productivityTrend: productivityTrendPoints,
       productionTrend: productionTrendPoints,

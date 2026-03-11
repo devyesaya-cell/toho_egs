@@ -6,6 +6,7 @@ import 'widgets/progress_card.dart';
 import 'widgets/summary_card.dart';
 import 'widgets/trend_chart.dart';
 import '../../core/widgets/global_app_bar_actions.dart';
+import '../../core/state/auth_state.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -13,6 +14,9 @@ class DashboardPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dashboardDataAsync = ref.watch(dashboardPresenterProvider);
+    final auth = ref.watch(authProvider);
+    final systemMode = auth.mode.name.toUpperCase();
+    final isCrumbling = systemMode == 'CRUMBLING';
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F1410), // Dark background
@@ -38,10 +42,10 @@ class DashboardPage extends ConsumerWidget {
             ),
             const SizedBox(width: 16),
             // Titles
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'EGS DASHBOARD',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -49,10 +53,10 @@ class DashboardPage extends ConsumerWidget {
                     fontSize: 18,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  'SYSTEM MODE: SPOT',
-                  style: TextStyle(
+                  'SYSTEM MODE: $systemMode',
+                  style: const TextStyle(
                     color: Color(0xFF2ECC71), // Primary Green
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -73,7 +77,7 @@ class DashboardPage extends ConsumerWidget {
             const SizedBox(height: 16),
             Expanded(
               child: dashboardDataAsync.when(
-                data: (data) => _buildDashboardContent(data),
+                data: (data) => _buildDashboardContent(data, isCrumbling),
                 loading: () => const Center(
                   child: CircularProgressIndicator(color: Color(0xFF2ECC71)),
                 ),
@@ -91,7 +95,7 @@ class DashboardPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildDashboardContent(DashboardData data) {
+  Widget _buildDashboardContent(DashboardData data, bool isCrumbling) {
     return Column(
       children: [
         // Top Row: Big Progress Card + Grid of Summary Cards
@@ -108,6 +112,7 @@ class DashboardPage extends ConsumerWidget {
                   maxAreaHa: data.maxAreaHa,
                   percentage: data.percentageProgress,
                   totalSpots: data.productionSpots,
+                  spacing: data.spacing,
                 ),
               ),
               const SizedBox(width: 16),
@@ -124,9 +129,10 @@ class DashboardPage extends ConsumerWidget {
                             child: SummaryCard(
                               title: 'Productivity',
                               value: data.productivity.toStringAsFixed(0),
-                              subUnit: 'spots/hr',
-                              subValue:
-                                  '${data.productivitySpotsHr.toStringAsFixed(0)} spots/Hr',
+                              subUnit: isCrumbling ? 'm/hr' : 'spots/hr',
+                              subValue: isCrumbling
+                                  ? ''
+                                  : '${data.productivitySpotsHr.toStringAsFixed(0)} spots/Hr',
                               percent: data.percentageProductivity,
                               progressColor: const Color(0xFF3B82F6), // Blue
                             ),
@@ -134,7 +140,9 @@ class DashboardPage extends ConsumerWidget {
                           const SizedBox(width: 16),
                           Expanded(
                             child: SummaryCard(
-                              title: 'Spots Precision',
+                              title: isCrumbling
+                                  ? 'Line Precision'
+                                  : 'Spots Precision',
                               value: '${data.precision}',
                               subUnit: 'cm',
                               subValue: '10 cm',
@@ -153,8 +161,10 @@ class DashboardPage extends ConsumerWidget {
                             child: SummaryCard(
                               title: 'Production',
                               value: '${data.productionSpots}',
-                              subUnit: 'spot',
-                              subValue: '${data.productionSpotsTotal} spots',
+                              subUnit: isCrumbling ? 'meter' : 'spot',
+                              subValue: isCrumbling
+                                  ? ''
+                                  : '${data.productionSpotsTotal} spots',
                               percent: data.percentageProduction,
                               progressColor: const Color(
                                 0xFF2ECC71,
@@ -204,7 +214,7 @@ class DashboardPage extends ConsumerWidget {
               Expanded(
                 child: TrendChart(
                   title: 'Production Trend',
-                  unit: 'Spot',
+                  unit: isCrumbling ? 'Meter' : 'Spot',
                   spots: data.productionTrend,
                   maxY: data.productionMaxY,
                   interval: data.trendInterval,

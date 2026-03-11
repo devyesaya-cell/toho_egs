@@ -66,6 +66,12 @@ class MapState {
   final double? devY;
   final double? targetBearing;
 
+  // Crumbling Data
+  final List<WorkingSpot>? targetSegment;
+  final double? crumblingDeviation;
+  final double crumblingDevSum;
+  final int crumblingDevCount;
+
   // Query Optimization
   final double? lastQueriedExcaLat;
   final double? lastQueriedExcaLng;
@@ -102,9 +108,13 @@ class MapState {
     this.devX,
     this.devY,
     this.targetBearing,
+    this.targetSegment,
+    this.crumblingDeviation,
     this.activeTimesheet,
     this.lastQueriedExcaLat,
     this.lastQueriedExcaLng,
+    this.crumblingDevSum = 0.0,
+    this.crumblingDevCount = 0,
   });
 
   MapState copyWith({
@@ -136,9 +146,13 @@ class MapState {
     double? devX,
     double? devY,
     double? targetBearing,
+    List<WorkingSpot>? targetSegment,
+    double? crumblingDeviation,
     TimesheetRecord? activeTimesheet,
     double? lastQueriedExcaLat,
     double? lastQueriedExcaLng,
+    double? crumblingDevSum,
+    int? crumblingDevCount,
   }) {
     return MapState(
       currentLat: currentLat ?? this.currentLat,
@@ -166,11 +180,16 @@ class MapState {
       totalSpot: totalSpot ?? this.totalSpot,
       spotDone: spotDone ?? this.spotDone,
       targetSpot: targetSpot ?? this.targetSpot,
+      devX: devX ?? this.devX,
       devY: devY ?? this.devY,
       targetBearing: targetBearing ?? this.targetBearing,
+      targetSegment: targetSegment ?? this.targetSegment,
+      crumblingDeviation: crumblingDeviation ?? this.crumblingDeviation,
       activeTimesheet: activeTimesheet ?? this.activeTimesheet,
       lastQueriedExcaLat: lastQueriedExcaLat ?? this.lastQueriedExcaLat,
       lastQueriedExcaLng: lastQueriedExcaLng ?? this.lastQueriedExcaLng,
+      crumblingDevSum: crumblingDevSum ?? this.crumblingDevSum,
+      crumblingDevCount: crumblingDevCount ?? this.crumblingDevCount,
     );
   }
 }
@@ -440,115 +459,325 @@ class MapPresenter extends Notifier<MapState> {
         ); // NOTE: usually bucketLong/Lat refer to machine body in these variable namings.
         final bucketPos = Position(gps.attachLng, gps.attachLat);
 
-        // Optimization: Only update nearby spots if machine moved > 3m from last query
-        bool shouldQueryNearby = false;
-        if (state.lastQueriedExcaLat == null ||
-            state.lastQueriedExcaLng == null) {
-          shouldQueryNearby = true;
-        } else {
-          final lastQueryPos = Position(
-            state.lastQueriedExcaLng!,
-            state.lastQueriedExcaLat!,
-          );
-          final distFromLastQuery = _calc.getDistance(lastQueryPos, excaPos);
-          if (distFromLastQuery > 3.0) {
+        // Mode check for logic branches
+        final auth = ref.read(authProvider);
+        final systemMode = auth.mode.name.toUpperCase();
+
+        if (systemMode == 'CRUMBLING') {
+          // ==================
+          // CRUMBLING LOGIC
+          // ==================
+          bool shouldQueryNearby = false;
+          if (state.lastQueriedExcaLat == null ||
+              state.lastQueriedExcaLng == null) {
             shouldQueryNearby = true;
-          }
-        }
-
-        if (shouldQueryNearby) {
-          // Find spots within 7.5m from Exca (using loaded spots)
-          _cachedNearbySpots = _loadedSpots.where((spot) {
-            if (spot.status != 0 || spot.lat == null || spot.lng == null) {
-              return false;
-            }
-            final spotPos = Position(spot.lng!, spot.lat!);
-            final dist = _calc.getDistance(excaPos, spotPos);
-            return dist <= 7.5;
-          }).toList();
-
-          state = state.copyWith(
-            lastQueriedExcaLat: gps.bucketLat,
-            lastQueriedExcaLng: gps.bucketLong,
-          );
-        }
-
-        // 2. Find closest spot to Bucket within 0.5m
-        double closestDist = double.infinity;
-        for (var spot in _cachedNearbySpots) {
-          final spotPos = Position(spot.lng!, spot.lat!);
-          final distToBucket = _calc.getDistance(bucketPos, spotPos);
-          if (distToBucket <= 0.5 && distToBucket < closestDist) {
-            closestDist = distToBucket;
-            newTargetSpot = spot;
-          }
-        }
-
-        if (newTargetSpot != null &&
-            newTargetSpot.lat != null &&
-            newTargetSpot.lng != null) {
-          final targetPos = Position(newTargetSpot.lng!, newTargetSpot.lat!);
-
-          // Calculate Target Bearing relative to EXCAVATOR (As requested)
-          newTargetBearing = _calc.getBearing(excaPos, targetPos);
-
-          // Calculate Target Distance & Bearing relative to bucket for DevX/DevY
-          final bearing = _calc.getBearing(bucketPos, targetPos);
-          final dist = _calc.getDistance(bucketPos, targetPos);
-
-          // Auto-Complete Spot Logic (< 10cm)
-          // NOTE: Time delay (> 2 sec) removed for simulation as requested by user.
-          if (dist <= 0.1) {
-            // Update entity
-            newTargetSpot.lastUpdate =
-                DateTime.now().millisecondsSinceEpoch ~/ 1000;
-            newTargetSpot.lat = gps.attachLat;
-            newTargetSpot.lng = gps.attachLng;
-            newTargetSpot.status = 1;
-            newTargetSpot.akurasi = dist * 100; // in cm
-
-            final rand = math.Random();
-            newTargetSpot.deep = 60 + rand.nextInt(21); // 60-80
-            newTargetSpot.alt = 60 + rand.nextInt(21); // 60-80
-
-            // Save to Isar DB
-            final isar = DatabaseService().isar;
-            isar.writeTxn(() async {
-              await isar.workingSpots.put(newTargetSpot!);
-            });
-
-            // Update Memory Map & state counter
-            _loadedSpots.removeWhere((s) => s.id == newTargetSpot!.id);
-            // We increment spotDone without full reload for immediate UI feedback.
-            // When map moves or refreshes, it will call loadSpots anyway.
-            state = state.copyWith(spotDone: state.spotDone + 1);
-
-            // Trigger Map Update immediately so spot turns green
-            // (Assuming there is a way to access controller, otherwise it updates next refresh)
-            // Ideally we'd trigger a reload event here, but without easy access to the MapController inside Notifier's `_gpsSub`,
-            // the user might just see the status increment.
-            // The map spots are loaded in `loadSpots` taking the controller.
-            // In Flutter Riverpod, best way is to expose a mechanism, or reload next time `loadSpots` is called.
-
-            // Nullify targetSpot so GuidanceWidget flashes back to searching
-            newTargetSpot = null;
-            newDevX = null;
-            newDevY = null;
-            newTargetBearing = null;
-
-            NotificationService.showSuccess('Spot Completed!');
           } else {
+            final lastQueryPos = Position(
+              state.lastQueriedExcaLng!,
+              state.lastQueriedExcaLat!,
+            );
+            final distFromLastQuery = _calc.getDistance(lastQueryPos, excaPos);
+            if (distFromLastQuery > 10.0) {
+              // Expand update radius for crumbling
+              shouldQueryNearby = true;
+            }
+          }
+
+          if (shouldQueryNearby) {
+            // Find spots within 20m from Exca
+            _cachedNearbySpots = _loadedSpots.where((spot) {
+              if (spot.status != 0 || spot.lat == null || spot.lng == null)
+                return false;
+              final spotPos = Position(spot.lng!, spot.lat!);
+              return _calc.getDistance(excaPos, spotPos) <= 20.0;
+            }).toList();
+
+            state = state.copyWith(
+              lastQueriedExcaLat: gps.bucketLat,
+              lastQueriedExcaLng: gps.bucketLong,
+            );
+          }
+
+          // 1. Group by line (spotID) and find the closest Line to Exca (Target Line)
+          final Map<int, List<WorkingSpot>> groupedLines = {};
+          for (var spot in _cachedNearbySpots) {
+            if (spot.spotID != null) {
+              groupedLines.putIfAbsent(spot.spotID!, () => []).add(spot);
+            }
+          }
+
+          List<WorkingSpot>? targetLine;
+          double closestLineDist = double.infinity;
+
+          for (var entry in groupedLines.entries) {
+            final lineSpots = entry.value;
+            lineSpots.sort((a, b) => a.id.compareTo(b.id)); // Ensure order
+
+            // Approximate line distance as min distance to any segment on this line
+            double minDistToLine = double.infinity;
+            for (int i = 0; i < lineSpots.length - 1; i++) {
+              final startPos = Position(lineSpots[i].lng!, lineSpots[i].lat!);
+              final endPos = Position(
+                lineSpots[i + 1].lng!,
+                lineSpots[i + 1].lat!,
+              );
+              final dist = _calc.distanceToSegment(excaPos, startPos, endPos);
+              if (dist < minDistToLine) minDistToLine = dist;
+            }
+
+            // If the line only has 1 spot, use direct distance
+            if (lineSpots.length == 1) {
+              minDistToLine = _calc.getDistance(
+                excaPos,
+                Position(lineSpots[0].lng!, lineSpots[0].lat!),
+              );
+            }
+
+            if (minDistToLine < closestLineDist) {
+              closestLineDist = minDistToLine;
+              targetLine = lineSpots;
+            }
+          }
+
+          // 2. Find closest segment to Exca from the Target Line (Target Segment)
+          List<WorkingSpot>? newTargetSegment;
+          double closestSegmentDist = double.infinity;
+
+          if (targetLine != null && targetLine.length >= 2) {
+            for (int i = 0; i < targetLine.length - 1; i++) {
+              final startPos = Position(targetLine[i].lng!, targetLine[i].lat!);
+              final endPos = Position(
+                targetLine[i + 1].lng!,
+                targetLine[i + 1].lat!,
+              );
+              final dist = _calc.distanceToSegment(excaPos, startPos, endPos);
+
+              if (dist < closestSegmentDist) {
+                closestSegmentDist = dist;
+                newTargetSegment = [targetLine[i], targetLine[i + 1]];
+              }
+            }
+          }
+
+          // Variables for holding metrics inside segment
+          double? newCrumblingDev;
+
+          if (newTargetSegment != null) {
+            // Target segment found. Calculate Deviation from Bucket to Target Segment.
+            final segmentStart = Position(
+              newTargetSegment[0].lng!,
+              newTargetSegment[0].lat!,
+            );
+            final segmentEnd = Position(
+              newTargetSegment[1].lng!,
+              newTargetSegment[1].lat!,
+            );
+
+            // Raw distance from bucket to the segment
+            final distToSegment = _calc.distanceToSegment(
+              bucketPos,
+              segmentStart,
+              segmentEnd,
+            );
+
+            // Find closest point on the segment to use for bearing
+            final pointOnSegmentX =
+                segmentStart.lng + (segmentEnd.lng - segmentStart.lng) / 2;
+            final pointOnSegmentY =
+                segmentStart.lat + (segmentEnd.lat - segmentStart.lat) / 2;
+            // Using a simple midpoint as approximation for bearing direction. Real projection is complex but distance is small.
+            final bearingToSegment = _calc.getBearing(
+              bucketPos,
+              Position(pointOnSegmentX, pointOnSegmentY),
+            );
+
             // Theta: angle difference between Bucket-Target bearing vs Exca Machine Heading
             // This aligns the X,Y coordinates to the direction the machine is facing.
-            final thetaRad = (bearing - gps.heading) * (math.pi / 180.0);
+            final thetaRad =
+                (bearingToSegment - gps.heading) * (math.pi / 180.0);
 
-            // Forward/Backward deviation (Y): positive is forward
-            // Left/Right deviation (X): positive is right
-            newDevY = dist * math.cos(thetaRad);
-            newDevX = dist * math.sin(thetaRad);
+            // Left/Right deviation (X): positive is right, negative is left.
+            // distToSegment is in meters. We want cm.
+            newCrumblingDev = (distToSegment * math.sin(thetaRad)) * 100;
+
+            // TODO: Auto complete logic on segment transition
           }
-        }
-      }
+
+          // Check if segment transitions inside this update
+          List<WorkingSpot>? prevSegment = state.targetSegment;
+          double nextSum = state.crumblingDevSum;
+          int nextCount = state.crumblingDevCount;
+
+          if (newCrumblingDev != null) {
+            nextSum += newCrumblingDev.abs();
+            nextCount += 1;
+          }
+
+          if (prevSegment != null && newTargetSegment != null) {
+            if (prevSegment[0].id != newTargetSegment[0].id ||
+                prevSegment[1].id != newTargetSegment[1].id) {
+              // EXCA EXITED THE PREVIOUS SEGMENT
+              // Find closest spot of prev segment to exca
+              final prevStart = Position(
+                prevSegment[0].lng!,
+                prevSegment[0].lat!,
+              );
+              final prevEnd = Position(
+                prevSegment[1].lng!,
+                prevSegment[1].lat!,
+              );
+              final distToStart = _calc.getDistance(excaPos, prevStart);
+              final distToEnd = _calc.getDistance(excaPos, prevEnd);
+
+              WorkingSpot nodeToUpdate = distToStart < distToEnd
+                  ? prevSegment[0]
+                  : prevSegment[1];
+
+              nodeToUpdate.status = 1;
+              nodeToUpdate.lastUpdate =
+                  DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+              // average deviation over time.
+              double avgDev = state.crumblingDevCount > 0
+                  ? (state.crumblingDevSum / state.crumblingDevCount)
+                  : (newCrumblingDev?.abs() ?? 0.0);
+
+              nodeToUpdate.akurasi = avgDev;
+
+              final isar = DatabaseService().isar;
+              isar.writeTxn(() async {
+                await isar.workingSpots.put(nodeToUpdate);
+              });
+
+              // Remove spot from memory and update UI
+              _loadedSpots.removeWhere((s) => s.id == nodeToUpdate.id);
+              state = state.copyWith(spotDone: state.spotDone + 1);
+
+              // Reset dev tracking for new segment
+              nextSum = newCrumblingDev?.abs() ?? 0.0;
+              nextCount = newCrumblingDev != null ? 1 : 0;
+            }
+          }
+
+          state = state.copyWith(
+            targetSegment: newTargetSegment,
+            crumblingDeviation: newCrumblingDev,
+            crumblingDevSum: nextSum,
+            crumblingDevCount: nextCount,
+          );
+        } else {
+          // ==================
+          // SPOT LOGIC
+          // ==================
+          bool shouldQueryNearby = false;
+          if (state.lastQueriedExcaLat == null ||
+              state.lastQueriedExcaLng == null) {
+            shouldQueryNearby = true;
+          } else {
+            final lastQueryPos = Position(
+              state.lastQueriedExcaLng!,
+              state.lastQueriedExcaLat!,
+            );
+            final distFromLastQuery = _calc.getDistance(lastQueryPos, excaPos);
+            if (distFromLastQuery > 3.0) {
+              shouldQueryNearby = true;
+            }
+          }
+
+          if (shouldQueryNearby) {
+            // Find spots within 7.5m from Exca (using loaded spots)
+            _cachedNearbySpots = _loadedSpots.where((spot) {
+              if (spot.status != 0 || spot.lat == null || spot.lng == null) {
+                return false;
+              }
+              final spotPos = Position(spot.lng!, spot.lat!);
+              final dist = _calc.getDistance(excaPos, spotPos);
+              return dist <= 7.5;
+            }).toList();
+
+            state = state.copyWith(
+              lastQueriedExcaLat: gps.bucketLat,
+              lastQueriedExcaLng: gps.bucketLong,
+            );
+          }
+
+          // 2. Find closest spot to Bucket within 0.5m
+          double closestDist = double.infinity;
+          for (var spot in _cachedNearbySpots) {
+            final spotPos = Position(spot.lng!, spot.lat!);
+            final distToBucket = _calc.getDistance(bucketPos, spotPos);
+            if (distToBucket <= 0.5 && distToBucket < closestDist) {
+              closestDist = distToBucket;
+              newTargetSpot = spot;
+            }
+          }
+
+          if (newTargetSpot != null &&
+              newTargetSpot.lat != null &&
+              newTargetSpot.lng != null) {
+            final targetPos = Position(newTargetSpot.lng!, newTargetSpot.lat!);
+
+            // Calculate Target Bearing relative to EXCAVATOR (As requested)
+            newTargetBearing = _calc.getBearing(excaPos, targetPos);
+
+            // Calculate Target Distance & Bearing relative to bucket for DevX/DevY
+            final bearing = _calc.getBearing(bucketPos, targetPos);
+            final dist = _calc.getDistance(bucketPos, targetPos);
+
+            // Auto-Complete Spot Logic (< 10cm)
+            // NOTE: Time delay (> 2 sec) removed for simulation as requested by user.
+            if (dist <= 0.1) {
+              // Update entity
+              newTargetSpot.lastUpdate =
+                  DateTime.now().millisecondsSinceEpoch ~/ 1000;
+              newTargetSpot.lat = gps.attachLat;
+              newTargetSpot.lng = gps.attachLng;
+              newTargetSpot.status = 1;
+              newTargetSpot.akurasi = dist * 100; // in cm
+
+              final rand = math.Random();
+              newTargetSpot.deep = 60 + rand.nextInt(21); // 60-80
+              newTargetSpot.alt = 60 + rand.nextInt(21); // 60-80
+
+              // Save to Isar DB
+              final isar = DatabaseService().isar;
+              isar.writeTxn(() async {
+                await isar.workingSpots.put(newTargetSpot!);
+              });
+
+              // Update Memory Map & state counter
+              _loadedSpots.removeWhere((s) => s.id == newTargetSpot!.id);
+              // We increment spotDone without full reload for immediate UI feedback.
+              // When map moves or refreshes, it will call loadSpots anyway.
+              state = state.copyWith(spotDone: state.spotDone + 1);
+
+              // Trigger Map Update immediately so spot turns green
+              // (Assuming there is a way to access controller, otherwise it updates next refresh)
+              // Ideally we'd trigger a reload event here, but without easy access to the MapController inside Notifier's `_gpsSub`,
+              // the user might just see the status increment.
+              // The map spots are loaded in `loadSpots` taking the controller.
+              // In Flutter Riverpod, best way is to expose a mechanism, or reload next time `loadSpots` is called.
+
+              // Nullify targetSpot so GuidanceWidget flashes back to searching
+              newTargetSpot = null;
+              newDevX = null;
+              newDevY = null;
+              newTargetBearing = null;
+
+              NotificationService.showSuccess('Spot Completed!');
+            } else {
+              // Theta: angle difference between Bucket-Target bearing vs Exca Machine Heading
+              // This aligns the X,Y coordinates to the direction the machine is facing.
+              final thetaRad = (bearing - gps.heading) * (math.pi / 180.0);
+
+              // Forward/Backward deviation (Y): positive is forward
+              // Left/Right deviation (X): positive is right
+              newDevY = dist * math.cos(thetaRad);
+              newDevX = dist * math.sin(thetaRad);
+            }
+          }
+        } // End Spot Logic Mode Check
+      } // End isWorkMode
 
       state = state.copyWith(
         currentLat: gps.bucketLat,
@@ -655,6 +884,26 @@ class MapPresenter extends Notifier<MapState> {
             'circle-radius': 5.0,
             'circle-opacity': 0.8,
           },
+          filter: ['==', r'$type', 'Point'],
+        ),
+      );
+
+      await controller.style!.addLayer(
+        const maplibre.LineStyleLayer(
+          id: 'crumbling_line_layer',
+          sourceId: 'spots_source',
+          paint: {
+            'line-color': [
+              'match',
+              ['get', 'status'],
+              1, '#00FF00', // Status 1 = Green (Done)
+              0, '#FF0000', // Status 0 = Red (Todo)
+              '#808080', // Default = Grey
+            ],
+            'line-width': 5.0,
+            'line-opacity': 0.8,
+          },
+          filter: ['==', r'$type', 'LineString'],
         ),
       );
 
@@ -787,21 +1036,54 @@ class MapPresenter extends Notifier<MapState> {
     GPSLoc gps,
   ) async {
     try {
-      final target = state.targetSpot;
+      final auth = ref.read(authProvider);
+      final systemMode = auth.mode.name.toUpperCase();
 
-      if (target != null && target.lat != null && target.lng != null) {
+      List<List<double>> lineCoords = [];
+
+      if (systemMode == 'CRUMBLING') {
+        final targetSegment = state.targetSegment;
+        if (targetSegment != null && targetSegment.length == 2) {
+          final pt1 = targetSegment[0];
+          final pt2 = targetSegment[1];
+
+          if (pt1.lat != null &&
+              pt1.lng != null &&
+              pt2.lat != null &&
+              pt2.lng != null) {
+            final excaPos = Position(gps.bucketLong, gps.bucketLat);
+            final p1 = Position(pt1.lng!, pt1.lat!);
+            final p2 = Position(pt2.lng!, pt2.lat!);
+
+            final d1 = _calc.getDistance(excaPos, p1);
+            final d2 = _calc.getDistance(excaPos, p2);
+
+            // Find the closest point in the segment to the excavator body
+            final closestPoint = d1 < d2 ? p1 : p2;
+
+            lineCoords = [
+              [gps.bucketLong, gps.bucketLat], // Exca body center
+              [closestPoint.lng, closestPoint.lat], // Closest spot on segment
+            ];
+          }
+        }
+      } else {
+        final target = state.targetSpot;
+        if (target != null && target.lat != null && target.lng != null) {
+          lineCoords = [
+            [gps.attachLng, gps.attachLat], // Bucket
+            [target.lng!, target.lat!], // Target Spot
+          ];
+        }
+      }
+
+      if (lineCoords.isNotEmpty) {
         final geoJson = {
           "type": "FeatureCollection",
           "features": [
             {
               "type": "Feature",
-              "geometry": {
-                "type": "LineString",
-                "coordinates": [
-                  [gps.attachLng, gps.attachLat],
-                  [target.lng, target.lat],
-                ],
-              },
+              "geometry": {"type": "LineString", "coordinates": lineCoords},
               "properties": {},
             },
           ],
@@ -1178,6 +1460,7 @@ class MapPresenter extends Notifier<MapState> {
       final auth = ref.read(authProvider);
       final activeFile = auth.activeWorkfile;
       final driver = auth.currentUser;
+      final systemMode = auth.mode.name.toUpperCase();
 
       if (activeFile == null || driver == null) {
         return; // Wait until session is ready
@@ -1188,11 +1471,12 @@ class MapPresenter extends Notifier<MapState> {
 
       final isar = DatabaseService().isar;
 
-      // Query specific spots for this person and workfile
+      // Query specific spots for this person and workfile, filtered by mode
       final spots = await isar.workingSpots
           .filter()
           .driverIDEqualTo(driverID)
           .fileIDEqualTo(fileID)
+          .modeEqualTo(systemMode)
           .findAll();
 
       // Store in memory for proximity targeting
@@ -1205,20 +1489,84 @@ class MapPresenter extends Notifier<MapState> {
       // Update State for Info Panel
       state = state.copyWith(totalSpot: total, spotDone: done);
 
-      if (spots.isEmpty) return;
+      if (spots.isEmpty) {
+        // Clear map if spots are empty
+        final emptyGeoJson = {"type": "FeatureCollection", "features": []};
+        if (controller.style != null) {
+          await controller.style!.updateGeoJsonSource(
+            id: "spots_source",
+            data: jsonEncode(emptyGeoJson),
+          );
+        }
+        return;
+      }
 
       final List<Map<String, dynamic>> features = [];
 
-      for (var spot in spots) {
-        if (spot.lat != null && spot.lng != null) {
-          features.add({
-            "type": "Feature",
-            "geometry": {
-              "type": "Point",
-              "coordinates": [spot.lng!, spot.lat!],
-            },
-            "properties": {"status": spot.status ?? 0, "id": spot.id},
-          });
+      if (systemMode == 'CRUMBLING') {
+        // Group by spotID
+        final Map<int, List<WorkingSpot>> groupedSpots = {};
+        for (var spot in spots) {
+          if (spot.spotID != null) {
+            groupedSpots.putIfAbsent(spot.spotID!, () => []).add(spot);
+          }
+        }
+
+        // Each group creates segments
+        for (var entry in groupedSpots.entries) {
+          final groupSpots = entry.value;
+          // Ensure they are sorted (e.g., by internal id or insertion order)
+          groupSpots.sort((a, b) => a.id.compareTo(b.id));
+
+          if (groupSpots.length >= 2) {
+            for (int i = 0; i < groupSpots.length - 1; i++) {
+              final s1 = groupSpots[i];
+              final s2 = groupSpots[i + 1];
+
+              if (s1.lat != null &&
+                  s1.lng != null &&
+                  s2.lat != null &&
+                  s2.lng != null) {
+                features.add({
+                  "type": "Feature",
+                  "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                      [s1.lng!, s1.lat!],
+                      [s2.lng!, s2.lat!],
+                    ],
+                  },
+                  "properties": {"status": s1.status ?? 0, "id": s1.id},
+                });
+              }
+            }
+          } else if (groupSpots.length == 1) {
+            // Fallback to point if only 1 spot in a group
+            final s1 = groupSpots[0];
+            if (s1.lat != null && s1.lng != null) {
+              features.add({
+                "type": "Feature",
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [s1.lng!, s1.lat!],
+                },
+                "properties": {"status": s1.status ?? 0, "id": s1.id},
+              });
+            }
+          }
+        }
+      } else {
+        for (var spot in spots) {
+          if (spot.lat != null && spot.lng != null) {
+            features.add({
+              "type": "Feature",
+              "geometry": {
+                "type": "Point",
+                "coordinates": [spot.lng!, spot.lat!],
+              },
+              "properties": {"status": spot.status ?? 0, "id": spot.id},
+            });
+          }
         }
       }
 

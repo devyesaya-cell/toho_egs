@@ -246,6 +246,7 @@ class WorkfilePresenter extends Notifier<WorkfileState> {
         areaID: state.selectedArea?.id,
         areaName: state.selectedArea?.areaName ?? '',
         contractor: state.selectedContractor?.name ?? '',
+        equipment: state.selectedMode.name.toUpperCase(),
         status: 'Open',
         panjang: panjang,
         lebar: lebar,
@@ -254,6 +255,7 @@ class WorkfilePresenter extends Notifier<WorkfileState> {
         spotDone: 0,
         createAt: DateTime.now().millisecondsSinceEpoch,
         lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        doneAt: state.selectedArea?.targetDone,
       );
 
       await ref.read(appRepositoryProvider).saveWorkFile(workfile);
