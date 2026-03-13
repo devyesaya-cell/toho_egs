@@ -745,6 +745,9 @@ class MapPresenter extends Notifier<MapState> {
 
               // Update Memory Map & state counter
               _loadedSpots.removeWhere((s) => s.id == newTargetSpot!.id);
+              // Also remove from the nearby cache so the same spot is not
+              // picked up again on the next GPS tick (which would re-trigger the notification).
+              _cachedNearbySpots.removeWhere((s) => s.id == newTargetSpot!.id);
               // We increment spotDone without full reload for immediate UI feedback.
               // When map moves or refreshes, it will call loadSpots anyway.
               state = state.copyWith(spotDone: state.spotDone + 1);

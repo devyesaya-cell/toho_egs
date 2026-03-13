@@ -154,11 +154,11 @@ class _PersonTabState extends ConsumerState<PersonTab> {
   }
 
   // Helper for top filter buttons (Green capsule style)
-  Widget _buildFilterButton(String label, String value) {
-    // Deprecated in favor of _buildFilterTab below to match image more closely?
-    // The image shows "ALL UNITS", "EXCAVATORS"... in a row of capsules.
-    return Container();
-  }
+  // Widget _buildFilterButton(String label, String value) {
+  //   // Deprecated in favor of _buildFilterTab below to match image more closely?
+  //   // The image shows "ALL UNITS", "EXCAVATORS"... in a row of capsules.
+  //   return Container();
+  // }
 
   Widget _buildFilterTab(String label, String value) {
     bool isSelected = _selectedFilter == value;
@@ -224,7 +224,9 @@ class _PersonTabState extends ConsumerState<PersonTab> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+            ),
             child: const Text('Delete'),
           ),
         ],
