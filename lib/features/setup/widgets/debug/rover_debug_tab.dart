@@ -55,7 +55,7 @@ class _RoverDebugTabState extends ConsumerState<RoverDebugTab> {
               children: [
                 Expanded(
                   child: _buildGpsCard(
-                    'GPS 1',
+                    'GNSS 1',
                     gpsData.hAcc1,
                     gpsData.vAcc1,
                     gpsData.satelit,
@@ -65,7 +65,7 @@ class _RoverDebugTabState extends ConsumerState<RoverDebugTab> {
                 const SizedBox(width: 24),
                 Expanded(
                   child: _buildGpsCard(
-                    'GPS 2',
+                    'GNSS 2',
                     gpsData.hAcc2,
                     gpsData.vAcc2,
                     gpsData.satelit2,

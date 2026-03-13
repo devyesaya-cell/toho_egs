@@ -36,7 +36,7 @@ class TrendChart extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                unit == 'Ha' ? '0.0 Ha' : '0 Spot',
+                unit == 'Ha' ? '0.0 Ha' : '0 $unit',
                 style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -140,7 +140,9 @@ class TrendChart extends StatelessWidget {
             ),
           ),
           Text(
-            unit == 'Ha' ? '0.11 Ha' : '11 Spot', // Mock Y-Axis max label
+            unit == 'Ha'
+                ? '${maxY.toStringAsFixed(2)} Ha'
+                : '${maxY.toStringAsFixed(0)} $unit',
             style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,

@@ -8,22 +8,26 @@ class AuthState {
   final Person? currentUser;
   final SystemMode mode;
   final WorkFile? activeWorkfile;
+  final String? rawGeoJson;
 
   AuthState({
     this.currentUser,
     this.mode = SystemMode.spot, // Default to Spot
     this.activeWorkfile,
+    this.rawGeoJson,
   });
 
   AuthState copyWith({
     Person? currentUser,
     SystemMode? mode,
     WorkFile? activeWorkfile,
+    String? rawGeoJson,
   }) {
     return AuthState(
       currentUser: currentUser ?? this.currentUser,
       mode: mode ?? this.mode,
       activeWorkfile: activeWorkfile ?? this.activeWorkfile,
+      rawGeoJson: rawGeoJson ?? this.rawGeoJson,
     );
   }
 }
@@ -46,7 +50,7 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(mode: mode);
   }
 
-  void setActiveWorkfile(WorkFile workfile) {
+   void setActiveWorkfile(WorkFile workfile) {
     state = state.copyWith(activeWorkfile: workfile);
   }
 }

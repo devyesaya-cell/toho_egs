@@ -59,29 +59,23 @@ class GeoJsonService {
             // Crumbling parsing: Handle MultiLineString
             if (geometry['type'] == 'MultiLineString' &&
                 geometry['coordinates'] != null) {
-              final List<dynamic> lines = geometry['coordinates'];
+              final List<dynamic> rawLines = geometry['coordinates'];
 
-              for (var line in lines) {
-                final List<dynamic> points = line;
-                final currentSpotId = crumblingLineId++;
-
-                for (var point in points) {
+              for (var line in rawLines) {
+                int currentSpotId = crumblingLineId++;
+                for (var point in line) {
                   if (point is List && point.length >= 2) {
-                    final lng = (point[0] as num).toDouble();
-                    final lat = (point[1] as num).toDouble();
-
                     allSpots.add(
                       WorkingSpot(
                         status: 0,
                         spotID: currentSpotId,
-                        lat: lat,
-                        lng: lng,
+                        lat: (point[1] as num).toDouble(),
+                        lng: (point[0] as num).toDouble(),
                         alt: 0,
                         akurasi: 0.0,
                         deep: 0,
                         totalTime: 0,
-                        lastUpdate:
-                            DateTime.now().millisecondsSinceEpoch ~/ 1000,
+                        lastUpdate: DateTime.now().millisecondsSinceEpoch ~/ 1000,
                       ),
                     );
                   }
@@ -90,19 +84,16 @@ class GeoJsonService {
             } else if (geometry['type'] == 'LineString' &&
                 geometry['coordinates'] != null) {
               final List<dynamic> points = geometry['coordinates'];
-              final currentSpotId = crumblingLineId++;
+              int currentSpotId = crumblingLineId++;
 
               for (var point in points) {
                 if (point is List && point.length >= 2) {
-                  final lng = (point[0] as num).toDouble();
-                  final lat = (point[1] as num).toDouble();
-
                   allSpots.add(
                     WorkingSpot(
                       status: 0,
                       spotID: currentSpotId,
-                      lat: lat,
-                      lng: lng,
+                      lat: (point[1] as num).toDouble(),
+                      lng: (point[0] as num).toDouble(),
                       alt: 0,
                       akurasi: 0.0,
                       deep: 0,

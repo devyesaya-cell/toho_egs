@@ -113,6 +113,7 @@ class DashboardPage extends ConsumerWidget {
                   percentage: data.percentageProgress,
                   totalSpots: data.productionSpots,
                   spacing: data.spacing,
+                  productionUnit: isCrumbling ? 'm²' : 'spot',
                 ),
               ),
               const SizedBox(width: 16),
@@ -129,7 +130,7 @@ class DashboardPage extends ConsumerWidget {
                             child: SummaryCard(
                               title: 'Productivity',
                               value: data.productivity.toStringAsFixed(0),
-                              subUnit: isCrumbling ? 'm/hr' : 'spots/hr',
+                              subUnit: isCrumbling ? 'm²/hr' : 'spots/hr',
                               subValue: isCrumbling
                                   ? ''
                                   : '${data.productivitySpotsHr.toStringAsFixed(0)} spots/Hr',
@@ -160,11 +161,11 @@ class DashboardPage extends ConsumerWidget {
                           Expanded(
                             child: SummaryCard(
                               title: 'Production',
-                              value: '${data.productionSpots}',
-                              subUnit: isCrumbling ? 'meter' : 'spot',
+                              value: data.productionSpots.toStringAsFixed(1),
+                              subUnit: isCrumbling ? 'm²' : 'spot',
                               subValue: isCrumbling
                                   ? ''
-                                  : '${data.productionSpotsTotal} spots',
+                                  : '${data.productionSpotsTotal.toStringAsFixed(0)} spots',
                               percent: data.percentageProduction,
                               progressColor: const Color(
                                 0xFF2ECC71,
@@ -214,7 +215,7 @@ class DashboardPage extends ConsumerWidget {
               Expanded(
                 child: TrendChart(
                   title: 'Production Trend',
-                  unit: isCrumbling ? 'Meter' : 'Spot',
+                  unit: isCrumbling ? 'm²' : 'Spot',
                   spots: data.productionTrend,
                   maxY: data.productionMaxY,
                   interval: data.trendInterval,

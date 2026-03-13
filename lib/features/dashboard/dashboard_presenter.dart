@@ -20,8 +20,8 @@ class DashboardData {
   final double precision; // Average accuracy
   final double percentagePrecision;
 
-  final int productionSpots; // Spots count
-  final int
+  final double productionSpots; // Spots count/area
+  final double
   productionSpotsTotal; // Maybe same as above or cumulative? defaulting to same for now.
   final double percentageProduction;
 
@@ -52,8 +52,8 @@ class DashboardData {
     this.percentageProductivity = 0,
     this.precision = 0,
     this.percentagePrecision = 0,
-    this.productionSpots = 0,
-    this.productionSpotsTotal = 0,
+    this.productionSpots = 0.0,
+    this.productionSpotsTotal = 0.0,
     this.percentageProduction = 0,
     this.workHours = '00:00',
     this.percentageWorkHours = 0,
@@ -255,8 +255,10 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
       orElse: () => WorkFile(),
     );
 
-    final currentSpacing =
-        '${activeWorkfile.panjang ?? 4.0} m x ${activeWorkfile.lebar ?? 1.87} m';
+    final double wfPanjang = activeWorkfile.panjang ?? 4.0;
+    final double wfLebar = activeWorkfile.lebar ?? 1.87;
+
+    final currentSpacing = '$wfPanjang m x $wfLebar m';
 
     // Query Isar
     final spots = await _isar.workingSpots
@@ -266,8 +268,8 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
         .statusEqualTo(1)
         .modeEqualTo(systemMode)
         .lastUpdateBetween(
-          startTime.millisecondsSinceEpoch,
-          endTime.millisecondsSinceEpoch,
+          startTime.millisecondsSinceEpoch ~/ 1000,
+          endTime.millisecondsSinceEpoch ~/ 1000,
         )
         .sortByLastUpdate()
         .findAll();
@@ -295,9 +297,9 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
         // Workhours
         if (current.lastUpdate != null && next.lastUpdate != null) {
           final diff = next.lastUpdate! - current.lastUpdate!;
-          final diffSec = diff / 1000.0;
-          if (diffSec <= 300) {
-            workHoursSeconds += diffSec;
+          // final diffSec = diff / 1000.0;
+          if (diff <= 300) {
+            workHoursSeconds += diff;
           }
         }
 
@@ -307,10 +309,12 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
               current.lng != null &&
               next.lat != null &&
               next.lng != null) {
-            totalDistance += _calc.getDistance(
-              Position(current.lng!, current.lat!),
-              Position(next.lng!, next.lat!),
-            );
+            if (current.spotID != null && current.spotID == next.spotID) {
+              totalDistance += _calc.getDistance(
+                Position(current.lng!, current.lat!),
+                Position(next.lng!, next.lat!),
+              );
+            }
           }
         }
       }
@@ -324,7 +328,7 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
     // 9. Production
     // For Spot mode: count of spots. For Crumbling: Total Distance (meters)
     final double production = systemMode == 'CRUMBLING'
-        ? totalDistance
+        ? totalDistance * wfPanjang
         : spots.length.toDouble();
 
     // 10. Productivity
@@ -342,10 +346,10 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
 
     // --- Area Calculation (Ha) ---
     // If CRUMBLING: distance * panjang / 10000
-    // If SPOT: Spots * (4.0 * 1.87) / 10000
+    // If SPOT: Spots * (wfPanjang * wfLebar) / 10000
     final areaM2 = systemMode == 'CRUMBLING'
-        ? totalDistance * (activeWorkfile.panjang ?? 4.0)
-        : production * (4.0 * 1.87);
+        ? production
+        : production * (wfPanjang * wfLebar);
     final areaHa = areaM2 / 10000.0;
 
     // Max Area (From Workfile, fallback to 5.0 Ha)
@@ -378,17 +382,19 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
                   cur.lng != null &&
                   nxt.lat != null &&
                   nxt.lng != null) {
-                dist += _calc.getDistance(
-                  Position(cur.lng!, cur.lat!),
-                  Position(nxt.lng!, nxt.lat!),
-                );
+                if (cur.spotID != null && cur.spotID == nxt.spotID) {
+                  dist += _calc.getDistance(
+                    Position(cur.lng!, cur.lat!),
+                    Position(nxt.lng!, nxt.lat!),
+                  );
+                }
               }
             }
           }
-          final m2 = dist * (activeWorkfile.panjang ?? 4.0);
+          final m2 = dist * wfPanjang;
           return m2 / 10000.0;
         } else {
-          final m2 = groupSpots.length * (4.0 * 1.87);
+          final m2 = groupSpots.length * (wfPanjang * wfLebar);
           return m2 / 10000.0; // Ha
         }
       },
@@ -409,14 +415,16 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
                   cur.lng != null &&
                   nxt.lat != null &&
                   nxt.lng != null) {
-                dist += _calc.getDistance(
-                  Position(cur.lng!, cur.lat!),
-                  Position(nxt.lng!, nxt.lat!),
-                );
+                if (cur.spotID != null && cur.spotID == nxt.spotID) {
+                  dist += _calc.getDistance(
+                    Position(cur.lng!, cur.lat!),
+                    Position(nxt.lng!, nxt.lat!),
+                  );
+                }
               }
             }
           }
-          return dist;
+          return dist * wfPanjang;
         } else {
           return groupSpots.length.toDouble();
         }
@@ -450,8 +458,8 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
       precision: double.parse(precision.toStringAsFixed(2)),
       percentagePrecision: (precision / 10).clamp(0.0, 1.0), // Mock Max 10 cm?
 
-      productionSpots: production.toInt(),
-      productionSpotsTotal: production.toInt(),
+      productionSpots: production,
+      productionSpotsTotal: production,
       percentageProduction: (production / 5000).clamp(0.0, 1.0), // Mock Target
 
       workHours: workHoursStr,
@@ -487,7 +495,7 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
 
     // Grouping
     for (var spot in spots) {
-      final dt = DateTime.fromMillisecondsSinceEpoch(spot.lastUpdate!);
+      final dt = DateTime.fromMillisecondsSinceEpoch(spot.lastUpdate! * 1000);
       // Use difference from start time to group
       final diffMin = dt.difference(startTime).inMinutes;
       // if (diffMin < 0) continue; // Allow slightly before? No.

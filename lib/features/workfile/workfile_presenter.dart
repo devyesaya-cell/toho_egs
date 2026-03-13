@@ -109,6 +109,7 @@ class WorkfilePresenter extends Notifier<WorkfileState> {
       final result = await ref.read(geoJsonServiceProvider).pickGeoJsonFile();
       if (result != null && result.files.isNotEmpty) {
         final path = result.files.single.path!;
+
         final spots = await ref
             .read(geoJsonServiceProvider)
             .parseGeoJson(path, state.selectedMode);
@@ -170,7 +171,7 @@ class WorkfilePresenter extends Notifier<WorkfileState> {
               }
             }
             // area = (distance x 4) / 10000
-            totalArea += (lineDistance * 4) / 10000;
+            totalArea += (lineDistance * panjang) / 10000;
           }
           area = totalArea;
         }

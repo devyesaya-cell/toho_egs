@@ -281,7 +281,7 @@ class MapPresenter extends Notifier<MapState> {
         final targetSpot = spots[_mockSpotIndex];
 
         // Update fields: lastUpdate -> date now, status -> 1, akurasi -> random 4-10
-        targetSpot.lastUpdate = DateTime.now().millisecondsSinceEpoch;
+        targetSpot.lastUpdate = DateTime.now().millisecondsSinceEpoch ~/ 1000;
         targetSpot.status = 1;
         targetSpot.akurasi = 4.0 + (math.Random().nextDouble() * 6.0);
 
@@ -388,7 +388,7 @@ class MapPresenter extends Notifier<MapState> {
     final comService = ref.read(comServiceProvider.notifier);
 
     // GPS Stream
-    _gpsSub = comService.gpsStream.listen((gps) {
+    _gpsSub = comService.gpsStream.listen((gps) async {
       // Calculate Arm Length & Bearing
       final excaObj = Position(gps.bucketLong, gps.bucketLat);
       final attachObj = Position(gps.attachLng, gps.attachLat);
@@ -557,6 +557,11 @@ class MapPresenter extends Notifier<MapState> {
                 newTargetSegment = [targetLine[i], targetLine[i + 1]];
               }
             }
+            
+            // Per pengguna: batasi agar terdekat ini distance nya tidak lebih dari 3 meter saja dari exca
+            if (closestSegmentDist > 3.0) {
+              newTargetSegment = null;
+            }
           }
 
           // Variables for holding metrics inside segment
@@ -617,41 +622,34 @@ class MapPresenter extends Notifier<MapState> {
             if (prevSegment[0].id != newTargetSegment[0].id ||
                 prevSegment[1].id != newTargetSegment[1].id) {
               // EXCA EXITED THE PREVIOUS SEGMENT
-              // Find closest spot of prev segment to exca
-              final prevStart = Position(
-                prevSegment[0].lng!,
-                prevSegment[0].lat!,
-              );
-              final prevEnd = Position(
-                prevSegment[1].lng!,
-                prevSegment[1].lat!,
-              );
-              final distToStart = _calc.getDistance(excaPos, prevStart);
-              final distToEnd = _calc.getDistance(excaPos, prevEnd);
+              // Update BOTH spots of the segment to status=1 so that Dashboard presenter can match them up and calculate distance
 
-              WorkingSpot nodeToUpdate = distToStart < distToEnd
-                  ? prevSegment[0]
-                  : prevSegment[1];
-
-              nodeToUpdate.status = 1;
-              nodeToUpdate.lastUpdate =
-                  DateTime.now().millisecondsSinceEpoch ~/ 1000;
-
-              // average deviation over time.
               double avgDev = state.crumblingDevCount > 0
                   ? (state.crumblingDevSum / state.crumblingDevCount)
                   : (newCrumblingDev?.abs() ?? 0.0);
 
-              nodeToUpdate.akurasi = avgDev;
-
+              final nowSec = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+              
+              int exactlyNewlyDoneCount = 0;
+              
               final isar = DatabaseService().isar;
-              isar.writeTxn(() async {
-                await isar.workingSpots.put(nodeToUpdate);
+              await isar.writeTxn(() async {
+                for (var i = 0; i < 2; i++) {
+                   var node = prevSegment[i];
+                   if (node.status != 1) { // Only update if not already done
+                      node.status = 1;
+                      node.lastUpdate = nowSec;
+                      node.akurasi = avgDev;
+                      await isar.workingSpots.put(node);
+                      
+                      // Remove from memory
+                      _loadedSpots.removeWhere((s) => s.id == node.id);
+                      exactlyNewlyDoneCount++;
+                   }
+                }
               });
 
-              // Remove spot from memory and update UI
-              _loadedSpots.removeWhere((s) => s.id == nodeToUpdate.id);
-              state = state.copyWith(spotDone: state.spotDone + 1);
+              state = state.copyWith(spotDone: state.spotDone + exactlyNewlyDoneCount);
 
               // Reset dev tracking for new segment
               nextSum = newCrumblingDev?.abs() ?? 0.0;

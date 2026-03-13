@@ -378,7 +378,7 @@ class ComService extends Notifier<UsbState> {
       hAcc1: Parsing.parseFromUint_16(socketData.sublist(47, 49)),
       vAcc1: Parsing.parseFromUint_16(socketData.sublist(49, 51)),
       satelit: socketData[51],
-      status: _statusGPS(socketData[52]),
+      status: _statusGPS(socketData[53]),
       heading: Parsing.parseFromFloat_32(socketData.sublist(30, 34)),
       pitch: Parsing.parseFromFloat_32(socketData.sublist(10, 14)),
       roll: Parsing.parseFromFloat_32(socketData.sublist(14, 18)),
@@ -446,7 +446,7 @@ class ComService extends Notifier<UsbState> {
       stickLenght: Parsing.parseFromUint_16(socketData.sublist(40, 42)),
       bucketLenght: Parsing.parseFromUint_16(socketData.sublist(42, 44)),
       boomBaseHeight: Parsing.parseFromUint_16(
-        socketData.sublist(44, 46),
+        socketData.sublist(58, 60),
       ), // "Bucket Base length" in spreadsheet
       bucketWidth: Parsing.parseFromUint_16(socketData.sublist(46, 48)),
       // BTW is at 48-49 - not explicitly in model, skipped or mapped differently by user before?
