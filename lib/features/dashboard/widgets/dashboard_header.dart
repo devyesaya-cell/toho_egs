@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../dashboard_presenter.dart';
+import '../../../core/utils/app_theme.dart';
 
 class DashboardHeader extends ConsumerStatefulWidget {
   const DashboardHeader({super.key});
@@ -12,20 +13,15 @@ class DashboardHeader extends ConsumerStatefulWidget {
 class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
   @override
   Widget build(BuildContext context) {
-    // Read current state from presenter
+    final theme = AppTheme.of(context);
     final presenter = ref.read(dashboardPresenterProvider.notifier);
-
-    // Watch provider to get current filter status & workfiles
     final dashboardAsync = ref.watch(dashboardPresenterProvider);
     final filter = presenter.filter;
-
-    // Get current workfiles list from DashboardData, or default to empty
     final workfiles = dashboardAsync.value?.workfiles ?? [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Filters & Controls Row (Responsive wrapping)
         LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
@@ -35,61 +31,52 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Left Group: Filter Tabs + Custom Date Range Picker
+                    // Left: Filter tabs + custom date range
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Time Filter Segmented Control
                         Container(
-                          height: 44, // Fixed height to match others
+                          height: 44,
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1E293B),
+                            color: theme.cardSurface,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFF1E3A2A)),
+                            border: Border.all(color: theme.cardBorderColor),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              _buildFilterChip(
-                                'Morning',
-                                DashboardFilterType.morning,
-                                presenter,
-                              ),
-                              _buildFilterChip(
-                                'Night',
-                                DashboardFilterType.night,
-                                presenter,
-                              ),
-                              _buildFilterChip(
-                                'Weekly',
-                                DashboardFilterType.weekly,
-                                presenter,
-                              ),
-                              _buildFilterChip(
-                                'Monthly',
-                                DashboardFilterType.monthly,
-                                presenter,
-                              ),
+                              _buildFilterChip(theme, 'Morning',
+                                  DashboardFilterType.morning, presenter),
+                              _buildFilterChip(theme, 'Night',
+                                  DashboardFilterType.night, presenter),
+                              _buildFilterChip(theme, 'Weekly',
+                                  DashboardFilterType.weekly, presenter),
+                              _buildFilterChip(theme, 'Monthly',
+                                  DashboardFilterType.monthly, presenter),
                             ],
                           ),
                         ),
                         const SizedBox(width: 16),
 
-                        // Custom Filter Button (to enable Range Picker)
+                        // Custom date range button
                         Container(
-                          height: 44, // Matched height
+                          height: 44,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1E293B),
+                            color: theme.cardSurface,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFF1E3A2A)),
+                            border: Border.all(color: theme.cardBorderColor),
                           ),
                           child: IconButton(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            constraints:
-                                const BoxConstraints(), // Remove default minimum constraints
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16),
+                            constraints: const BoxConstraints(),
                             tooltip: "Custom Range",
                             onPressed: () async {
+                              final brightness =
+                                  MediaQuery.of(context).platformBrightness;
+                              final isDark =
+                                  brightness == Brightness.dark;
                               final picked = await showDateRangePicker(
                                 context: context,
                                 firstDate: DateTime(2020),
@@ -97,12 +84,21 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
                                 builder: (context, child) {
                                   return Theme(
                                     data: Theme.of(context).copyWith(
-                                      colorScheme: const ColorScheme.dark(
-                                        primary: const Color(0xFF2ECC71),
-                                        onPrimary: Colors.black,
-                                        surface: const Color(0xFF0F1410),
-                                        onSurface: Colors.white,
-                                      ),
+                                      colorScheme: isDark
+                                          ? ColorScheme.dark(
+                                              primary: theme.appBarAccent,
+                                              onPrimary:
+                                                  theme.primaryButtonText,
+                                              surface: theme.pageBackground,
+                                              onSurface: theme.textOnSurface,
+                                            )
+                                          : ColorScheme.light(
+                                              primary: theme.appBarAccent,
+                                              onPrimary:
+                                                  theme.primaryButtonText,
+                                              surface: theme.pageBackground,
+                                              onSurface: theme.textOnSurface,
+                                            ),
                                     ),
                                     child: child!,
                                   );
@@ -116,8 +112,8 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
                               Icons.date_range,
                               size: 20,
                               color: filter.type == DashboardFilterType.custom
-                                  ? const Color(0xFF2ECC71)
-                                  : Colors.white54,
+                                  ? theme.appBarAccent
+                                  : theme.textSecondary,
                             ),
                           ),
                         ),
@@ -126,38 +122,38 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
 
                     const SizedBox(width: 16),
 
-                    // Right Group: Workfile Dropdown
+                    // Right: Workfile dropdown
                     Container(
-                      height: 44, // Matched height
+                      height: 44,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B),
+                        color: theme.cardSurface,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF1E3A2A)),
+                        border: Border.all(color: theme.cardBorderColor),
                       ),
                       alignment: Alignment.center,
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: filter.selectedFileID,
-                          dropdownColor: const Color(0xFF1E293B),
-                          icon: const Icon(
+                          dropdownColor: theme.dropdownBackground,
+                          icon: Icon(
                             Icons.folder_open_outlined,
-                            color: Colors.white54,
+                            color: theme.textSecondary,
                             size: 20,
                           ),
-                          isDense: true, // Reduce default height
+                          isDense: true,
                           items: workfiles.map((workfile) {
                             final displayName =
                                 workfile.areaName?.isNotEmpty == true
-                                ? workfile.areaName!
-                                : workfile.uid?.toString() ?? 'Unknown';
+                                    ? workfile.areaName!
+                                    : workfile.uid?.toString() ?? 'Unknown';
                             return DropdownMenuItem<String>(
                               value: workfile.uid.toString(),
                               child: Text(
                                 displayName,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.white,
+                                  color: theme.dropdownItemText,
                                   fontSize: 14,
                                 ),
                               ),
@@ -182,6 +178,7 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
   }
 
   Widget _buildFilterChip(
+    AppThemeData theme,
     String label,
     DashboardFilterType type,
     DashboardPresenter presenter,
@@ -194,13 +191,13 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF2ECC71) : Colors.transparent,
+          color: isSelected ? theme.appBarAccent : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
           label.toUpperCase(),
           style: TextStyle(
-            color: isSelected ? Colors.black : const Color(0xFFB0BEC5),
+            color: isSelected ? theme.primaryButtonText : theme.textSecondary,
             fontWeight: FontWeight.bold,
             fontSize: 12,
             letterSpacing: 0.8,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/app_theme.dart';
 import 'pages/management_page.dart';
 import 'pages/calibration_page.dart';
 import 'pages/sync_page.dart';
@@ -11,12 +12,13 @@ class SetupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Define the menu items
+    final theme = AppTheme.of(context);
+
     final List<Map<String, dynamic>> menuItems = [
       {
         'title': 'Management',
-        'icon': Icons.folder, // Placeholder icon
-        'color': Colors.amber, // Placeholder color
+        'icon': Icons.folder,
+        'color': Colors.amber,
         'page': const ManagementPage(),
       },
       {
@@ -34,7 +36,7 @@ class SetupPage extends StatelessWidget {
       {
         'title': 'Radio',
         'icon': Icons.signal_cellular_alt,
-        'color': Colors.black87,
+        'color': Colors.blueGrey,
         'page': const RadioPage(),
       },
       {
@@ -52,39 +54,35 @@ class SetupPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F1410), // Main Background
+      backgroundColor: theme.pageBackground,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'SETUP',
           style: TextStyle(
-            color: Colors.white,
+            color: theme.appBarForeground,
             fontWeight: FontWeight.bold,
             fontSize: 24,
           ),
         ),
-        backgroundColor: const Color(0xFF0F1410),
+        backgroundColor: theme.appBarBackground,
         elevation: 0,
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ), // Ensure back button is visible
+        iconTheme: IconThemeData(color: theme.appBarForeground),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            // Calculate grid cross axis count based on width, but use 3 as default for landscape/tablet
-            // Ideally 3 items per row as per image
             return GridView.builder(
               itemCount: menuItems.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
                 crossAxisSpacing: 24,
                 mainAxisSpacing: 24,
-                childAspectRatio: 1.3, // Adjust for card shape
+                childAspectRatio: 1.3,
               ),
               itemBuilder: (context, index) {
                 final item = menuItems[index];
-                return _buildMenuCard(context, item);
+                return _buildMenuCard(context, item, theme);
               },
             );
           },
@@ -93,9 +91,10 @@ class SetupPage extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuCard(BuildContext context, Map<String, dynamic> item) {
+  Widget _buildMenuCard(
+      BuildContext context, Map<String, dynamic> item, AppThemeData theme) {
     return Material(
-      color: const Color(0xFF1E293B), // Surface Dark
+      color: theme.cardSurface,
       borderRadius: BorderRadius.circular(12),
       elevation: 2,
       child: InkWell(
@@ -109,15 +108,14 @@ class SetupPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon Container - Replace with Image assets later if needed
             Icon(item['icon'], size: 64, color: item['color']),
             const SizedBox(height: 16),
             Text(
               item['title'],
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
-                color: Colors.white,
+                color: theme.textOnSurface,
               ),
             ),
           ],

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/coms/com_service.dart';
 import '../../../core/state/auth_state.dart';
+import '../../../core/utils/app_theme.dart';
 
 // Provider to manage the selected menu index
 class MenuNotifier extends Notifier<int> {
@@ -25,13 +25,16 @@ class SideMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = AppTheme.of(context);
     final selectedIndex = ref.watch(selectedMenuProvider);
 
     return Container(
       width: MediaQuery.of(context).size.width * 0.25,
-      decoration: const BoxDecoration(
-        color: Color(0xFF0F1410), // Main Page Backgrounds
-        border: Border(right: BorderSide(color: Color(0xFF1E3A2A), width: 1.5)),
+      decoration: BoxDecoration(
+        color: theme.menuBackground,
+        border: Border(
+          right: BorderSide(color: theme.menuBorder, width: 1.5),
+        ),
       ),
       child: Column(
         children: [
@@ -49,73 +52,55 @@ class SideMenu extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
-                _buildSectionHeader('Menu'),
-                _buildMenuItem(
-                  context,
-                  ref,
-                  index: 0,
-                  icon: Icons.folder_open,
-                  label: 'Work Files',
-                  isSelected: selectedIndex == 0,
-                ),
-                _buildMenuItem(
-                  context,
-                  ref,
-                  index: 1,
-                  icon: Icons.dashboard_outlined,
-                  label: 'Dashboard',
-                  isSelected: selectedIndex == 1,
-                ),
-                _buildMenuItem(
-                  context,
-                  ref,
-                  index: 2,
-                  icon: Icons.timeline,
-                  label: 'Timesheet',
-                  isSelected: selectedIndex == 2,
-                ),
-                _buildMenuItem(
-                  context,
-                  ref,
-                  index: 3,
-                  icon: Icons.notifications_none,
-                  label: 'Alarm',
-                  isSelected: selectedIndex == 3,
-                ),
+                _buildSectionHeader('Menu', theme),
+                _buildMenuItem(context, ref, theme,
+                    index: 0,
+                    icon: Icons.folder_open,
+                    label: 'Work Files',
+                    isSelected: selectedIndex == 0),
+                _buildMenuItem(context, ref, theme,
+                    index: 1,
+                    icon: Icons.dashboard_outlined,
+                    label: 'Dashboard',
+                    isSelected: selectedIndex == 1),
+                _buildMenuItem(context, ref, theme,
+                    index: 2,
+                    icon: Icons.timeline,
+                    label: 'Timesheet',
+                    isSelected: selectedIndex == 2),
+                _buildMenuItem(context, ref, theme,
+                    index: 3,
+                    icon: Icons.notifications_none,
+                    label: 'Alarm',
+                    isSelected: selectedIndex == 3),
 
                 const SizedBox(height: 24),
-                _buildSectionHeader('System'),
-                _buildMenuItem(
-                  context,
-                  ref,
-                  index: 4,
-                  icon: Icons.settings_outlined,
-                  label: 'Setup',
-                  isSelected: selectedIndex == 4,
-                ),
+                _buildSectionHeader('System', theme),
+                _buildMenuItem(context, ref, theme,
+                    index: 4,
+                    icon: Icons.settings_outlined,
+                    label: 'Setup',
+                    isSelected: selectedIndex == 4),
                 const SizedBox(height: 24),
-                // _buildSectionHeader('Status'),
-                _buildSystemStatus(ref),
+                _buildSystemStatus(ref, theme),
               ],
             ),
           ),
 
-          // Real-time Date & Time
-          // const _DateTimeWidget(),
-          const _DateTimeWidget(),
+          _DateTimeWidget(theme: theme),
           const SizedBox(height: 16),
         ],
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, AppThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(
-          color: Color(0xFFB0BEC5), // Text Grey
+        style: TextStyle(
+          color: theme.sectionHeaderColor,
           fontSize: 10,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.1,
@@ -126,7 +111,8 @@ class SideMenu extends ConsumerWidget {
 
   Widget _buildMenuItem(
     BuildContext context,
-    WidgetRef ref, {
+    WidgetRef ref,
+    AppThemeData theme, {
     required int index,
     required IconData icon,
     required String label,
@@ -137,12 +123,12 @@ class SideMenu extends ConsumerWidget {
         ref.read(selectedMenuProvider.notifier).setIndex(index);
       },
       child: Container(
-        margin: const EdgeInsets.only(right: 16), // Gap for rounded selection
+        margin: const EdgeInsets.only(right: 16),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: isSelected
-            ? const BoxDecoration(
-                color: Color(0xFF1E3A2A), // Light hint of green
-                borderRadius: BorderRadius.horizontal(
+            ? BoxDecoration(
+                color: theme.menuSelectedBackground,
+                borderRadius: const BorderRadius.horizontal(
                   right: Radius.circular(30),
                 ),
               )
@@ -153,15 +139,18 @@ class SideMenu extends ConsumerWidget {
               icon,
               size: 20,
               color: isSelected
-                  ? const Color(0xFF2ECC71)
-                  : const Color(0xFFB0BEC5),
+                  ? theme.menuSelectedIcon
+                  : theme.menuUnselectedIcon,
             ),
             const SizedBox(width: 12),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFFB0BEC5),
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected
+                    ? theme.menuSelectedText
+                    : theme.menuUnselectedText,
+                fontWeight:
+                    isSelected ? FontWeight.bold : FontWeight.w500,
               ),
             ),
           ],
@@ -170,23 +159,12 @@ class SideMenu extends ConsumerWidget {
     );
   }
 
-  Widget _buildSystemStatus(WidgetRef ref) {
-    // 1. USB Status
-    final usbState = ref.watch(comServiceProvider);
-    bool hasDataStream = false;
-    if (usbState.lastDataReceived != null) {
-      final diff = DateTime.now().difference(usbState.lastDataReceived!);
-      if (diff.inSeconds < 2) {
-        hasDataStream = true;
-      }
-    }
-    final bool isUsbActive = usbState.isConnected && hasDataStream;
-
-    // 2. System Mode
+  Widget _buildSystemStatus(WidgetRef ref, AppThemeData theme) {
     final authState = ref.watch(authProvider);
     final mode = authState.mode;
     String modeLabel = 'UNKNOWN';
     IconData modeIcon = Icons.help_outline;
+    // System mode colors are semantic — remain fixed regardless of theme
     Color modeColor = const Color(0xFFB0BEC5);
 
     switch (mode) {
@@ -211,96 +189,13 @@ class SideMenu extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Column(
         children: [
-          // USB Status
-          // Container(
-          //   padding: const EdgeInsets.all(12),
-          //   decoration: BoxDecoration(
-          //     color: isUsbActive
-          //         ? const Color(0xFF1E3A2A) // Dark Green Hint
-          //         : const Color(0xFF3F1D1D), // Dark Red Hint
-          //     borderRadius: BorderRadius.circular(12),
-          //     border: Border.all(
-          //       color: isUsbActive
-          //           ? const Color(0xFF2ECC71).withOpacity(0.5)
-          //           : const Color(0xFFEF4444).withOpacity(0.5),
-          //     ),
-          //   ),
-          //   child: Row(
-          //     children: [
-          //       Icon(
-          //         Icons.usb,
-          //         size: 16,
-          //         color: isUsbActive
-          //             ? const Color(0xFF2ECC71)
-          //             : const Color(0xFFEF4444),
-          //       ),
-          //       const SizedBox(width: 8),
-          //       Expanded(
-          //         child: Column(
-          //           children: [
-          //             const Align(
-          //               alignment: Alignment.centerLeft,
-          //               child: Text(
-          //                 'RS232 CONNECTION',
-          //                 style: TextStyle(
-          //                   fontSize: 10,
-          //                   color: Color(0xFFB0BEC5),
-          //                   fontWeight: FontWeight.bold,
-          //                   letterSpacing: 1.1,
-          //                 ),
-          //               ),
-          //             ),
-          //             Row(
-          //               children: [
-          //                 Text(
-          //                   isUsbActive ? 'Active' : 'Inactive',
-          //                   style: TextStyle(
-          //                     fontSize: 12,
-          //                     fontWeight: FontWeight.bold,
-          //                     color: isUsbActive
-          //                         ? const Color(0xFF2ECC71)
-          //                         : const Color(0xFFEF4444),
-          //                   ),
-          //                 ),
-          //                 const Spacer(),
-          //                 Container(
-          //                   width: 8,
-          //                   height: 8,
-          //                   decoration: BoxDecoration(
-          //                     color: isUsbActive
-          //                         ? const Color(0xFF2ECC71)
-          //                         : const Color(0xFFEF4444),
-          //                     shape: BoxShape.circle,
-          //                     boxShadow: isUsbActive
-          //                         ? [
-          //                             BoxShadow(
-          //                               color: const Color(
-          //                                 0xFF2ECC71,
-          //                               ).withOpacity(0.6),
-          //                               blurRadius: 4,
-          //                               spreadRadius: 1,
-          //                             ),
-          //                           ]
-          //                         : null,
-          //                   ),
-          //                 ),
-          //               ],
-          //             ),
-          //           ],
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          // const SizedBox(height: 12),
-
-          // System Mode
+          // System Mode card
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E293B), // Surface Dark
+              color: theme.cardSurface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF1E3A2A)),
+              border: Border.all(color: theme.cardBorderColor),
             ),
             child: Row(
               children: [
@@ -309,21 +204,21 @@ class SideMenu extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'SYSTEM MODE',
                       style: TextStyle(
                         fontSize: 10,
-                        color: Color(0xFFB0BEC5),
+                        color: theme.sectionHeaderColor,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.1,
                       ),
                     ),
                     Text(
                       modeLabel,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.textOnSurface,
                       ),
                     ),
                   ],
@@ -338,7 +233,8 @@ class SideMenu extends ConsumerWidget {
 }
 
 class _DateTimeWidget extends StatefulWidget {
-  const _DateTimeWidget();
+  final AppThemeData theme;
+  const _DateTimeWidget({required this.theme});
 
   @override
   State<_DateTimeWidget> createState() => _DateTimeWidgetState();
@@ -367,22 +263,13 @@ class _DateTimeWidgetState extends State<_DateTimeWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = widget.theme;
     final timeString =
         "${_now.hour.toString().padLeft(2, '0')}:${_now.minute.toString().padLeft(2, '0')}:${_now.second.toString().padLeft(2, '0')}";
 
     const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
     const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     final monthString = monthNames[_now.month - 1];
@@ -393,16 +280,19 @@ class _DateTimeWidgetState extends State<_DateTimeWidget> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1E3A2A), Color(0xFF0F1410)],
+        gradient: LinearGradient(
+          colors: [
+            theme.dateTimeGradientStart,
+            theme.dateTimeGradientEnd,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2ECC71).withOpacity(0.3)),
+        border: Border.all(color: theme.dateTimeBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -416,18 +306,18 @@ class _DateTimeWidgetState extends State<_DateTimeWidget> {
             children: [
               Text(
                 timeString,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
-                  color: Color(0xFF2ECC71),
+                  color: theme.dateTimeClockColor,
                   letterSpacing: 2.0,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 dateString,
-                style: const TextStyle(
-                  color: Color(0xFFB0BEC5),
+                style: TextStyle(
+                  color: theme.dateTimeDateColor,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
@@ -437,12 +327,12 @@ class _DateTimeWidgetState extends State<_DateTimeWidget> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF2ECC71).withOpacity(0.1),
+              color: theme.dateTimeIconBackground,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.access_time_filled,
-              color: Color(0xFF2ECC71),
+              color: theme.dateTimeClockColor,
               size: 24,
             ),
           ),

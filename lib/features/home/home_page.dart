@@ -7,6 +7,7 @@ import '../timesheet/timesheet_page.dart';
 import '../alarm/alarm_page.dart';
 import '../setup/setup_page.dart';
 import '../../core/coms/com_service.dart';
+import '../../core/utils/app_theme.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -25,24 +26,18 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Future<void> _autoConnectUsb() async {
-    // Trigger Auto Connect via ComService
-    // "CP2102N" is the filter string
     final comService = ref.read(comServiceProvider.notifier);
     await comService.autoConnect('CP2102N');
 
-    // Check connection status after attempt
     final isConnected = ref.read(comServiceProvider).isConnected;
-    // UsbPort doesn't expose productName directly easily without device wrapper,
-    // but the state has the list of devices.
-    // For now, let's just confirm connection.
     const deviceName = "USB Device";
 
     if (mounted && isConnected) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Device connected: $deviceName'),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.green, // semantic — always green
+          duration: Duration(seconds: 2),
         ),
       );
     }
@@ -50,8 +45,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Map selected index to Feature Pages
-    // 0: Workfile, 1: Dashboard, 2: Timesheet, 3: Alarm (Placeholder), 4: Setup
+    final theme = AppTheme.of(context);
     final selectedIndex = ref.watch(selectedMenuProvider);
 
     Widget content;
@@ -76,9 +70,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(
-        0xFF1E293B,
-      ), // Lighter dark theme background to frame things
+      backgroundColor: theme.surfaceColor,
       body: Row(
         children: [
           const SideMenu(),
@@ -86,7 +78,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: Container(
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF0F1410), // Content area background
+                color: theme.pageBackground,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: ClipRRect(

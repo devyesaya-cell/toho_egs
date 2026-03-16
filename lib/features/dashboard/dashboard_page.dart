@@ -7,47 +7,44 @@ import 'widgets/summary_card.dart';
 import 'widgets/trend_chart.dart';
 import '../../core/widgets/global_app_bar_actions.dart';
 import '../../core/state/auth_state.dart';
+import '../../core/utils/app_theme.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = AppTheme.of(context);
     final dashboardDataAsync = ref.watch(dashboardPresenterProvider);
     final auth = ref.watch(authProvider);
     final systemMode = auth.mode.name.toUpperCase();
     final isCrumbling = systemMode == 'CRUMBLING';
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F1410), // Dark background
+      backgroundColor: theme.pageBackground,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F1410),
-        foregroundColor: Colors.white,
+        backgroundColor: theme.appBarBackground,
+        foregroundColor: theme.appBarForeground,
         elevation: 0,
         title: Row(
           children: [
-            // Green Icon Box
             Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFF1E3A2A),
+                color: theme.iconBoxBackground,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
-                Icons.dashboard,
-                color: Color(0xFF2ECC71),
-                size: 24,
-              ),
+              child: Icon(Icons.dashboard, color: theme.iconBoxIcon, size: 24),
             ),
             const SizedBox(width: 16),
-            // Titles
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'EGS DASHBOARD',
                   style: TextStyle(
+                    color: theme.appBarForeground,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
                     fontSize: 18,
@@ -56,8 +53,8 @@ class DashboardPage extends ConsumerWidget {
                 const SizedBox(height: 2),
                 Text(
                   'SYSTEM MODE: $systemMode',
-                  style: const TextStyle(
-                    color: Color(0xFF2ECC71), // Primary Green
+                  style: TextStyle(
+                    color: theme.appBarAccent,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
@@ -77,9 +74,11 @@ class DashboardPage extends ConsumerWidget {
             const SizedBox(height: 16),
             Expanded(
               child: dashboardDataAsync.when(
-                data: (data) => _buildDashboardContent(data, isCrumbling),
-                loading: () => const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF2ECC71)),
+                data: (data) =>
+                    _buildDashboardContent(data, isCrumbling),
+                loading: () => Center(
+                  child: CircularProgressIndicator(
+                      color: theme.loadingIndicatorColor),
                 ),
                 error: (err, stack) => Center(
                   child: Text(
@@ -98,13 +97,11 @@ class DashboardPage extends ConsumerWidget {
   Widget _buildDashboardContent(DashboardData data, bool isCrumbling) {
     return Column(
       children: [
-        // Top Row: Big Progress Card + Grid of Summary Cards
         Expanded(
           flex: 6,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Left: Progress Card
               Expanded(
                 flex: 4,
                 child: ProgressCard(
@@ -117,8 +114,6 @@ class DashboardPage extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 16),
-
-              // Right: Grid of 4 cards
               Expanded(
                 flex: 7,
                 child: Column(
@@ -135,7 +130,8 @@ class DashboardPage extends ConsumerWidget {
                                   ? ''
                                   : '${data.productivitySpotsHr.toStringAsFixed(0)} spots/Hr',
                               percent: data.percentageProductivity,
-                              progressColor: const Color(0xFF3B82F6), // Blue
+                              progressColor:
+                                  const Color(0xFF3B82F6), // semantic blue
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -148,7 +144,8 @@ class DashboardPage extends ConsumerWidget {
                               subUnit: 'cm',
                               subValue: '10 cm',
                               percent: data.percentagePrecision,
-                              progressColor: const Color(0xFFEF4444), // Red
+                              progressColor:
+                                  const Color(0xFFEF4444), // semantic red
                             ),
                           ),
                         ],
@@ -167,9 +164,8 @@ class DashboardPage extends ConsumerWidget {
                                   ? ''
                                   : '${data.productionSpotsTotal.toStringAsFixed(0)} spots',
                               percent: data.percentageProduction,
-                              progressColor: const Color(
-                                0xFF2ECC71,
-                              ), // Primary Green
+                              progressColor:
+                                  const Color(0xFF2ECC71), // semantic green
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -180,7 +176,8 @@ class DashboardPage extends ConsumerWidget {
                               subUnit: 'hours',
                               subValue: '12 Hours',
                               percent: data.percentageWorkHours,
-                              progressColor: const Color(0xFFA855F7), // Purple
+                              progressColor:
+                                  const Color(0xFFA855F7), // semantic purple
                             ),
                           ),
                         ],
@@ -192,10 +189,7 @@ class DashboardPage extends ConsumerWidget {
             ],
           ),
         ),
-
         const SizedBox(height: 16),
-
-        // Bottom Row: 2 Charts
         Expanded(
           flex: 4,
           child: Row(
@@ -208,7 +202,7 @@ class DashboardPage extends ConsumerWidget {
                   spots: data.productivityTrend,
                   maxY: data.productivityMaxY,
                   interval: data.trendInterval,
-                  lineColor: const Color(0xFF3B82F6), // Blue
+                  lineColor: const Color(0xFF3B82F6),
                 ),
               ),
               const SizedBox(width: 16),
@@ -219,7 +213,7 @@ class DashboardPage extends ConsumerWidget {
                   spots: data.productionTrend,
                   maxY: data.productionMaxY,
                   interval: data.trendInterval,
-                  lineColor: const Color(0xFF2ECC71), // Primary Green
+                  lineColor: const Color(0xFF2ECC71),
                 ),
               ),
             ],

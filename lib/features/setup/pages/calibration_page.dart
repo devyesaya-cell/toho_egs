@@ -10,6 +10,7 @@ import '../widgets/calibration/body_calibration_tab.dart';
 import '../widgets/calibration/boom_calibration_tab.dart';
 import '../widgets/calibration/stick_calibration_tab.dart';
 import '../widgets/calibration/attachment_calibration_tab.dart';
+import '../../../core/utils/app_theme.dart';
 
 class CalibrationPage extends ConsumerStatefulWidget {
   const CalibrationPage({super.key});
@@ -44,30 +45,30 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+
     return DefaultTabController(
       length: 5,
       child: Scaffold(
-        backgroundColor: const Color(0xFF0F1410), // Dark background
+        backgroundColor: theme.pageBackground,
         appBar: AppBar(
           title: Row(
             children: [
-              // Green Icon Box
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E3A2A),
+                  color: theme.iconBoxBackground,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.precision_manufacturing,
-                  color: Color(0xFF2ECC71),
+                  color: theme.iconBoxIcon,
                   size: 24,
                 ),
               ),
               const SizedBox(width: 16),
-              // Titles
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -76,13 +77,14 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
                       fontSize: 18,
+                      color: theme.appBarForeground,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     'EGS CALIBRATION V4.0.0',
                     style: TextStyle(
-                      color: Color(0xFF2ECC71), // Primary Green
+                      color: theme.appBarAccent,
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
@@ -91,20 +93,20 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
                 ],
               ),
               const Spacer(),
-              _buildAppBarActions(context, ref),
+              _buildAppBarActions(context, ref, theme),
               const SizedBox(width: 16),
             ],
           ),
-          backgroundColor: const Color(0xFF0F1410), // Dark background
-          foregroundColor: Colors.white,
+          backgroundColor: theme.appBarBackground,
+          foregroundColor: theme.appBarForeground,
           elevation: 0,
-          bottom: const TabBar(
+          bottom: TabBar(
             isScrollable: true,
-            indicatorColor: Color(0xFF2ECC71), // Green
-            labelColor: Color(0xFF2ECC71), // Green
-            unselectedLabelColor: Colors.white54,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
-            tabs: [
+            indicatorColor: theme.appBarAccent,
+            labelColor: theme.appBarAccent,
+            unselectedLabelColor: theme.textSecondary,
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+            tabs: const [
               Tab(text: 'OFFSET CALIBRATION'),
               Tab(text: 'BODY CALIBRATION'),
               Tab(text: 'BOOM CALIBRATION'),
@@ -114,18 +116,18 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
           ),
         ),
         body: Container(
-          decoration: const BoxDecoration(
-            border: Border(top: BorderSide(color: Color(0xFF1E3A2A))),
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: theme.cardBorderColor)),
           ),
           child: Consumer(
             builder: (context, ref, child) {
-              return TabBarView(
+              return const TabBarView(
                 children: [
-                  const OffsetCalibrationTab(),
-                  const BodyCalibrationTab(),
-                  const BoomCalibrationTab(),
-                  const StickCalibrationTab(),
-                  const AttachmentCalibrationTab(),
+                  OffsetCalibrationTab(),
+                  BodyCalibrationTab(),
+                  BoomCalibrationTab(),
+                  StickCalibrationTab(),
+                  AttachmentCalibrationTab(),
                 ],
               );
             },
@@ -135,7 +137,8 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
     );
   }
 
-  Widget _buildAppBarActions(BuildContext context, WidgetRef ref) {
+  Widget _buildAppBarActions(
+      BuildContext context, WidgetRef ref, AppThemeData theme) {
     final usbState = ref.watch(comServiceProvider);
     final calibAsync = ref.watch(calibStreamProvider);
     bool hasDataStream = false;
@@ -148,10 +151,10 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
     final bool isActive = usbState.isConnected && hasDataStream;
     final bool isCalibActive = calibAsync.hasValue && hasDataStream;
 
+    // Status indicators remain semantic colors (green/red)
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Connection Status
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -196,9 +199,8 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
           ],
         ),
         const SizedBox(width: 16),
-        Container(width: 1, height: 24, color: const Color(0xFF1E3A2A)),
+        Container(width: 1, height: 24, color: theme.menuBorder),
         const SizedBox(width: 16),
-        // Profile Widget
         Builder(
           builder: (context) {
             final authState = ref.watch(authProvider);
@@ -210,15 +212,11 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
             final photoUrl = person?.picURL;
 
             return InkWell(
-              onTap: () {
-                _showLogoutDialog(context, ref);
-              },
+              onTap: () => _showLogoutDialog(context, ref, theme),
               borderRadius: BorderRadius.circular(8),
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 4.0,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 child: Row(
                   children: [
                     CircleAvatar(
@@ -226,28 +224,21 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
                       backgroundImage: photoUrl != null && photoUrl.isNotEmpty
                           ? AssetImage(photoUrl)
                           : const AssetImage('images/avatar_person.png'),
-                      backgroundColor: const Color(0xFF1E293B),
+                      backgroundColor: theme.surfaceColor,
                     ),
                     const SizedBox(width: 8),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                        Text(
-                          contractor,
-                          style: const TextStyle(
-                            color: Color(0xFF2ECC71),
-                            fontSize: 10,
-                          ),
-                        ),
+                        Text(name,
+                            style: TextStyle(
+                                color: theme.appBarForeground,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12)),
+                        Text(contractor,
+                            style: TextStyle(
+                                color: theme.appBarAccent, fontSize: 10)),
                       ],
                     ),
                   ],
@@ -260,29 +251,28 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
     );
   }
 
-  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+  void _showLogoutDialog(
+      BuildContext context, WidgetRef ref, AppThemeData theme) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        title: const Row(
+        backgroundColor: theme.dialogBackground,
+        title: Row(
           children: [
-            Icon(Icons.logout, color: Colors.orange),
-            SizedBox(width: 8),
-            Text('Sign Out', style: TextStyle(color: Colors.white)),
+            const Icon(Icons.logout, color: Colors.orange), // semantic
+            const SizedBox(width: 8),
+            Text('Sign Out', style: TextStyle(color: theme.textOnSurface)),
           ],
         ),
-        content: const Text(
+        content: Text(
           'Are you sure you want to sign out?',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: theme.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text(
-              'CANCEL',
-              style: TextStyle(color: Colors.white54),
-            ),
+            child: Text('CANCEL',
+                style: TextStyle(color: theme.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -290,8 +280,8 @@ class _CalibrationPageState extends ConsumerState<CalibrationPage> {
               ref.read(authProvider.notifier).logout();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              foregroundColor: Colors.white,
+              backgroundColor: theme.primaryButtonBackground,
+              foregroundColor: theme.primaryButtonText,
             ),
             child: const Text('SIGN OUT'),
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/widgets/global_app_bar_actions.dart';
 import '../presenter/sync_presenter.dart';
+import '../../../core/utils/app_theme.dart';
 
 class SyncPage extends ConsumerStatefulWidget {
   const SyncPage({super.key});
@@ -26,29 +27,28 @@ class _SyncPageState extends ConsumerState<SyncPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
     final syncState = ref.watch(syncPresenterProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F1410),
+      backgroundColor: theme.pageBackground,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F1410),
-        foregroundColor: Colors.white,
+        backgroundColor: theme.appBarBackground,
+        foregroundColor: theme.appBarForeground,
         elevation: 0,
         title: Row(
           children: [
-            // Green Icon Box
             Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFF1E3A2A),
+                color: theme.iconBoxBackground,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.sync, color: Color(0xFF2ECC71), size: 24),
+              child: Icon(Icons.sync, color: theme.iconBoxIcon, size: 24),
             ),
             const SizedBox(width: 16),
-            // Titles
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -57,13 +57,14 @@ class _SyncPageState extends ConsumerState<SyncPage> {
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
                     fontSize: 18,
+                    color: theme.appBarForeground,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   'EGS SYNCHRONIZE V4.0.0',
                   style: TextStyle(
-                    color: Color(0xFF2ECC71), // Primary Green
+                    color: theme.appBarAccent,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
@@ -80,30 +81,27 @@ class _SyncPageState extends ConsumerState<SyncPage> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Left Panel (40%)
-            Expanded(flex: 4, child: _buildLeftPanel(syncState)),
+            Expanded(flex: 4, child: _buildLeftPanel(syncState, theme)),
             const SizedBox(width: 24),
-            // Right Panel (60%)
-            Expanded(flex: 6, child: _buildRightPanel()),
+            Expanded(flex: 6, child: _buildRightPanel(theme)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLeftPanel(SyncState state) {
+  Widget _buildLeftPanel(SyncState state, AppThemeData theme) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF162118),
+        color: theme.cardSurface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFF1E3A2A), width: 1),
+        border: Border.all(color: theme.cardBorderColor, width: 1),
       ),
       padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Circular Progress
           SizedBox(
             height: 160,
             width: 160,
@@ -113,10 +111,8 @@ class _SyncPageState extends ConsumerState<SyncPage> {
                 CircularProgressIndicator(
                   value: state.progress,
                   strokeWidth: 12,
-                  backgroundColor: const Color(0xFF1E3A2A),
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFF2ECC71),
-                  ),
+                  backgroundColor: theme.cardBorderColor,
+                  valueColor: AlwaysStoppedAnimation<Color>(theme.appBarAccent),
                   strokeCap: StrokeCap.round,
                 ),
                 Column(
@@ -124,16 +120,16 @@ class _SyncPageState extends ConsumerState<SyncPage> {
                   children: [
                     Text(
                       '${(state.progress * 100).toInt()}%',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: theme.textOnSurface,
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const Text(
+                    Text(
                       'SYNCED',
                       style: TextStyle(
-                        color: Colors.white54,
+                        color: theme.textSecondary,
                         fontSize: 12,
                         letterSpacing: 2.0,
                         fontWeight: FontWeight.w600,
@@ -147,17 +143,18 @@ class _SyncPageState extends ConsumerState<SyncPage> {
           const SizedBox(height: 48),
           Text(
             state.statusText,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: theme.textOnSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Automatic transmission active via COM\nconnection. Do not disconnect.',
-            style: TextStyle(color: Colors.white54, fontSize: 13, height: 1.5),
+            style: TextStyle(
+                color: theme.textSecondary, fontSize: 13, height: 1.5),
             textAlign: TextAlign.center,
           ),
         ],
@@ -165,18 +162,17 @@ class _SyncPageState extends ConsumerState<SyncPage> {
     );
   }
 
-  Widget _buildRightPanel() {
+  Widget _buildRightPanel(AppThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'DATA PACKETS (6)',
               style: TextStyle(
-                color: Colors.white54,
+                color: theme.textSecondary,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.0,
                 fontSize: 12,
@@ -184,6 +180,7 @@ class _SyncPageState extends ConsumerState<SyncPage> {
             ),
             Row(
               children: [
+                // LIVE STREAM indicator — semantic green, always
                 Container(
                   width: 8,
                   height: 8,
@@ -207,11 +204,11 @@ class _SyncPageState extends ConsumerState<SyncPage> {
           ],
         ),
         const SizedBox(height: 16),
-        // List
         Expanded(
           child: ListView(
             children: [
               _buildPacketItem(
+                theme: theme,
                 title: 'Telemetry_Log_01.dat',
                 subtitle: '1.2 MB • Completed 10:42 AM',
                 icon: Icons.insert_drive_file_outlined,
@@ -219,6 +216,7 @@ class _SyncPageState extends ConsumerState<SyncPage> {
               ),
               const SizedBox(height: 12),
               _buildPacketItem(
+                theme: theme,
                 title: 'Guidance_Path_A12.gps',
                 subtitle: '840 KB • Completed 10:45 AM',
                 icon: Icons.location_on_outlined,
@@ -226,6 +224,7 @@ class _SyncPageState extends ConsumerState<SyncPage> {
               ),
               const SizedBox(height: 12),
               _buildPacketItem(
+                theme: theme,
                 title: 'Forest_Scan_V2.raw',
                 subtitle: 'Uploading (1.4MB/2.1MB)',
                 icon: Icons.sync,
@@ -234,6 +233,7 @@ class _SyncPageState extends ConsumerState<SyncPage> {
               ),
               const SizedBox(height: 12),
               _buildPacketItem(
+                theme: theme,
                 title: 'Operator_Notes_B4.txt',
                 subtitle: 'Waiting in queue',
                 icon: Icons.more_horiz,
@@ -248,6 +248,7 @@ class _SyncPageState extends ConsumerState<SyncPage> {
   }
 
   Widget _buildPacketItem({
+    required AppThemeData theme,
     required String title,
     required String subtitle,
     required IconData icon,
@@ -259,79 +260,65 @@ class _SyncPageState extends ConsumerState<SyncPage> {
     final isWaiting = status == PacketStatus.waiting;
     final isCompleted = status == PacketStatus.completed;
 
+    // Status-specific colors are semantic
     Color borderColor = Colors.transparent;
-    Color iconColor = Colors.white54;
-    Color titleColor = Colors.white;
-    Color subtitleColor = Colors.white54;
+    Color iconColor = theme.textSecondary;
+    Color titleColor = theme.textOnSurface;
+    Color subtitleColor = theme.textSecondary;
 
     if (isUploading) {
-      borderColor = const Color(
-        0xFF2ECC71,
-      ).withAlpha(128); // Green border for active
-      iconColor = const Color(0xFF2ECC71);
-      titleColor = Colors.white;
-      subtitleColor = const Color(0xFF2ECC71);
+      borderColor = theme.appBarAccent.withValues(alpha: 0.5);
+      iconColor = theme.appBarAccent;
+      titleColor = theme.textOnSurface;
+      subtitleColor = theme.appBarAccent;
     } else if (isWaiting) {
-      borderColor = Colors.white10;
-      titleColor = Colors.white38;
-      subtitleColor = Colors.white30;
-      iconColor = Colors.white24;
-    } else if (isCompleted) {
-      iconColor = Colors.white54;
+      borderColor = theme.dividerColor;
+      titleColor = theme.textSecondary;
+      subtitleColor = theme.textSecondary.withValues(alpha: 0.7);
+      iconColor = theme.textSecondary.withValues(alpha: 0.5);
     }
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF162118),
+        color: theme.cardSurface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isWaiting
-              ? Colors.white10
-              : (isUploading ? borderColor : const Color(0xFF1E3A2A)),
+              ? theme.dividerColor
+              : (isUploading ? borderColor : theme.cardBorderColor),
           width: isUploading ? 2 : 1,
         ),
       ),
       child: Row(
         children: [
-          // Icon
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isWaiting ? Colors.transparent : const Color(0xFF1E3A2A),
+              color: isWaiting ? Colors.transparent : theme.iconBoxBackground,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: iconColor, size: 20),
           ),
           const SizedBox(width: 16),
-          // Texts
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: titleColor,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                Text(title,
+                    style: TextStyle(
+                        color: titleColor,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600)),
                 const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(color: subtitleColor, fontSize: 12),
-                ),
+                Text(subtitle,
+                    style: TextStyle(color: subtitleColor, fontSize: 12)),
               ],
             ),
           ),
-          // Trailing
           if (isCompleted)
-            const Icon(
-              Icons.check_circle_outline,
-              color: Color(0xFF2ECC71),
-              size: 24,
-            )
+            Icon(Icons.check_circle_outline,
+                color: theme.appBarAccent, size: 24) // semantic accent
           else if (isUploading && progress != null)
             SizedBox(
               width: 80,
@@ -339,10 +326,9 @@ class _SyncPageState extends ConsumerState<SyncPage> {
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
                   value: progress,
-                  backgroundColor: const Color(0xFF1E3A2A),
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFF2ECC71),
-                  ),
+                  backgroundColor: theme.cardBorderColor,
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(theme.appBarAccent),
                   minHeight: 6,
                 ),
               ),
@@ -350,8 +336,8 @@ class _SyncPageState extends ConsumerState<SyncPage> {
           else if (trailingText != null)
             Text(
               trailingText,
-              style: const TextStyle(
-                color: Colors.white38,
+              style: TextStyle(
+                color: theme.textSecondary,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),

@@ -6,31 +6,38 @@ import '../widgets/management/contractor_tab.dart';
 import '../widgets/management/equipment_tab.dart';
 import '../widgets/management/area_tab.dart';
 import '../widgets/management/timesheet_data_tab.dart';
+import '../../../core/utils/app_theme.dart';
 
 class ManagementPage extends ConsumerWidget {
   const ManagementPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = AppTheme.of(context);
+
     return DefaultTabController(
       length: 6,
       child: Scaffold(
-        backgroundColor: const Color(0xFF0F1410), // Dark background
+        backgroundColor: theme.pageBackground,
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             'MANAGEMENT',
-            style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+            style: TextStyle(
+              color: theme.appBarForeground,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
           ),
-          backgroundColor: const Color(0xFF0F1410), // Dark background
-          foregroundColor: Colors.white,
+          backgroundColor: theme.appBarBackground,
+          foregroundColor: theme.appBarForeground,
           elevation: 0,
-          bottom: const TabBar(
+          bottom: TabBar(
             isScrollable: true,
-            indicatorColor: Color(0xFF2ECC71), // Green
-            labelColor: Color(0xFF2ECC71), // Green
-            unselectedLabelColor: Colors.white54,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
-            tabs: [
+            indicatorColor: theme.appBarAccent,
+            labelColor: theme.appBarAccent,
+            unselectedLabelColor: theme.textSecondary,
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+            tabs: const [
               Tab(text: 'PERSON', icon: Icon(Icons.person)),
               Tab(text: 'WORKFILE', icon: Icon(Icons.folder)),
               Tab(text: 'CONTRACTOR', icon: Icon(Icons.business)),
@@ -41,8 +48,8 @@ class ManagementPage extends ConsumerWidget {
           ),
         ),
         body: Container(
-          decoration: const BoxDecoration(
-            border: Border(top: BorderSide(color: Color(0xFF1E3A2A))),
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: theme.cardBorderColor)),
           ),
           child: const TabBarView(
             children: [

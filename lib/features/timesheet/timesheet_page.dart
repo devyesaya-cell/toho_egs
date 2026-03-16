@@ -6,6 +6,7 @@ import '../../../core/models/timesheet_record.dart';
 import '../../../core/repositories/app_repository.dart';
 import '../../../core/state/auth_state.dart';
 import 'presenter/timesheet_presenter.dart'; // import the new presenter
+import '../../../core/utils/app_theme.dart';
 
 // Top level stream providers for timesheet data to preserve caching across rebuilds
 final timesheetDataStreamProvider =
@@ -28,31 +29,32 @@ class TimesheetPage extends ConsumerWidget {
     final notifier = ref.read(timesheetProvider.notifier);
     return DefaultTabController(
       length: 2,
-      child: Scaffold(
-        backgroundColor: const Color(0xFF0F1410), // Dark background
+      child: Builder(
+        builder: (context) {
+          final theme = AppTheme.of(context);
+          return Scaffold(
+        backgroundColor: theme.pageBackground,
         appBar: AppBar(
-          backgroundColor: const Color(0xFF0F1410),
-          foregroundColor: Colors.white,
+          backgroundColor: theme.appBarBackground,
+          foregroundColor: theme.appBarForeground,
           elevation: 0,
           title: Row(
             children: [
-              // Green Icon Box
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E3A2A),
+                  color: theme.iconBoxBackground,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.table_chart,
-                  color: Color(0xFF2ECC71),
+                  color: theme.iconBoxIcon,
                   size: 24,
                 ),
               ),
               const SizedBox(width: 16),
-              // Titles
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -61,13 +63,14 @@ class TimesheetPage extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
                       fontSize: 18,
+                      color: theme.appBarForeground,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     'EGS TIMESHEET V4.0.0',
                     style: TextStyle(
-                      color: Color(0xFF2ECC71), // Primary Green
+                      color: theme.appBarAccent,
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
@@ -78,40 +81,38 @@ class TimesheetPage extends ConsumerWidget {
             ],
           ),
           actions: [
-            // Right Side Actions: Person Widget + Connection Status
-            _buildAppBarActions(ref),
+            _buildAppBarActions(ref, theme),
             const SizedBox(width: 16),
           ],
-          bottom: const TabBar(
-            indicatorColor: Color(0xFF2ECC71),
-            labelColor: Color(0xFF2ECC71),
-            unselectedLabelColor: Colors.white54,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
-            tabs: [
+          bottom: TabBar(
+            indicatorColor: theme.appBarAccent,
+            labelColor: theme.appBarAccent,
+            unselectedLabelColor: theme.textSecondary,
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+            tabs: const [
               Tab(text: 'ACTIVITY'),
               Tab(text: 'TIMESHEET VIEW'),
             ],
           ),
         ),
         body: Container(
-          decoration: const BoxDecoration(
-            border: Border(top: BorderSide(color: Color(0xFF1E3A2A))),
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: theme.cardBorderColor)),
           ),
           child: TabBarView(
             children: [
-              // TAB 1: ACTIVITY
-              _buildActivityTab(context, ref, state, notifier),
-
-              // TAB 2: TIMESHEET VIEW
-              _buildTimesheetViewTab(context, ref, state, notifier),
+              _buildActivityTab(context, ref, state, notifier, theme),
+              _buildTimesheetViewTab(context, ref, state, notifier, theme),
             ],
           ),
         ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildAppBarActions(WidgetRef ref) {
+  Widget _buildAppBarActions(WidgetRef ref, AppThemeData theme) {
     final usbState = ref.watch(comServiceProvider);
     bool hasDataStream = false;
     if (usbState.lastDataReceived != null) {
@@ -121,31 +122,25 @@ class TimesheetPage extends ConsumerWidget {
       }
     }
     final bool isUsbActive = usbState.isConnected && hasDataStream;
+    // USB status is semantic — always green/red
+    final Color usbColor =
+        isUsbActive ? const Color(0xFF2ECC71) : const Color(0xFFEF4444);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Compact Connection Status
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.usb,
-                  size: 14,
-                  color: isUsbActive
-                      ? const Color(0xFF2ECC71)
-                      : const Color(0xFFEF4444),
-                ),
+                Icon(Icons.usb, size: 14, color: usbColor),
                 const SizedBox(width: 4),
                 Text(
                   isUsbActive ? 'RS232 Active' : 'RS232 Inactive',
                   style: TextStyle(
-                    color: isUsbActive
-                        ? const Color(0xFF2ECC71)
-                        : const Color(0xFFEF4444),
+                    color: usbColor,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
@@ -155,7 +150,7 @@ class TimesheetPage extends ConsumerWidget {
           ],
         ),
         const SizedBox(width: 16),
-        Container(width: 1, height: 24, color: const Color(0xFF1E3A2A)),
+        Container(width: 1, height: 24, color: theme.menuBorder),
         const SizedBox(width: 16),
         // Simple Profile Widget for AppBar
         Builder(
@@ -185,7 +180,7 @@ class TimesheetPage extends ConsumerWidget {
                       backgroundImage: photoUrl != null && photoUrl.isNotEmpty
                           ? AssetImage(photoUrl)
                           : const AssetImage('images/avatar_person.png'),
-                      backgroundColor: const Color(0xFF1E293B),
+                      backgroundColor: theme.surfaceColor,
                     ),
                     const SizedBox(width: 8),
                     Column(
@@ -194,16 +189,16 @@ class TimesheetPage extends ConsumerWidget {
                       children: [
                         Text(
                           name,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: theme.appBarForeground,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
                         ),
                         Text(
                           contractor,
-                          style: const TextStyle(
-                            color: Color(0xFF2ECC71),
+                          style: TextStyle(
+                            color: theme.appBarAccent,
                             fontSize: 10,
                           ),
                         ),
@@ -220,44 +215,40 @@ class TimesheetPage extends ConsumerWidget {
   }
 
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+    final theme = AppTheme.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        title: const Row(
+        backgroundColor: theme.dialogBackground,
+        title: Row(
           children: [
-            Icon(Icons.logout, color: Colors.orange),
-            SizedBox(width: 8),
-            Text('Sign Out', style: TextStyle(color: Colors.white)),
+            const Icon(Icons.logout, color: Colors.orange), // semantic
+            const SizedBox(width: 8),
+            Text('Sign Out', style: TextStyle(color: theme.textOnSurface)),
           ],
         ),
-        content: const Text(
+        content: Text(
           'Are you sure you want to sign out?',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: theme.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text(
-              'CANCEL',
-              style: TextStyle(color: Colors.white54),
-            ),
+            child: Text('CANCEL',
+                style: TextStyle(color: theme.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.of(ctx).pop();
-              // Stop timesheet if running before logging out
               final notifier = ref.read(timesheetProvider.notifier);
               final state = ref.read(timesheetProvider);
               if (state.isRunning) {
                 await notifier.stopActivity();
               }
-              // Unauthenticate
               ref.read(authProvider.notifier).logout();
-              // Navigation to login is handled automatically by the GoRouter redirect in app.dart based on authProvider state
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
+              backgroundColor: Colors.orange, // semantic
               foregroundColor: Colors.white,
             ),
             child: const Text('SIGN OUT'),
@@ -272,12 +263,13 @@ class TimesheetPage extends ConsumerWidget {
     WidgetRef ref,
     TimesheetState state,
     TimesheetNotifier notifier,
+    AppThemeData theme,
   ) {
     final asyncActivities = ref.watch(timesheetDataStreamProvider);
 
     return asyncActivities.when(
-      loading: () => const Center(
-        child: CircularProgressIndicator(color: Color(0xFF2ECC71)),
+      loading: () => Center(
+        child: CircularProgressIndicator(color: theme.loadingIndicatorColor),
       ),
       error: (error, stack) => Center(
         child: Text(
@@ -321,9 +313,9 @@ class TimesheetPage extends ConsumerWidget {
                 Center(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E293B),
+                      color: theme.cardSurface,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: const Color(0xFF1E3A2A)),
+                      border: Border.all(color: theme.cardBorderColor),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -348,23 +340,23 @@ class TimesheetPage extends ConsumerWidget {
                   ),
                   decoration: BoxDecoration(
                     color: state.isRunning
-                        ? const Color(0xFF0F1410)
-                        : const Color(0xFF1E293B),
+                        ? theme.pageBackground
+                        : theme.cardSurface,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF1E3A2A)),
+                    border: Border.all(color: theme.cardBorderColor),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<TimesheetData>(
                       value: validSelectedActivity,
-                      dropdownColor: const Color(0xFF1E293B),
+                      dropdownColor: theme.dropdownBackground,
                       icon: Icon(
                         Icons.arrow_drop_down,
                         color: state.isRunning
-                            ? Colors.white38
-                            : const Color(0xFF2ECC71),
+                            ? theme.textSecondary
+                            : theme.appBarAccent,
                       ),
                       isExpanded: true,
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                      style: TextStyle(color: theme.dropdownItemText, fontSize: 16),
                       onChanged: state.isRunning
                           ? null
                           : (TimesheetData? newValue) {
@@ -389,8 +381,8 @@ class TimesheetPage extends ConsumerWidget {
                 Text(
                   validSelectedActivity?.activityName?.toUpperCase() ?? '-',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFFB0BEC5),
+                  style: TextStyle(
+                    color: theme.textSecondary,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.5,
@@ -533,23 +525,27 @@ class TimesheetPage extends ConsumerWidget {
   }
 
   Widget _buildToggleBtn(String label, bool isSelected, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF2ECC71) : Colors.transparent,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.white54,
-            fontWeight: FontWeight.bold,
+    // Toggle button uses a local theme lookup
+    return Builder(builder: (context) {
+      final theme = AppTheme.of(context);
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? theme.appBarAccent : Colors.transparent,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? theme.primaryButtonText : theme.textSecondary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   String _formatDuration(int totalSeconds) {
@@ -564,6 +560,7 @@ class TimesheetPage extends ConsumerWidget {
     WidgetRef ref,
     TimesheetState state,
     TimesheetNotifier notifier,
+    AppThemeData theme,
   ) {
     final authState = ref.watch(authProvider);
     final currentPersonId = authState.currentUser?.uid ?? 'Unknown';
@@ -575,9 +572,9 @@ class TimesheetPage extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(vertical: 24.0),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
+              color: theme.cardSurface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFF1E3A2A)),
+              border: Border.all(color: theme.cardBorderColor),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -599,8 +596,9 @@ class TimesheetPage extends ConsumerWidget {
           child: ref
               .watch(timesheetRecordStreamProvider)
               .when(
-                loading: () => const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF2ECC71)),
+                loading: () => Center(
+                  child: CircularProgressIndicator(
+                      color: theme.loadingIndicatorColor),
                 ),
                 error: (error, stack) => Center(
                   child: Text(
@@ -670,10 +668,11 @@ class TimesheetPage extends ConsumerWidget {
                   );
 
                   if (filteredRecords.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Text(
                         'No Timesheet Records Found for this Shift.',
-                        style: TextStyle(color: Colors.white54, fontSize: 16),
+                        style:
+                            TextStyle(color: theme.textSecondary, fontSize: 16),
                       ),
                     );
                   }
@@ -686,7 +685,7 @@ class TimesheetPage extends ConsumerWidget {
                           child: Container(
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: const Color(0xFF1E3A2A),
+                                color: theme.cardBorderColor,
                               ),
                               borderRadius: BorderRadius.circular(8),
                             ),

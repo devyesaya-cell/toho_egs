@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/repositories/app_repository.dart';
 import '../../../../core/models/area.dart';
+import '../../../../core/utils/app_theme.dart';
 import 'area_card_widget.dart';
 
 class AreaTab extends ConsumerWidget {
@@ -126,35 +127,38 @@ class AreaTab extends ConsumerWidget {
   void _confirmDelete(BuildContext context, WidgetRef ref, Area area) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF0F1410),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFF1E3A2A)),
-        ),
-        title: const Text('Delete Area', style: TextStyle(color: Colors.white)),
-        content: Text(
-          'Are you sure you want to delete "${area.areaName}"?',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white54),
+      builder: (context) {
+        final theme = AppTheme.of(context);
+        return AlertDialog(
+          backgroundColor: theme.dialogBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: theme.cardBorderColor),
+          ),
+          title: Text('Delete Area',
+              style: TextStyle(color: theme.textOnSurface)),
+          content: Text(
+            'Are you sure you want to delete "${area.areaName}"?',
+            style: TextStyle(color: theme.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel',
+                  style: TextStyle(color: theme.textSecondary)),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              ref.read(appRepositoryProvider).deleteArea(area.id);
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () {
+                ref.read(appRepositoryProvider).deleteArea(area.id);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFEF4444)),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -225,12 +229,13 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.area != null;
+    final theme = AppTheme.of(context);
 
     return Dialog(
-      backgroundColor: const Color(0xFF0F1410),
+      backgroundColor: theme.dialogBackground,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0xFF1E3A2A)),
+        side: BorderSide(color: theme.cardBorderColor),
       ),
       child: Container(
         padding: const EdgeInsets.all(24),
@@ -245,12 +250,12 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.terrain, color: Color(0xFF2ECC71)),
+                    Icon(Icons.terrain, color: theme.appBarAccent),
                     const SizedBox(width: 12),
                     Text(
                       isEdit ? 'EDIT AREA' : 'ADD AREA',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: theme.textOnSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.2,
@@ -260,67 +265,47 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
                 ),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close, color: Colors.white54),
+                  icon: Icon(Icons.close, color: theme.textSecondary),
                 ),
               ],
             ),
-            const Divider(color: Color(0xFF1E3A2A)),
+            Divider(color: theme.dividerColor),
             const SizedBox(height: 16),
-
-            // Area Name
-            _buildField(
-              'AREA NAME',
-              _areaNameController,
-              hint: 'e.g. Block A - North',
-            ),
+            _buildField(theme, 'AREA NAME', _areaNameController,
+                hint: 'e.g. Block A - North'),
             const SizedBox(height: 16),
-
-            // Luas + Target row
             Row(
               children: [
                 Expanded(
                   child: _buildField(
-                    'LUAS AREA (Ha)',
-                    _luasAreaController,
-                    hint: 'e.g. 25.5',
-                    isDecimal: true,
+                    theme, 'LUAS AREA (Ha)', _luasAreaController,
+                    hint: 'e.g. 25.5', isDecimal: true,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildField(
-                    'TARGET SELESAI (Days)',
-                    _targetDoneController,
-                    hint: 'e.g. 30',
-                    isInteger: true,
+                    theme, 'TARGET SELESAI (Days)', _targetDoneController,
+                    hint: 'e.g. 30', isInteger: true,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-
-            // Spacing dropdown
-            _buildDropdown(
-              'SPACING',
-              widget.spacingOptions,
-              _selectedSpacing,
-              (v) => setState(() => _selectedSpacing = v),
-            ),
+            _buildDropdown(theme, 'SPACING', widget.spacingOptions,
+                _selectedSpacing, (v) => setState(() => _selectedSpacing = v)),
             const SizedBox(height: 24),
-
-            // Action buttons
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white24),
+                      foregroundColor: theme.textOnSurface,
+                      side: BorderSide(color: theme.dividerColor),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                     child: const Text('CANCEL'),
                   ),
@@ -332,13 +317,12 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
                     icon: const Icon(Icons.save_outlined, size: 16),
                     label: const Text('SAVE'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2ECC71),
-                      foregroundColor: Colors.black,
+                      backgroundColor: theme.primaryButtonBackground,
+                      foregroundColor: theme.primaryButtonText,
                       textStyle: const TextStyle(fontWeight: FontWeight.bold),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
                 ),
@@ -351,6 +335,7 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
   }
 
   Widget _buildField(
+    AppThemeData theme,
     String label,
     TextEditingController controller, {
     String? hint,
@@ -362,8 +347,8 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Color(0xFF2ECC71),
+          style: TextStyle(
+            color: theme.appBarAccent,
             fontSize: 10,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.1,
@@ -372,7 +357,7 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
         const SizedBox(height: 8),
         TextField(
           controller: controller,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: theme.textOnSurface),
           keyboardType: isDecimal
               ? const TextInputType.numberWithOptions(decimal: true)
               : isInteger
@@ -385,20 +370,20 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
               : null,
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.black26,
+            fillColor: theme.inputFill,
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white24),
+            hintStyle: TextStyle(color: theme.textSecondary),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white10),
+              borderSide: BorderSide(color: theme.inputBorder),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white10),
+              borderSide: BorderSide(color: theme.inputBorder),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Color(0xFF2ECC71)),
+              borderSide: BorderSide(color: theme.appBarAccent),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -411,6 +396,7 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
   }
 
   Widget _buildDropdown(
+    AppThemeData theme,
     String label,
     List<String> items,
     String? value,
@@ -421,8 +407,8 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Color(0xFF2ECC71),
+          style: TextStyle(
+            color: theme.appBarAccent,
             fontSize: 10,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.1,
@@ -431,34 +417,35 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           value: value,
-          dropdownColor: const Color(0xFF1E293B),
-          style: const TextStyle(color: Colors.white),
+          dropdownColor: theme.dropdownBackground,
+          style: TextStyle(color: theme.dropdownItemText),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.black26,
+            fillColor: theme.inputFill,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white10),
+              borderSide: BorderSide(color: theme.inputBorder),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white10),
+              borderSide: BorderSide(color: theme.inputBorder),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Color(0xFF2ECC71)),
+              borderSide: BorderSide(color: theme.appBarAccent),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 14,
             ),
           ),
-          hint: const Text(
+          hint: Text(
             'Select spacing...',
-            style: TextStyle(color: Colors.white38),
+            style: TextStyle(color: theme.textSecondary),
           ),
           items: items
-              .map((item) => DropdownMenuItem(value: item, child: Text(item)))
+              .map((item) =>
+                  DropdownMenuItem(value: item, child: Text(item)))
               .toList(),
           onChanged: onChanged,
         ),

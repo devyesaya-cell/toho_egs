@@ -3,10 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../coms/com_service.dart';
 import '../state/auth_state.dart';
-// Note: If you need to stop timesheet on logout globally, you might need
-// to add a callback or handle it in the provider.
-// Given global usage, let's handle TimesheetProvider from here.
 import '../../features/timesheet/presenter/timesheet_presenter.dart';
+import '../utils/app_theme.dart';
 
 class GlobalAppBarActions extends ConsumerWidget {
   final bool showStreamStatus;
@@ -15,14 +13,8 @@ class GlobalAppBarActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = AppTheme.of(context);
     final usbState = ref.watch(comServiceProvider);
-
-    // Check if calibStreamProvider exists or is needed.
-    // If we are not on calibration page, calibStreamProvider might not be active or even imported here.
-    // Let's abstract the stream status or just ignore it for the generic global one.
-    // Since we want this to be generic, the stream status might need to be passed in
-    // or just removed if it's only on calibration page. The user asked for the Timesheet AppBar design,
-    // so we'll just stick to RS232 status.
 
     bool hasDataStream = false;
     if (usbState.lastDataReceived != null) {
@@ -32,6 +24,11 @@ class GlobalAppBarActions extends ConsumerWidget {
       }
     }
     final bool isActive = usbState.isConnected && hasDataStream;
+
+    // USB status uses semantic colors — always green/red regardless of theme
+    const Color usbActiveColor = Colors.greenAccent;
+    const Color usbInactiveColor = Colors.red;
+    final Color usbColor = isActive ? usbActiveColor : usbInactiveColor;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -43,16 +40,12 @@ class GlobalAppBarActions extends ConsumerWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.usb,
-                  color: isActive ? Colors.greenAccent : Colors.red,
-                  size: 14,
-                ),
+                Icon(Icons.usb, color: usbColor, size: 14),
                 const SizedBox(width: 4),
                 Text(
                   isActive ? 'RS232 Active' : 'RS232 Inactive',
                   style: TextStyle(
-                    color: isActive ? Colors.greenAccent : Colors.red,
+                    color: usbColor,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
@@ -62,7 +55,7 @@ class GlobalAppBarActions extends ConsumerWidget {
           ],
         ),
         const SizedBox(width: 16),
-        Container(width: 1, height: 24, color: const Color(0xFF1E3A2A)),
+        Container(width: 1, height: 24, color: theme.menuBorder),
         const SizedBox(width: 16),
         // Profile Widget
         Builder(
@@ -77,7 +70,7 @@ class GlobalAppBarActions extends ConsumerWidget {
 
             return InkWell(
               onTap: () {
-                _showLogoutDialog(context, ref);
+                _showLogoutDialog(context, ref, theme);
               },
               borderRadius: BorderRadius.circular(8),
               child: Padding(
@@ -92,7 +85,7 @@ class GlobalAppBarActions extends ConsumerWidget {
                       backgroundImage: photoUrl != null && photoUrl.isNotEmpty
                           ? AssetImage(photoUrl)
                           : const AssetImage('images/avatar_person.png'),
-                      backgroundColor: const Color(0xFF1E293B),
+                      backgroundColor: theme.surfaceColor,
                     ),
                     const SizedBox(width: 8),
                     Column(
@@ -101,16 +94,16 @@ class GlobalAppBarActions extends ConsumerWidget {
                       children: [
                         Text(
                           name,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: theme.appBarForeground,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
                         ),
                         Text(
                           contractor,
-                          style: const TextStyle(
-                            color: Color(0xFF2ECC71),
+                          style: TextStyle(
+                            color: theme.appBarAccent,
                             fontSize: 10,
                           ),
                         ),
@@ -126,45 +119,43 @@ class GlobalAppBarActions extends ConsumerWidget {
     );
   }
 
-  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+  void _showLogoutDialog(
+      BuildContext context, WidgetRef ref, AppThemeData theme) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        title: const Row(
+        backgroundColor: theme.dialogBackground,
+        title: Row(
           children: [
-            Icon(Icons.logout, color: Colors.orange),
-            SizedBox(width: 8),
-            Text('Sign Out', style: TextStyle(color: Colors.white)),
+            const Icon(Icons.logout, color: Colors.orange), // semantic
+            const SizedBox(width: 8),
+            Text('Sign Out', style: TextStyle(color: theme.textOnSurface)),
           ],
         ),
-        content: const Text(
+        content: Text(
           'Are you sure you want to sign out?',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: theme.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text(
+            child: Text(
               'CANCEL',
-              style: TextStyle(color: Colors.white54),
+              style: TextStyle(color: theme.textSecondary),
             ),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.of(ctx).pop();
-              // Stop timesheet if running before logging out
               final notifier = ref.read(timesheetProvider.notifier);
               final state = ref.read(timesheetProvider);
               if (state.isRunning) {
                 await notifier.stopActivity();
               }
-              // Unauthenticate
               ref.read(authProvider.notifier).logout();
-              // Navigation to login is handled automatically by the GoRouter redirect in app.dart based on authProvider state
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
+              backgroundColor: Colors.orange, // semantic — sign-out warning
               foregroundColor: Colors.white,
             ),
             child: const Text('SIGN OUT'),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/coms/com_service.dart';
+import '../../../../core/utils/app_theme.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../presenter/calibration_presenter.dart';
 
@@ -18,6 +19,7 @@ class OffsetCalibrationTab extends ConsumerStatefulWidget {
 class _OffsetCalibrationTabState extends ConsumerState<OffsetCalibrationTab> {
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
     final calibAsync = ref.watch(calibStreamProvider);
     final calibData = calibAsync.asData?.value;
 
@@ -190,17 +192,17 @@ class _OffsetCalibrationTabState extends ConsumerState<OffsetCalibrationTab> {
                     vertical: 16,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B), // Dark surface
+                    color: theme.cardSurface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF1E3A2A)),
+                    border: Border.all(color: theme.cardBorderColor),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Text(
+                      Text(
                         'HEADING',
                         style: TextStyle(
-                          color: Color(0xFFB0BEC5),
+                          color: theme.textSecondary,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.5,
@@ -241,25 +243,23 @@ class _OffsetCalibrationTabState extends ConsumerState<OffsetCalibrationTab> {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: const Color(
-                      0xFF3F1D1D,
-                    ).withOpacity(0.3), // Highlight tint
+                    color: theme.cardSurface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: const Color(0xFF2ECC71).withOpacity(0.3),
+                      color: theme.appBarAccent.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        children: const [
-                          Icon(Icons.info_outline, color: Color(0xFF2ECC71)),
-                          SizedBox(width: 8),
+                        children: [
+                          Icon(Icons.info_outline, color: theme.appBarAccent),
+                          const SizedBox(width: 8),
                           Text(
                             'NOTES',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: theme.textOnSurface,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.2,
@@ -267,13 +267,10 @@ class _OffsetCalibrationTabState extends ConsumerState<OffsetCalibrationTab> {
                           ),
                         ],
                       ),
-                      const Divider(color: Color(0xFF1E3A2A), height: 32),
+                      Divider(color: theme.dividerColor, height: 32),
                       _buildNoteStep('1', 'Arahkan Arm searah dengan track'),
                       _buildNoteStep('2', 'Tekan tombol start'),
-                      _buildNoteStep(
-                        '3',
-                        'Putar arm excavator searah jarum jam 180 derajat',
-                      ),
+                      _buildNoteStep('3', 'Putar arm excavator 180 derajat'),
                       _buildNoteStep(
                         '4',
                         'Tekan stop dan tunggu sampai notifikasi muncul',
@@ -289,37 +286,39 @@ class _OffsetCalibrationTabState extends ConsumerState<OffsetCalibrationTab> {
     );
   }
 
-  Widget _buildNoteStep(String stepNumber, String text) {
+  Widget _buildNoteStep(String number, String text) {
+    final theme = AppTheme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            width: 24,
+            height: 24,
             decoration: BoxDecoration(
-              color: const Color(0xFF2ECC71).withOpacity(0.2),
+              color: theme.appBarAccent.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: Text(
-              stepNumber,
-              style: const TextStyle(
-                color: Color(0xFF2ECC71),
-                fontWeight: FontWeight.bold,
+            child: Center(
+              child: Text(
+                number,
+                style: TextStyle(
+                  color: theme.appBarAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 6.0),
-              child: Text(
-                text,
-                style: const TextStyle(
-                  color: Color(0xFFB0BEC5),
-                  fontSize: 14,
-                  height: 1.5,
-                ),
+            child: Text(
+              text,
+              style: TextStyle(
+                color: theme.textSecondary,
+                fontSize: 13,
+                height: 1.5,
               ),
             ),
           ),

@@ -5,6 +5,7 @@ import '../../core/repositories/app_repository.dart';
 import '../../core/models/person.dart';
 import '../../core/services/notification_service.dart';
 import '../../core/coms/com_service.dart';
+import '../../core/utils/app_theme.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -45,6 +46,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    // ── Detect Android Dark Mode ──────────────────────────────────────────
+    final theme = AppTheme.of(context);
+    final isDark =
+        MediaQuery.of(context).platformBrightness == Brightness.dark;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -53,15 +59,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             child: Image.asset('images/login_bg.jpeg', fit: BoxFit.cover),
           ),
 
-          // Dark Overlay for contrast
+          // Overlay — lighter in light mode, darker in dark mode
           Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.4)),
+            child: Container(
+              color: Colors.black.withValues(alpha: theme.overlayOpacity),
+            ),
           ),
 
           // Main Content
           Row(
             children: [
-              // Left Side: Branding
+              // ── Left Side: Branding ─────────────────────────────────────
               Expanded(
                 flex: 5,
                 child: Container(
@@ -69,16 +77,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Logo Area
+                      // Logo Badge
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
+                          color: theme.logoBadgeBackground,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.green, width: 1),
+                          border: Border.all(
+                            color: theme.logoBadgeBorder,
+                            width: 1,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -89,10 +100,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text(
+                                Text(
                                   'TOHO EGS',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: isDark
+                                        ? Colors.white
+                                        : const Color(0xFF3E2723),
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -100,7 +113,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 Text(
                                   'EXCAVATOR GUIDANCE SYSTEM',
                                   style: TextStyle(
-                                    color: Colors.greenAccent[400],
+                                    color: theme.labelColor,
                                     fontSize: 10,
                                     letterSpacing: 1.2,
                                   ),
@@ -153,7 +166,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
               ),
 
-              // Right Side: Login Form
+              // ── Right Side: Login Form ──────────────────────────────────
               Expanded(
                 flex: 4,
                 child: Center(
@@ -161,14 +174,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     margin: const EdgeInsets.only(right: 48),
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
-                      color: const Color(
-                        0xFF1E241E,
-                      ).withOpacity(0.95), // Dark Greenish Black
+                      color: theme.cardBackground.withValues(alpha: isDark ? 0.95 : 0.97),
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white10),
+                      border: Border.all(color: theme.cardBorder),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.15),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -179,44 +190,48 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text(
+                        // Title
+                        Text(
                           'Operator Login',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: theme.titleColor,
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
+                        Text(
                           'Access level: Forestry Management',
-                          style: TextStyle(color: Colors.white54, fontSize: 14),
+                          style: TextStyle(
+                            color: theme.subtitleColor,
+                            fontSize: 14,
+                          ),
                         ),
                         const SizedBox(height: 32),
 
                         // Operator Select
-                        _buildLabel('SELECT OPERATOR'),
+                        _buildLabel('SELECT OPERATOR', theme),
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
+                            color: theme.inputFill,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white24),
+                            border: Border.all(color: theme.inputBorder),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<Person>(
                               value: _selectedPerson,
-                              hint: const Text(
+                              hint: Text(
                                 'Choose operator name',
-                                style: TextStyle(color: Colors.white54),
+                                style: TextStyle(color: theme.dropdownHintText),
                               ),
-                              dropdownColor: const Color(0xFF1E241E),
-                              icon: const Icon(
+                              dropdownColor: theme.dropdownBackground,
+                              icon: Icon(
                                 Icons.expand_more,
-                                color: Colors.green,
+                                color: theme.dropdownIcon,
                               ),
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: theme.dropdownItemText),
                               isExpanded: true,
                               items: _persons
                                   .map(
@@ -236,39 +251,37 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         const SizedBox(height: 24),
 
                         // Access Code
-                        _buildLabel('ACCESS CODE'),
+                        _buildLabel('ACCESS CODE', theme),
                         const SizedBox(height: 8),
                         TextField(
                           controller: _passwordController,
                           obscureText: _obscureText,
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(color: theme.inputTextColor),
                           decoration: InputDecoration(
                             filled: true,
-                            fillColor: Colors.white.withOpacity(0.05),
+                            fillColor: theme.inputFill,
                             hintText: '••••••',
-                            hintStyle: const TextStyle(color: Colors.white24),
+                            hintStyle: TextStyle(color: theme.inputHintText),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Colors.white24,
-                              ),
+                              borderSide: BorderSide(color: theme.inputBorder),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Colors.white24,
-                              ),
+                              borderSide: BorderSide(color: theme.inputBorder),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: Colors.green),
+                              borderSide: BorderSide(
+                                color: theme.inputFocusedBorder,
+                              ),
                             ),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscureText
                                     ? Icons.visibility_outlined
                                     : Icons.visibility_off_outlined,
-                                color: Colors.white54,
+                                color: theme.visibilityIconColor,
                               ),
                               onPressed: () =>
                                   setState(() => _obscureText = !_obscureText),
@@ -278,12 +291,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         const SizedBox(height: 24),
 
                         // System Mode
-                        _buildLabel('SYSTEM MODE'),
+                        _buildLabel('SYSTEM MODE', theme),
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
+                            color: theme.inputFill,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -292,16 +305,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 'SPOT',
                                 Icons.settings_suggest,
                                 SystemMode.spot,
+                                theme,
                               ),
                               _buildModeButton(
                                 'CRUMBLING',
                                 Icons.school,
                                 SystemMode.crumbling,
-                              ), // Mapping Train -> Crumbling
+                                theme,
+                              ),
                               _buildModeButton(
                                 'MAINT',
                                 Icons.build,
                                 SystemMode.maintenance,
+                                theme,
                               ),
                             ],
                           ),
@@ -323,9 +339,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 NotificationService.showError('Enter Password');
                                 return;
                               }
-
-                              // Validate Password
-                              // In real app, hash this. Here simple comparison.
                               if (_passwordController.text !=
                                   _selectedPerson!.password) {
                                 NotificationService.showError(
@@ -334,23 +347,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 return;
                               }
 
-                              // Success
                               NotificationService.showSuccess(
                                 'Welcome ${_selectedPerson!.firstName}',
                               );
                               ref
                                   .read(authProvider.notifier)
                                   .login(_selectedPerson!, _selectedMode);
-                              // No need to Navigator, LandingPage handles it
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.greenAccent[700],
-                              foregroundColor: Colors.black,
+                              backgroundColor: theme.primaryButtonBackground,
+                              foregroundColor: theme.primaryButtonText,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               elevation: 0,
-                              shadowColor: Colors.greenAccent.withOpacity(0.5),
+                              shadowColor: theme.primaryButtonShadow,
                             ),
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -373,8 +384,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _buildUsbStatus(ref),
-                            // Sector Removed as requested
+                            _buildUsbStatus(ref, theme),
                           ],
                         ),
                       ],
@@ -403,18 +413,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  Widget _buildUsbStatus(WidgetRef ref) {
-    // Watch USB State (make sure to import com_service.dart)
-    // Note: Since this method is inside State<LoginPage>, we can use 'ref' passed or access 'ref' if it was a ConsumerWidget,
-    // but LoginPage is ConsumerStatefulWidget, so we have 'ref' available in the State class.
-    // However, the build method doesn't pass 'ref' to helper usually unless we ask.
-    // Let's use 'ref.watch' directly.
-
-    // Need to import com_service.dart at top of file first!
-    // I will add the method here and then fix imports.
+  Widget _buildUsbStatus(WidgetRef ref, AppThemeData theme) {
     final usbState = ref.watch(comServiceProvider);
 
-    // Check latency
     bool hasDataStream = false;
     if (usbState.lastDataReceived != null) {
       final diff = DateTime.now().difference(usbState.lastDataReceived!);
@@ -425,22 +426,28 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     final bool isActive = usbState.isConnected && hasDataStream;
 
+    // Status active/inactive menggunakan warna semantik tetap (tidak ikut tema)
+    // Active = hijau, Inactive = merah — konsisten di dark & light mode
+    const Color activeColor = Colors.green;
+    const Color inactiveColor = Colors.red;
+    final Color indicatorColor = isActive ? activeColor : inactiveColor;
+
     return Row(
       children: [
         Icon(
           Icons.usb,
-          color: isActive ? Colors.greenAccent : Colors.white54,
+          color: indicatorColor,
           size: 14,
         ),
         const SizedBox(width: 4),
-        const Text(
+        Text(
           'Connection to RS232 : ',
-          style: TextStyle(color: Colors.white54, fontSize: 12),
+          style: TextStyle(color: theme.usbLabelColor, fontSize: 12),
         ),
         Text(
           isActive ? 'Active' : 'Inactive',
           style: TextStyle(
-            color: isActive ? Colors.greenAccent : Colors.red,
+            color: indicatorColor,
             fontSize: 12,
             fontWeight: FontWeight.bold,
           ),
@@ -450,12 +457,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: isActive ? Colors.greenAccent : Colors.red,
+            color: indicatorColor,
             shape: BoxShape.circle,
             boxShadow: isActive
                 ? [
                     BoxShadow(
-                      color: Colors.greenAccent.withOpacity(0.6),
+                      color: activeColor.withValues(alpha: 0.6),
                       blurRadius: 4,
                       spreadRadius: 1,
                     ),
@@ -467,11 +474,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(String text, AppThemeData theme) {
     return Text(
       text,
       style: TextStyle(
-        color: Colors.greenAccent[400],
+        color: theme.labelColor,
         fontSize: 12,
         fontWeight: FontWeight.bold,
         letterSpacing: 0.5,
@@ -479,7 +486,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  Widget _buildModeButton(String label, IconData icon, SystemMode mode) {
+  Widget _buildModeButton(
+    String label,
+    IconData icon,
+    SystemMode mode,
+    AppThemeData theme,
+  ) {
     final isSelected = _selectedMode == mode;
     return Expanded(
       child: GestureDetector(
@@ -487,7 +499,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.greenAccent[700] : Colors.transparent,
+            color: isSelected
+                ? theme.modeButtonSelectedBackground
+                : theme.modeButtonBackground,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -496,13 +510,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               Icon(
                 icon,
                 size: 16,
-                color: isSelected ? Colors.black : Colors.white54,
+                color: isSelected
+                    ? theme.modeButtonSelectedText
+                    : theme.modeButtonText,
               ),
               const SizedBox(width: 8),
               Text(
                 label,
                 style: TextStyle(
-                  color: isSelected ? Colors.black : Colors.white54,
+                  color: isSelected
+                      ? theme.modeButtonSelectedText
+                      : theme.modeButtonText,
                   fontWeight: FontWeight.bold,
                 ),
               ),

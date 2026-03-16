@@ -1,13 +1,14 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../core/utils/app_theme.dart';
 
 class TrendChart extends StatelessWidget {
   final String title;
-  final String unit; // 'Ha' or 'Spot'
+  final String unit;
   final List<FlSpot> spots;
   final double maxY;
-  final Color lineColor;
+  final Color lineColor; // semantic — stays fixed per chart
   final double interval;
 
   const TrendChart({
@@ -22,11 +23,13 @@ class TrendChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F1410),
-        border: Border.all(color: const Color(0xFF1E3A2A), width: 1.5),
+        color: theme.pageBackground,
+        border: Border.all(color: theme.cardBorderColor, width: 1.5),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -37,19 +40,19 @@ class TrendChart extends StatelessWidget {
             children: [
               Text(
                 unit == 'Ha' ? '0.0 Ha' : '0 $unit',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFB0BEC5),
+                  color: theme.textSecondary,
                 ),
               ),
               Text(
                 title.toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
                   letterSpacing: 1.1,
-                  color: Colors.white,
+                  color: theme.textOnSurface,
                 ),
               ),
               const SizedBox(width: 20),
@@ -65,7 +68,7 @@ class TrendChart extends StatelessWidget {
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: const Color(0xFF1E3A2A),
+                      color: theme.cardBorderColor,
                       strokeWidth: 1,
                       dashArray: [4, 4],
                     );
@@ -82,7 +85,6 @@ class TrendChart extends StatelessWidget {
                           );
                           String text;
                           if (interval >= 86400000) {
-                            // 1 day in milliseconds
                             text = DateFormat('dd/MM').format(dt);
                           } else {
                             text = DateFormat('HH:mm').format(dt);
@@ -91,9 +93,9 @@ class TrendChart extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Text(
                               text,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 10,
-                                color: Color(0xFFB0BEC5),
+                                color: theme.textSecondary,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -116,8 +118,8 @@ class TrendChart extends StatelessWidget {
                 ),
                 borderData: FlBorderData(
                   show: true,
-                  border: const Border(
-                    bottom: BorderSide(color: Color(0xFF1E3A2A), width: 1),
+                  border: Border(
+                    bottom: BorderSide(color: theme.cardBorderColor, width: 1),
                   ),
                 ),
                 minY: 0,
@@ -126,13 +128,13 @@ class TrendChart extends StatelessWidget {
                   LineChartBarData(
                     spots: spots,
                     isCurved: true,
-                    color: lineColor,
+                    color: lineColor, // semantic — stays fixed
                     barWidth: 3,
                     isStrokeCapRound: true,
                     dotData: FlDotData(show: false),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: lineColor.withOpacity(0.1),
+                      color: lineColor.withValues(alpha: 0.1),
                     ),
                   ),
                 ],
@@ -143,10 +145,10 @@ class TrendChart extends StatelessWidget {
             unit == 'Ha'
                 ? '${maxY.toStringAsFixed(2)} Ha'
                 : '${maxY.toStringAsFixed(0)} $unit',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,
-              color: Color(0xFFB0BEC5),
+              color: theme.textSecondary,
             ),
           ),
         ],

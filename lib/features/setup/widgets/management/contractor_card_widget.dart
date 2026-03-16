@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/models/contractor.dart';
+import '../../../../core/utils/app_theme.dart';
 
 class ContractorCardWidget extends StatelessWidget {
   final Contractor contractor;
@@ -15,13 +16,15 @@ class ContractorCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF0F1410),
-        border: Border.all(color: const Color(0xFF1E3A2A), width: 1.5),
+        color: theme.pageBackground,
+        border: Border.all(color: theme.cardBorderColor, width: 1.5),
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
-          BoxShadow(color: Colors.black54, blurRadius: 8, offset: Offset(0, 4)),
+          BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4)),
         ],
       ),
       padding: const EdgeInsets.all(16),
@@ -35,14 +38,10 @@ class ContractorCardWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
+                  color: theme.cardSurface,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(
-                  Icons.business,
-                  color: Color(0xFF2ECC71),
-                  size: 22,
-                ),
+                child: Icon(Icons.business, color: theme.iconBoxIcon, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -53,8 +52,8 @@ class ContractorCardWidget extends StatelessWidget {
                       contractor.name ?? 'UNKNOWN',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: theme.textOnSurface,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
@@ -64,8 +63,8 @@ class ContractorCardWidget extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         contractor.sector!.toUpperCase(),
-                        style: const TextStyle(
-                          color: Color(0xFF2ECC71),
+                        style: TextStyle(
+                          color: theme.appBarAccent,
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.1,
@@ -79,19 +78,21 @@ class ContractorCardWidget extends StatelessWidget {
           ),
 
           const SizedBox(height: 12),
-          const Divider(color: Color(0xFF1E3A2A), height: 1),
+          Divider(color: theme.dividerColor, height: 1),
           const SizedBox(height: 12),
 
           // Details
-          _buildDetailRow(Icons.map_outlined, 'AREA', contractor.area),
+          _buildDetailRow(theme, Icons.map_outlined, 'AREA', contractor.area),
           const SizedBox(height: 6),
           _buildDetailRow(
+            theme,
             Icons.handyman_outlined,
             'EQUIPMENT',
             contractor.numberEquipment?.toStringAsFixed(0),
           ),
           const SizedBox(height: 6),
           _buildDetailRow(
+            theme,
             Icons.person_outline,
             'OPERATORS',
             contractor.numberOperator?.toStringAsFixed(0),
@@ -110,8 +111,8 @@ class ContractorCardWidget extends StatelessWidget {
                     icon: const Icon(Icons.edit_outlined, size: 12),
                     label: const Text('EDIT'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2ECC71),
-                      foregroundColor: Colors.black,
+                      backgroundColor: theme.primaryButtonBackground,
+                      foregroundColor: theme.primaryButtonText,
                       textStyle: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -130,7 +131,7 @@ class ContractorCardWidget extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: onDelete,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFEF4444),
+                    foregroundColor: const Color(0xFFEF4444), // destructive
                     side: const BorderSide(color: Color(0xFFEF4444)),
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     shape: RoundedRectangleBorder(
@@ -147,15 +148,16 @@ class ContractorCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String? value) {
+  Widget _buildDetailRow(
+      AppThemeData theme, IconData icon, String label, String? value) {
     return Row(
       children: [
-        Icon(icon, size: 12, color: const Color(0xFFB0BEC5)),
+        Icon(icon, size: 12, color: theme.textSecondary),
         const SizedBox(width: 6),
         Text(
           label,
-          style: const TextStyle(
-            color: const Color(0xFFB0BEC5),
+          style: TextStyle(
+            color: theme.textSecondary,
             fontSize: 9,
             fontWeight: FontWeight.bold,
           ),
@@ -163,7 +165,7 @@ class ContractorCardWidget extends StatelessWidget {
         const Spacer(),
         Text(
           value ?? '-',
-          style: const TextStyle(color: Colors.white, fontSize: 11),
+          style: TextStyle(color: theme.textOnSurface, fontSize: 11),
         ),
       ],
     );

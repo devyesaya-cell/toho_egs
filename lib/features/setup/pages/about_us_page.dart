@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
+import '../../../core/utils/app_theme.dart';
 
 class AboutUsPage extends StatelessWidget {
   const AboutUsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF0F1410),
+      backgroundColor: theme.pageBackground,
       appBar: AppBar(
-        title: const Text('About Us', style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color(0xFF0F1410),
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text('About Us', style: TextStyle(color: theme.appBarForeground)),
+        backgroundColor: theme.appBarBackground,
+        iconTheme: IconThemeData(color: theme.appBarForeground),
       ),
-      body: const Center(
+      body: Center(
         child: Text(
           'About Us Page Placeholder',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: theme.textOnSurface),
         ),
       ),
     );

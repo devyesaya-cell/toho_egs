@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/repositories/app_repository.dart';
 import '../../../../core/models/equipment.dart';
+import '../../../../core/utils/app_theme.dart';
 import 'equipment_card_widget.dart';
 
 class EquipmentTab extends ConsumerWidget {
@@ -83,12 +84,15 @@ class EquipmentTab extends ConsumerWidget {
                 ),
 
                 if (equipments.isEmpty)
-                  const Expanded(
+                  Expanded(
                     child: Center(
-                      child: Text(
-                        'No equipment found.',
-                        style: TextStyle(color: Colors.white54),
-                      ),
+                      child: Builder(builder: (ctx) {
+                        final theme = AppTheme.of(ctx);
+                        return Text(
+                          'No equipment found.',
+                          style: TextStyle(color: theme.textSecondary),
+                        );
+                      }),
                     ),
                   )
                 else
@@ -148,38 +152,38 @@ class EquipmentTab extends ConsumerWidget {
   ) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF0F1410),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFF1E3A2A)),
-        ),
-        title: const Text(
-          'Delete Equipment',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          'Are you sure you want to delete "${equipment.equipName ?? equipment.unitNumber}"?',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white54),
+      builder: (context) {
+        final theme = AppTheme.of(context);
+        return AlertDialog(
+          backgroundColor: theme.dialogBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: theme.cardBorderColor),
+          ),
+          title: Text('Delete Equipment',
+              style: TextStyle(color: theme.textOnSurface)),
+          content: Text(
+            'Are you sure you want to delete "${equipment.equipName ?? equipment.unitNumber}"?',
+            style: TextStyle(color: theme.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel',
+                  style: TextStyle(color: theme.textSecondary)),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              ref.read(appRepositoryProvider).deleteEquipment(equipment.id);
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () {
+                ref.read(appRepositoryProvider).deleteEquipment(equipment.id);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFEF4444)),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -256,12 +260,13 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.equipment != null;
+    final theme = AppTheme.of(context);
 
     return Dialog(
-      backgroundColor: const Color(0xFF0F1410),
+      backgroundColor: theme.dialogBackground,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0xFF1E3A2A)),
+        side: BorderSide(color: theme.cardBorderColor),
       ),
       child: Container(
         padding: const EdgeInsets.all(24),
@@ -277,12 +282,12 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.handyman, color: Color(0xFF2ECC71)),
+                      Icon(Icons.handyman, color: theme.appBarAccent),
                       const SizedBox(width: 12),
                       Text(
                         isEdit ? 'EDIT EQUIPMENT' : 'ADD EQUIPMENT',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: theme.textOnSurface,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.2,
@@ -292,95 +297,70 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, color: Colors.white54),
+                    icon: Icon(Icons.close, color: theme.textSecondary),
                   ),
                 ],
               ),
-              const Divider(color: Color(0xFF1E3A2A)),
+              Divider(color: theme.dividerColor),
               const SizedBox(height: 16),
 
               // Row 1: equip name + part name
               Row(
                 children: [
                   Expanded(
-                    child: _buildField(
-                      'EQUIP NAME',
-                      _equipNameController,
-                      hint: 'e.g. PC200',
-                    ),
+                    child: _buildField(theme, 'EQUIP NAME',
+                        _equipNameController, hint: 'e.g. PC200'),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _buildField(
-                      'PART NAME',
-                      _partNameController,
-                      hint: 'e.g. Bucket',
-                    ),
+                    child: _buildField(theme, 'PART NAME',
+                        _partNameController, hint: 'e.g. Bucket'),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-
-              // Row 2: unit number + arm length
               Row(
                 children: [
                   Expanded(
-                    child: _buildField(
-                      'UNIT NUMBER',
-                      _unitNumberController,
-                      hint: 'e.g. EX-001',
-                    ),
+                    child: _buildField(theme, 'UNIT NUMBER',
+                        _unitNumberController, hint: 'e.g. EX-001'),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _buildField(
-                      'ARM LENGTH (m)',
-                      _armLengthController,
-                      hint: 'e.g. 5.5',
-                      isDecimal: true,
-                    ),
+                    child: _buildField(theme, 'ARM LENGTH (m)',
+                        _armLengthController,
+                        hint: 'e.g. 5.5', isDecimal: true),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-
-              // Row 3: Model + Type dropdowns
               Row(
                 children: [
                   Expanded(
-                    child: _buildDropdown(
-                      'MODEL',
-                      widget.models,
-                      _selectedModel,
-                      (v) => setState(() => _selectedModel = v),
-                    ),
+                    child: _buildDropdown(theme, 'MODEL', widget.models,
+                        _selectedModel,
+                        (v) => setState(() => _selectedModel = v)),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _buildDropdown(
-                      'TYPE',
-                      widget.types,
-                      _selectedType,
-                      (v) => setState(() => _selectedType = v),
-                    ),
+                    child: _buildDropdown(theme, 'TYPE', widget.types,
+                        _selectedType,
+                        (v) => setState(() => _selectedType = v)),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
-
-              // Action buttons
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white24),
+                        foregroundColor: theme.textOnSurface,
+                        side: BorderSide(color: theme.dividerColor),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                       child: const Text('CANCEL'),
                     ),
@@ -392,13 +372,13 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
                       icon: const Icon(Icons.save_outlined, size: 16),
                       label: const Text('SAVE'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2ECC71),
-                        foregroundColor: Colors.black,
-                        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                        backgroundColor: theme.primaryButtonBackground,
+                        foregroundColor: theme.primaryButtonText,
+                        textStyle:
+                            const TextStyle(fontWeight: FontWeight.bold),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                     ),
                   ),
@@ -412,6 +392,7 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
   }
 
   Widget _buildField(
+    AppThemeData theme,
     String label,
     TextEditingController controller, {
     String? hint,
@@ -422,8 +403,8 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Color(0xFF2ECC71),
+          style: TextStyle(
+            color: theme.appBarAccent,
             fontSize: 10,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.1,
@@ -432,7 +413,7 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
         const SizedBox(height: 8),
         TextField(
           controller: controller,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: theme.textOnSurface),
           keyboardType: isDecimal
               ? const TextInputType.numberWithOptions(decimal: true)
               : TextInputType.text,
@@ -441,20 +422,20 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
               : null,
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.black26,
+            fillColor: theme.inputFill,
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white24),
+            hintStyle: TextStyle(color: theme.textSecondary),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white10),
+              borderSide: BorderSide(color: theme.inputBorder),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white10),
+              borderSide: BorderSide(color: theme.inputBorder),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Color(0xFF2ECC71)),
+              borderSide: BorderSide(color: theme.appBarAccent),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -467,6 +448,7 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
   }
 
   Widget _buildDropdown(
+    AppThemeData theme,
     String label,
     List<String> items,
     String? value,
@@ -477,8 +459,8 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Color(0xFF2ECC71),
+          style: TextStyle(
+            color: theme.appBarAccent,
             fontSize: 10,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.1,
@@ -487,34 +469,35 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           value: value,
-          dropdownColor: const Color(0xFF1E293B),
-          style: const TextStyle(color: Colors.white),
+          dropdownColor: theme.dropdownBackground,
+          style: TextStyle(color: theme.dropdownItemText),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.black26,
+            fillColor: theme.inputFill,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white10),
+              borderSide: BorderSide(color: theme.inputBorder),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white10),
+              borderSide: BorderSide(color: theme.inputBorder),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Color(0xFF2ECC71)),
+              borderSide: BorderSide(color: theme.appBarAccent),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 14,
             ),
           ),
-          hint: const Text(
+          hint: Text(
             'Select...',
-            style: TextStyle(color: Colors.white38),
+            style: TextStyle(color: theme.textSecondary),
           ),
           items: items
-              .map((item) => DropdownMenuItem(value: item, child: Text(item)))
+              .map((item) =>
+                  DropdownMenuItem(value: item, child: Text(item)))
               .toList(),
           onChanged: onChanged,
         ),

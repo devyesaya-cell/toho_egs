@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/repositories/app_repository.dart';
 import '../../../../core/models/person.dart';
 import '../../../../core/state/auth_state.dart';
+import '../../../../core/utils/app_theme.dart';
 import '../../../../features/home/widgets/person_edit_dialog.dart';
 import 'person_card_widget.dart';
 
@@ -18,6 +19,7 @@ class _PersonTabState extends ConsumerState<PersonTab> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
     final personsStream = ref.watch(appRepositoryProvider).watchPersons();
     final currentUser = ref.watch(authProvider).currentUser;
 
@@ -89,8 +91,8 @@ class _PersonTabState extends ConsumerState<PersonTab> {
                         icon: const Icon(Icons.add),
                         label: const Text('REGISTER OPERATOR'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2ECC71),
-                          foregroundColor: Colors.black,
+                          backgroundColor: theme.primaryButtonBackground,
+                          foregroundColor: theme.primaryButtonText,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
                             vertical: 16,
@@ -104,12 +106,15 @@ class _PersonTabState extends ConsumerState<PersonTab> {
                 if (persons.isEmpty)
                   Expanded(
                     child: Center(
-                      child: Text(
-                        _selectedFilter == 'ALL'
-                            ? 'No persons found.'
-                            : 'No persons found for this filter.',
-                        style: const TextStyle(color: Colors.white54),
-                      ),
+                      child: Builder(builder: (context) {
+                        final theme = AppTheme.of(context);
+                        return Text(
+                          _selectedFilter == 'ALL'
+                              ? 'No persons found.'
+                              : 'No persons found for this filter.',
+                          style: TextStyle(color: theme.textSecondary),
+                        );
+                      }),
                     ),
                   )
                 else
@@ -161,6 +166,7 @@ class _PersonTabState extends ConsumerState<PersonTab> {
   // }
 
   Widget _buildFilterTab(String label, String value) {
+    final theme = AppTheme.of(context);
     bool isSelected = _selectedFilter == value;
     return InkWell(
       onTap: () {
@@ -171,14 +177,20 @@ class _PersonTabState extends ConsumerState<PersonTab> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF2ECC71) : const Color(0xFF1E293B),
+          color: isSelected
+              ? theme.primaryButtonBackground
+              : theme.cardSurface,
           borderRadius: BorderRadius.circular(20),
-          border: isSelected ? null : Border.all(color: Colors.white24),
+          border: isSelected
+              ? null
+              : Border.all(color: theme.dividerColor),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.black : Colors.white,
+            color: isSelected
+                ? theme.primaryButtonText
+                : theme.textSecondary,
             fontWeight: FontWeight.bold,
             fontSize: 12,
           ),
@@ -204,33 +216,37 @@ class _PersonTabState extends ConsumerState<PersonTab> {
   ) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF0F1410),
-        title: const Text(
-          'Delete Operator',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          'Are you sure you want to delete ${person.firstName}?',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white54),
-            ),
+      builder: (context) {
+        final theme = AppTheme.of(context);
+        return AlertDialog(
+          backgroundColor: theme.dialogBackground,
+          title: Text(
+            'Delete Operator',
+            style: TextStyle(color: theme.textOnSurface),
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
-            ),
-            child: const Text('Delete'),
+          content: Text(
+            'Are you sure you want to delete ${person.firstName}?',
+            style: TextStyle(color: theme.textSecondary),
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: theme.textSecondary),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEF4444), // kept semantic red
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirm == true) {

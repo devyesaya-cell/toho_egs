@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/models/person.dart';
+import '../../../../core/utils/app_theme.dart';
 
 class PersonCardWidget extends StatelessWidget {
   final Person person;
@@ -17,21 +18,24 @@ class PersonCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+    // active/inactive is data-driven semantic color
     bool isActive =
         (person.loginState?.toUpperCase() == 'ON' ||
-        person.loginState?.toUpperCase() == 'ACTIVE'); // Changed condition
-    Color statusColor = isActive ? const Color(0xFF2ECC71) : const Color(0xFFB0BEC5);
+        person.loginState?.toUpperCase() == 'ACTIVE');
+    Color statusColor =
+        isActive ? const Color(0xFF2ECC71) : const Color(0xFFB0BEC5);
     Color glowColor = isActive
-        ? const Color(0xFF2ECC71).withOpacity(0.3)
+        ? const Color(0xFF2ECC71).withValues(alpha: 0.3)
         : Colors.transparent;
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF0F1410), // Very dark logic
-        border: Border.all(color: const Color(0xFF1E3A2A), width: 1.5),
+        color: theme.cardSurface,
+        border: Border.all(color: theme.cardBorderColor, width: 1.5),
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
-          BoxShadow(color: Colors.black54, blurRadius: 8, offset: Offset(0, 4)),
+          BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4)),
         ],
       ),
       padding: const EdgeInsets.all(16),
@@ -44,7 +48,7 @@ class PersonCardWidget extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             children: [
               Container(
-                width: 70, // Smaller
+                width: 70,
                 height: 70,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
@@ -56,7 +60,6 @@ class PersonCardWidget extends StatelessWidget {
                       spreadRadius: 1,
                     ),
                   ],
-                  // Fallback or actual image
                   image: person.picURL != null
                       ? DecorationImage(
                           image: AssetImage(person.picURL!),
@@ -69,7 +72,7 @@ class PersonCardWidget extends StatelessWidget {
                     : null,
               ),
               Positioned(
-                bottom: -8, // Overlap slightly
+                bottom: -8,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -94,7 +97,6 @@ class PersonCardWidget extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // Authenticated Operator Tick
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -112,14 +114,6 @@ class PersonCardWidget extends StatelessWidget {
                       letterSpacing: 1.1,
                     ),
                   ),
-                  // if (person.preset != null)
-                  //   Text(
-                  //     person.preset!.toUpperCase(),
-                  //     style: const TextStyle(
-                  //       color: Colors.white54,
-                  //       fontSize: 8,
-                  //     ),
-                  //   ),
                 ],
               ),
             ],
@@ -132,8 +126,8 @@ class PersonCardWidget extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: theme.textOnSurface,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -143,11 +137,11 @@ class PersonCardWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.badge, size: 12, color: const Color(0xFFB0BEC5)),
+              Icon(Icons.badge, size: 12, color: theme.textSecondary),
               const SizedBox(width: 4),
               Text(
                 person.driverID ?? '---',
-                style: const TextStyle(color: const Color(0xFFB0BEC5), fontSize: 10),
+                style: TextStyle(color: theme.textSecondary, fontSize: 10),
               ),
             ],
           ),
@@ -158,15 +152,15 @@ class PersonCardWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E293B), // Darker inner box
+              color: theme.cardSurface,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildInfoItem('ROLE', person.role ?? 'N/A'),
-                Container(width: 1, height: 20, color: Colors.white10),
-                _buildInfoItem('EQUIPMENT', person.equipment ?? 'N/A'),
+                _buildInfoItem(theme, 'ROLE', person.role ?? 'N/A'),
+                Container(width: 1, height: 20, color: theme.dividerColor),
+                _buildInfoItem(theme, 'EQUIPMENT', person.equipment ?? 'N/A'),
               ],
             ),
           ),
@@ -182,8 +176,8 @@ class PersonCardWidget extends StatelessWidget {
               icon: const Icon(Icons.settings, size: 14),
               label: const Text('CUSTOMIZE PROFILE'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2ECC71),
-                foregroundColor: Colors.black,
+                backgroundColor: theme.primaryButtonBackground,
+                foregroundColor: theme.primaryButtonText,
                 textStyle: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 10,
@@ -204,8 +198,8 @@ class PersonCardWidget extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: onDelete,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white38,
-                  side: const BorderSide(color: Colors.white12),
+                  foregroundColor: theme.textSecondary,
+                  side: BorderSide(color: theme.dividerColor),
                   textStyle: const TextStyle(fontSize: 10),
                   padding: const EdgeInsets.symmetric(vertical: 0),
                   shape: RoundedRectangleBorder(
@@ -221,14 +215,14 @@ class PersonCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoItem(String label, String value) {
+  Widget _buildInfoItem(AppThemeData theme, String label, String value) {
     return Expanded(
       child: Column(
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: const Color(0xFFB0BEC5),
+            style: TextStyle(
+              color: theme.textSecondary,
               fontSize: 8,
               fontWeight: FontWeight.bold,
             ),
@@ -239,7 +233,7 @@ class PersonCardWidget extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: Colors.white, fontSize: 10),
+            style: TextStyle(color: theme.textOnSurface, fontSize: 10),
           ),
         ],
       ),

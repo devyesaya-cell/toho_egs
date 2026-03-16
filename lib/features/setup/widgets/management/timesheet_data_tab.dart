@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/repositories/app_repository.dart';
 import '../../../../core/models/timesheet_data.dart';
+import '../../../../core/utils/app_theme.dart';
 import 'timesheet_data_edit_dialog.dart';
 
 class TimesheetDataTab extends ConsumerWidget {
@@ -62,12 +63,15 @@ class TimesheetDataTab extends ConsumerWidget {
                   ),
                 ),
                 if (items.isEmpty)
-                  const Expanded(
+                  Expanded(
                     child: Center(
-                      child: Text(
-                        'No Timesheet Data found.',
-                        style: TextStyle(color: Colors.white54),
-                      ),
+                      child: Builder(builder: (ctx) {
+                        final theme = AppTheme.of(ctx);
+                        return Text(
+                          'No Timesheet Data found.',
+                          style: TextStyle(color: theme.textSecondary),
+                        );
+                      }),
                     ),
                   )
                 else
@@ -99,16 +103,17 @@ class TimesheetDataTab extends ConsumerWidget {
   }
 
   Widget _buildCard(BuildContext context, WidgetRef ref, TimesheetData data) {
+    final theme = AppTheme.of(context);
     IconData displayIcon = Icons.build;
     if (data.icon == 'local_gas_station') displayIcon = Icons.local_gas_station;
     if (data.icon == 'precision_manufacturing')
       displayIcon = Icons.precision_manufacturing;
 
     return Card(
-      color: const Color(0xFF1E293B), // Surface Dark
+      color: theme.cardSurface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0xFF1E3A2A)),
+        side: BorderSide(color: theme.cardBorderColor),
       ),
       elevation: 4,
       child: Padding(
@@ -122,13 +127,13 @@ class TimesheetDataTab extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F1410),
+                    color: theme.pageBackground,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF1E3A2A)),
+                    border: Border.all(color: theme.cardBorderColor),
                   ),
                   child: Icon(
                     displayIcon,
-                    color: const Color(0xFF2ECC71),
+                    color: theme.iconBoxIcon,
                     size: 32,
                   ),
                 ),
@@ -139,8 +144,8 @@ class TimesheetDataTab extends ConsumerWidget {
                     children: [
                       Text(
                         data.activityName ?? 'Unknown',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: theme.textOnSurface,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -150,8 +155,8 @@ class TimesheetDataTab extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Text(
                         data.activityType ?? 'Unknown Type',
-                        style: const TextStyle(
-                          color: Color(0xFF2ECC71),
+                        style: TextStyle(
+                          color: theme.appBarAccent,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 1.1,
@@ -163,7 +168,7 @@ class TimesheetDataTab extends ConsumerWidget {
               ],
             ),
             const Spacer(),
-            const Divider(color: Color(0xFF1E3A2A)),
+            Divider(color: theme.dividerColor),
             // Action Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -172,7 +177,7 @@ class TimesheetDataTab extends ConsumerWidget {
                   onPressed: () => _showEditDialog(context, data),
                   icon: const Icon(
                     Icons.edit_outlined,
-                    color: Colors.blueAccent,
+                    color: Colors.blueAccent, // semantic — stays blue
                   ),
                   tooltip: 'Edit',
                 ),
@@ -180,7 +185,7 @@ class TimesheetDataTab extends ConsumerWidget {
                   onPressed: () => _confirmDelete(context, ref, data),
                   icon: const Icon(
                     Icons.delete_outline,
-                    color: Color(0xFFEF4444),
+                    color: Color(0xFFEF4444), // semantic — stays red
                   ),
                   tooltip: 'Delete',
                 ),
@@ -202,40 +207,39 @@ class TimesheetDataTab extends ConsumerWidget {
   void _confirmDelete(BuildContext context, WidgetRef ref, TimesheetData data) {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF0F1410),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFF1E3A2A)),
-        ),
-        title: const Text(
-          'Delete Timesheet Data',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          'Are you sure you want to delete "${data.activityName}"?',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white54),
-            ),
+      builder: (ctx) {
+        final theme = AppTheme.of(ctx);
+        return AlertDialog(
+          backgroundColor: theme.dialogBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: theme.cardBorderColor),
           ),
-          ElevatedButton(
-            onPressed: () {
-              ref.read(appRepositoryProvider).deleteTimesheetData(data.id);
-              Navigator.pop(ctx);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
-            ),
-            child: const Text('Delete'),
+          title: Text('Delete Timesheet Data',
+              style: TextStyle(color: theme.textOnSurface)),
+          content: Text(
+            'Are you sure you want to delete "${data.activityName}"?',
+            style: TextStyle(color: theme.textSecondary),
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('Cancel',
+                  style: TextStyle(color: theme.textSecondary)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                ref.read(appRepositoryProvider).deleteTimesheetData(data.id);
+                Navigator.pop(ctx);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEF4444),
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

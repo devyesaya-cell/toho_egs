@@ -4,6 +4,7 @@ import '../../../../core/models/person.dart';
 import '../../../../core/repositories/app_repository.dart';
 import '../../../../core/models/workfile.dart';
 import '../../../../core/state/auth_state.dart';
+import '../../../../core/utils/app_theme.dart';
 import 'workfile_card_widget.dart';
 
 class WorkfileTab extends ConsumerWidget {
@@ -27,11 +28,14 @@ class WorkfileTab extends ConsumerWidget {
         final workfiles = snapshot.data ?? [];
 
         if (workfiles.isEmpty) {
-          return const Center(
-            child: Text(
-              'No workfiles found.',
-              style: TextStyle(color: Colors.white54),
-            ),
+          return Center(
+            child: Builder(builder: (ctx) {
+              final theme = AppTheme.of(ctx);
+              return Text(
+                'No workfiles found.',
+                style: TextStyle(color: theme.textSecondary),
+              );
+            }),
           );
         }
 
@@ -84,31 +88,37 @@ class WorkfileTab extends ConsumerWidget {
   ) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF0F1410),
-        title: const Text(
-          'Delete Workfile',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: const Text(
-          'Are you sure you want to delete this workfile? This will also delete all associated working spots.',
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white54),
+      builder: (context) {
+        final theme = AppTheme.of(context);
+        return AlertDialog(
+          backgroundColor: theme.dialogBackground,
+          title: Text(
+            'Delete Workfile',
+            style: TextStyle(color: theme.textOnSurface),
+          ),
+          content: Text(
+            'Are you sure you want to delete this workfile? This will also delete all associated working spots.',
+            style: TextStyle(color: theme.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: theme.textSecondary),
+              ),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEF4444), // kept semantic red
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirm == true) {

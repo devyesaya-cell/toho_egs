@@ -7,44 +7,38 @@ import 'widgets/workfile_card.dart';
 import 'create_workfile_page.dart';
 import '../../core/state/auth_state.dart';
 import '../../core/widgets/global_app_bar_actions.dart';
-// import '../map/map_page.dart'; // Assuming MapPage exists
+import '../../core/utils/app_theme.dart';
 
 class WorkfilePage extends ConsumerWidget {
   const WorkfilePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = AppTheme.of(context);
     final repo = ref.watch(appRepositoryProvider);
     final authState = ref.watch(authProvider);
     final currentSystemMode = authState.mode.name.toUpperCase();
     final workfilesStream = repo.watchWorkFiles();
 
     return Scaffold(
-      backgroundColor:
-          Colors.transparent, // Inherit from parent or set explicitly
+      backgroundColor: theme.pageBackground,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F1410),
-        foregroundColor: Colors.white,
+        backgroundColor: theme.appBarBackground,
+        foregroundColor: theme.appBarForeground,
         elevation: 0,
         title: Row(
           children: [
-            // Green Icon Box
             Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFF1E3A2A),
+                color: theme.iconBoxBackground,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
-                Icons.folder,
-                color: Color(0xFF2ECC71),
-                size: 24,
-              ),
+              child: Icon(Icons.folder, color: theme.iconBoxIcon, size: 24),
             ),
             const SizedBox(width: 16),
-            // Titles
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -53,13 +47,14 @@ class WorkfilePage extends ConsumerWidget {
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
                     fontSize: 18,
+                    color: theme.appBarForeground,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   'EGS WORKFILE V4.0.0',
                   style: TextStyle(
-                    color: Color(0xFF2ECC71), // Primary Green
+                    color: theme.appBarAccent,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
@@ -75,9 +70,10 @@ class WorkfilePage extends ConsumerWidget {
         stream: workfilesStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2ECC71)),
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(theme.loadingIndicatorColor),
               ),
             );
           }
@@ -95,10 +91,11 @@ class WorkfilePage extends ConsumerWidget {
               .toList();
 
           if (workfiles.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 'No workfiles found',
-                style: TextStyle(color: Color(0xFFB0BEC5), fontSize: 16),
+                style:
+                    TextStyle(color: theme.textSecondary, fontSize: 16),
               ),
             );
           }
@@ -109,8 +106,7 @@ class WorkfilePage extends ConsumerWidget {
               crossAxisCount: 3,
               crossAxisSpacing: 16.0,
               mainAxisSpacing: 16.0,
-              childAspectRatio:
-                  1.1, // Adjusted ratio to allow more vertical space for the card details
+              childAspectRatio: 1.1,
             ),
             itemCount: workfiles.length,
             itemBuilder: (context, index) {
@@ -118,8 +114,9 @@ class WorkfilePage extends ConsumerWidget {
               return WorkfileCard(
                 workfile: workfile,
                 onTap: () {
-                  ref.read(authProvider.notifier).setActiveWorkfile(workfile);
-                  // Navigate to MapPage
+                  ref
+                      .read(authProvider.notifier)
+                      .setActiveWorkfile(workfile);
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const MapPage()),
@@ -131,8 +128,8 @@ class WorkfilePage extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF2ECC71),
-        foregroundColor: const Color(0xFF0F1410),
+        backgroundColor: theme.primaryButtonBackground,
+        foregroundColor: theme.primaryButtonText,
         onPressed: () {
           Navigator.push(
             context,

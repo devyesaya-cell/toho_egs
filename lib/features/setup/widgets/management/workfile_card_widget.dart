@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/models/workfile.dart';
+import '../../../../core/utils/app_theme.dart';
 
 class WorkfileCardWidget extends StatelessWidget {
   final WorkFile workfile;
@@ -16,16 +17,19 @@ class WorkfileCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+    // Open/Done status is semantic/data-driven
     bool isOpen = workfile.status?.toLowerCase() == 'open';
-    Color statusColor = isOpen ? const Color(0xFF2ECC71) : const Color(0xFFB0BEC5);
+    Color statusColor =
+        isOpen ? const Color(0xFF2ECC71) : const Color(0xFFB0BEC5);
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF0F1410), // Dark background
-        border: Border.all(color: const Color(0xFF1E3A2A), width: 1.5),
+        color: theme.cardSurface,
+        border: Border.all(color: theme.cardBorderColor, width: 1.5),
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
-          BoxShadow(color: Colors.black54, blurRadius: 8, offset: Offset(0, 4)),
+          BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4)),
         ],
       ),
       padding: const EdgeInsets.all(16),
@@ -39,14 +43,14 @@ class WorkfileCardWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
+                  color: theme.cardSurface,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
                   Icons.folder,
-                  color: Color(0xFFF1C40F),
+                  color: Color(0xFFF1C40F), // Amber folder — kept semantic
                   size: 24,
-                ), // Amber folder
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -57,8 +61,8 @@ class WorkfileCardWidget extends StatelessWidget {
                       workfile.areaName ?? 'UNKNOWN AREA',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: theme.textOnSurface,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
@@ -71,9 +75,10 @@ class WorkfileCardWidget extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.2),
+                        color: statusColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: statusColor.withOpacity(0.5)),
+                        border: Border.all(
+                            color: statusColor.withValues(alpha: 0.5)),
                       ),
                       child: Text(
                         (workfile.status ?? 'UNKNOWN').toUpperCase(),
@@ -91,19 +96,18 @@ class WorkfileCardWidget extends StatelessWidget {
           ),
 
           const SizedBox(height: 16),
-          const Divider(color: Color(0xFF1E3A2A), height: 1),
+          Divider(color: theme.dividerColor, height: 1),
           const SizedBox(height: 16),
 
           // Details Grid
-          _buildDetailRow('CONTRACTOR', workfile.contractor),
+          _buildDetailRow(theme, 'CONTRACTOR', workfile.contractor),
           const SizedBox(height: 8),
-          _buildDetailRow('UID', workfile.uid?.toString()),
+          _buildDetailRow(theme, 'UID', workfile.uid?.toString()),
           const SizedBox(height: 8),
-          _buildDetailRow('CREATED', _formatDate(workfile.createAt)),
+          _buildDetailRow(theme, 'CREATED', _formatDate(workfile.createAt)),
 
           const Spacer(),
 
-          // Footer: Stats or Actions
           if (showDelete) ...[
             const SizedBox(height: 12),
             SizedBox(
@@ -112,8 +116,9 @@ class WorkfileCardWidget extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: onDelete,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFEF4444), // Red
+                  foregroundColor: const Color(0xFFEF4444), // kept semantic red
                   side: const BorderSide(color: Color(0xFFEF4444), width: 1),
+                  backgroundColor: Colors.transparent,
                   textStyle: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -132,21 +137,21 @@ class WorkfileCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String? value) {
+  Widget _buildDetailRow(AppThemeData theme, String label, String? value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: const Color(0xFFB0BEC5),
+          style: TextStyle(
+            color: theme.textSecondary,
             fontSize: 10,
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
           value ?? '-',
-          style: const TextStyle(color: Colors.white, fontSize: 11),
+          style: TextStyle(color: theme.textOnSurface, fontSize: 11),
         ),
       ],
     );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/coms/com_service.dart';
+import '../../../../core/utils/app_theme.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../presenter/calibration_presenter.dart';
 
@@ -31,42 +32,38 @@ class _AttachmentCalibrationTabState
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
+        final theme = AppTheme.of(context);
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
-          title: Text(
-            'Set $title',
-            style: const TextStyle(color: Colors.white),
-          ),
+          backgroundColor: theme.dialogBackground,
+          title: Text('Set $title',
+              style: TextStyle(color: theme.textOnSurface)),
           content: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: theme.textOnSurface),
             decoration: InputDecoration(
               filled: true,
-              fillColor: const Color(0xFF0F1410),
+              fillColor: theme.inputFill,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide.none,
               ),
               hintText: 'Enter new value',
-              hintStyle: const TextStyle(color: Colors.white54),
+              hintStyle: TextStyle(color: theme.textSecondary),
             ),
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.white54),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              child: Text('Cancel',
+                  style: TextStyle(color: theme.textSecondary)),
+              onPressed: () => Navigator.of(context).pop(),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2ECC71),
+                backgroundColor: theme.primaryButtonBackground,
+                foregroundColor: theme.primaryButtonText,
               ),
-              child: const Text('Set', style: TextStyle(color: Colors.white)),
+              child: const Text('Set'),
               onPressed: () async {
                 final port = ref.read(comServiceProvider).port;
                 if (port != null && controller.text.isNotEmpty) {
@@ -78,8 +75,8 @@ class _AttachmentCalibrationTabState
                       NotificationService.showCommandNotification(
                         context,
                         title: 'SET PARAM',
-                        message: '$title updated to $newValue',
-                        modeStr: 'TYPE $type',
+                        message: '$title updated!',
+                        modeStr: '$newValue',
                         icon: Icons.check_circle,
                         iconColor: const Color(0xFF2ECC71),
                         headerColor: const Color(0xFF1E3A2A),
@@ -113,9 +110,14 @@ class _AttachmentCalibrationTabState
     int type,
     int value,
   ) {
+    final theme = AppTheme.of(context);
     return Card(
-      color: const Color(0xFF1E293B),
+      color: theme.cardSurface,
       margin: const EdgeInsets.symmetric(vertical: 6.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: theme.cardBorderColor),
+      ),
       child: InkWell(
         onTap: () => _showSetParamDialog(context, title, type, value),
         borderRadius: BorderRadius.circular(12),
@@ -127,24 +129,21 @@ class _AttachmentCalibrationTabState
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    abbreviation,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    title,
-                    style: const TextStyle(color: Colors.white54, fontSize: 12),
-                  ),
+                  Text(abbreviation,
+                      style: TextStyle(
+                        color: theme.textOnSurface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      )),
+                  Text(title,
+                      style: TextStyle(
+                          color: theme.textSecondary, fontSize: 12)),
                 ],
               ),
               Text(
                 value.toString(),
-                style: const TextStyle(
-                  color: Color(0xFF2ECC71),
+                style: TextStyle(
+                  color: theme.appBarAccent,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -160,14 +159,16 @@ class _AttachmentCalibrationTabState
   Widget build(BuildContext context) {
     final calibAsync = ref.watch(calibStreamProvider);
 
+    final theme = AppTheme.of(context);
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: calibAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: Color(0xFF2ECC71)),
+        loading: () => Center(
+          child: CircularProgressIndicator(color: theme.appBarAccent),
         ),
         error: (err, stack) => Center(
-          child: Text('Error: $err', style: const TextStyle(color: Colors.red)),
+          child: Text('Error: $err',
+              style: const TextStyle(color: Color(0xFFEF4444))),
         ),
         data: (data) => Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,9 +184,9 @@ class _AttachmentCalibrationTabState
                     flex: 3,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B),
+                        color: theme.cardSurface,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFF1E3A2A)),
+                        border: Border.all(color: theme.cardBorderColor),
                       ),
                       padding: const EdgeInsets.all(16.0),
                       child: Image.asset(
@@ -218,17 +219,17 @@ class _AttachmentCalibrationTabState
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'BUCKET TILT: ',
                                     style: TextStyle(
-                                      color: Colors.white54,
+                                      color: theme.textSecondary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Text(
                                     '${(data.bucketTilt > 360 ? 360.0 : data.bucketTilt).toStringAsFixed(2)}°',
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: theme.textOnSurface,
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -255,7 +256,7 @@ class _AttachmentCalibrationTabState
                                         context,
                                         title: 'CALIBRATE',
                                         message: 'Bucket Tilt calibrated',
-                                        modeStr: 'MODE 4',
+                                        modeStr: 'Completed',
                                         icon: Icons.check_circle,
                                         iconColor: const Color(0xFF2ECC71),
                                         headerColor: const Color(0xFF1E3A2A),
@@ -274,8 +275,8 @@ class _AttachmentCalibrationTabState
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF2ECC71),
-                                  foregroundColor: Colors.white,
+                                  backgroundColor: theme.primaryButtonBackground,
+                                  foregroundColor: theme.primaryButtonText,
                                   minimumSize: const Size(100, 36),
                                 ),
                                 child: const Text('Calibrate'),
@@ -286,7 +287,7 @@ class _AttachmentCalibrationTabState
                           Container(
                             width: 1,
                             height: double.infinity,
-                            color: Colors.white24,
+                            color: theme.dividerColor,
                           ),
                           // I-Link Tilt Control
                           Column(
@@ -295,17 +296,17 @@ class _AttachmentCalibrationTabState
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'I-LINK TILT: ',
                                     style: TextStyle(
-                                      color: Colors.white54,
+                                      color: theme.textSecondary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Text(
                                     '${(data.iLinkTilt > 360 ? 360.0 : data.iLinkTilt).toStringAsFixed(2)}°',
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: theme.textOnSurface,
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -332,7 +333,7 @@ class _AttachmentCalibrationTabState
                                         context,
                                         title: 'CALIBRATE',
                                         message: 'I-Link Tilt calibrated',
-                                        modeStr: 'MODE 5',
+                                        modeStr: 'Completed',
                                         icon: Icons.check_circle,
                                         iconColor: const Color(0xFF2ECC71),
                                         headerColor: const Color(0xFF1E3A2A),
@@ -351,8 +352,8 @@ class _AttachmentCalibrationTabState
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF2ECC71),
-                                  foregroundColor: Colors.white,
+                                  backgroundColor: theme.primaryButtonBackground,
+                                  foregroundColor: theme.primaryButtonText,
                                   minimumSize: const Size(100, 36),
                                 ),
                                 child: const Text('Calibrate'),
@@ -363,16 +364,16 @@ class _AttachmentCalibrationTabState
                           Container(
                             width: 1,
                             height: double.infinity,
-                            color: Colors.white24,
+                            color: theme.dividerColor,
                           ),
                           // Accelero Controls
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text(
+                              Text(
                                 'ACCELERO',
                                 style: TextStyle(
-                                  color: Colors.white54,
+                                  color: theme.textSecondary,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                 ),
@@ -418,8 +419,8 @@ class _AttachmentCalibrationTabState
                                       style: TextStyle(fontSize: 12),
                                     ),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF2ECC71),
-                                      foregroundColor: Colors.white,
+                                      backgroundColor: theme.primaryButtonBackground,
+                                      foregroundColor: theme.primaryButtonText,
                                       minimumSize: const Size(80, 36),
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 12,
@@ -487,20 +488,20 @@ class _AttachmentCalibrationTabState
               flex: 1,
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
+                  color: theme.cardSurface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF1E3A2A)),
+                  border: Border.all(color: theme.cardBorderColor),
                 ),
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Text(
                         'PARAMETERS',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: theme.textOnSurface,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.2,
                           fontSize: 16,
@@ -508,7 +509,7 @@ class _AttachmentCalibrationTabState
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    const Divider(color: Color(0xFF1E3A2A)),
+                    Divider(color: theme.dividerColor),
                     Expanded(
                       child: ListView(
                         children: [

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/coms/com_service.dart';
+import '../../../../core/utils/app_theme.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../presenter/calibration_presenter.dart';
 
@@ -30,32 +31,34 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
+        final theme = AppTheme.of(context);
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
+          backgroundColor: theme.dialogBackground,
           title: Text(
             'Set $title',
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: theme.textOnSurface),
           ),
           content: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: theme.textOnSurface),
             decoration: InputDecoration(
               filled: true,
-              fillColor: const Color(0xFF0F1410),
+              fillColor: theme.inputFill,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide.none,
               ),
               hintText: 'Enter new value',
-              hintStyle: const TextStyle(color: Colors.white54),
+              hintStyle: TextStyle(color: theme.textSecondary),
             ),
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.white54),
+                style: TextStyle(
+                    color: AppTheme.of(context).textSecondary),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -63,9 +66,10 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2ECC71),
+                backgroundColor: theme.primaryButtonBackground,
+                foregroundColor: theme.primaryButtonText,
               ),
-              child: const Text('Set', style: TextStyle(color: Colors.white)),
+              child: const Text('Set'),
               onPressed: () async {
                 final port = ref.read(comServiceProvider).port;
                 if (port != null && controller.text.isNotEmpty) {
@@ -78,7 +82,7 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                         context,
                         title: 'SET PARAM',
                         message: '$title updated to $newValue',
-                        modeStr: 'TYPE $type',
+                        modeStr: '$newValue',
                         icon: Icons.check_circle,
                         iconColor: const Color(0xFF2ECC71),
                         headerColor: const Color(0xFF1E3A2A),
@@ -119,32 +123,34 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
+        final theme = AppTheme.of(context);
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
+          backgroundColor: theme.dialogBackground,
           title: Text(
             'Calibrate $title',
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: theme.textOnSurface),
           ),
           content: TextField(
             controller: controller,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            style: const TextStyle(color: Colors.white),
+            keyboardType:
+                const TextInputType.numberWithOptions(decimal: true),
+            style: TextStyle(color: theme.textOnSurface),
             decoration: InputDecoration(
               filled: true,
-              fillColor: const Color(0xFF0F1410),
+              fillColor: theme.inputFill,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide.none,
               ),
-              hintText: 'Enter calibration value',
-              hintStyle: const TextStyle(color: Colors.white54),
+              hintText: 'Enter reference value',
+              hintStyle: TextStyle(color: theme.textSecondary),
             ),
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.white54),
+                style: TextStyle(color: theme.textSecondary),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -172,8 +178,8 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                       NotificationService.showCommandNotification(
                         context,
                         title: 'CALIBRATE',
-                        message: '$title calibrated with $newValue',
-                        modeStr: 'MODE $mode',
+                        message: '$title calibrated',
+                        modeStr: 'with $newValue',
                         icon: Icons.check_circle,
                         iconColor: const Color(0xFF2ECC71),
                         headerColor: const Color(0xFF1E3A2A),
@@ -207,9 +213,14 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
     int type,
     int value,
   ) {
+    final theme = AppTheme.of(context);
     return Card(
-      color: const Color(0xFF1E293B),
+      color: theme.cardSurface,
       margin: const EdgeInsets.symmetric(vertical: 6.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: theme.cardBorderColor),
+      ),
       child: InkWell(
         onTap: () => _showSetParamDialog(context, title, type, value),
         borderRadius: BorderRadius.circular(12),
@@ -223,22 +234,23 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                 children: [
                   Text(
                     abbreviation,
-                    style: const TextStyle(
-                      color: Colors.white70,
+                    style: TextStyle(
+                      color: theme.textOnSurface,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                   Text(
                     title,
-                    style: const TextStyle(color: Colors.white54, fontSize: 12),
+                    style: TextStyle(
+                        color: theme.textSecondary, fontSize: 12),
                   ),
                 ],
               ),
               Text(
                 value.toString(),
-                style: const TextStyle(
-                  color: Color(0xFF2ECC71),
+                style: TextStyle(
+                  color: theme.appBarAccent,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -253,15 +265,17 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
   @override
   Widget build(BuildContext context) {
     final calibAsync = ref.watch(calibStreamProvider);
+    final theme = AppTheme.of(context);
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: calibAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: Color(0xFF2ECC71)),
+        loading: () => Center(
+          child: CircularProgressIndicator(color: theme.appBarAccent),
         ),
         error: (err, stack) => Center(
-          child: Text('Error: $err', style: const TextStyle(color: Colors.red)),
+          child: Text('Error: $err',
+              style: const TextStyle(color: Color(0xFFEF4444))),
         ),
         data: (data) => Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,9 +291,9 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                     flex: 3,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B),
+                        color: theme.cardSurface,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFF1E3A2A)),
+                        border: Border.all(color: theme.cardBorderColor),
                       ),
                       padding: const EdgeInsets.all(16.0),
                       child: Image.asset(
@@ -517,7 +531,10 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    const Divider(color: Color(0xFF1E3A2A)),
+                          // Divider separating the two panels with theme color
+                          Divider(
+                            color: const Color(0xFF1E3A2A),
+                          ),
                     Expanded(
                       child: ListView(
                         children: [

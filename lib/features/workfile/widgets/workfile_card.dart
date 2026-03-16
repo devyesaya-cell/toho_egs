@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/workfile.dart';
+import '../../../core/utils/app_theme.dart';
 
 class WorkfileCard extends StatelessWidget {
   final WorkFile workfile;
@@ -10,22 +11,25 @@ class WorkfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
     // Progress calculation
     final total = workfile.totalSpot ?? 0;
     final done = workfile.spotDone ?? 0;
     final progress = total > 0 ? done / total : 0.0;
     final spacing = '${workfile.panjang}x${workfile.lebar}';
 
+    // Status color is data-driven / semantic — kept fixed
+    final Color statusColor = workfile.status == 'Done'
+        ? const Color(0xFF2ECC71)
+        : const Color(0xFF3B82F6);
+
     return Card(
       margin: EdgeInsets.zero,
-      color: const Color(0xFF1E293B), // Surface Dark
+      color: theme.cardSurface,
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(
-          color: Color(0xFF1E3A2A),
-          width: 1.5,
-        ), // Border Dark
+        side: BorderSide(color: theme.cardBorderColor, width: 1.5),
       ),
       child: InkWell(
         onTap: onTap,
@@ -41,10 +45,10 @@ class WorkfileCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       workfile.areaName ?? 'Unknown Area',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: Colors.white,
+                        color: theme.textOnSurface,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -56,22 +60,16 @@ class WorkfileCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: workfile.status == 'Done'
-                          ? const Color(0xFF2ECC71).withOpacity(0.15)
-                          : const Color(0xFF3B82F6).withOpacity(0.15),
+                      color: statusColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: workfile.status == 'Done'
-                            ? const Color(0xFF2ECC71).withOpacity(0.3)
-                            : const Color(0xFF3B82F6).withOpacity(0.3),
+                        color: statusColor.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Text(
                       (workfile.status ?? 'Open').toUpperCase(),
                       style: TextStyle(
-                        color: workfile.status == 'Done'
-                            ? const Color(0xFF2ECC71)
-                            : const Color(0xFF3B82F6),
+                        color: statusColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 10,
                         letterSpacing: 0.8,
@@ -83,15 +81,13 @@ class WorkfileCard extends StatelessWidget {
               const SizedBox(height: 12),
 
               // Details
-              _buildDetailRow(
-                Icons.business,
-                'Contractor',
-                workfile.contractor ?? '-',
-              ),
+              _buildDetailRow(theme, Icons.business, 'Contractor',
+                  workfile.contractor ?? '-'),
               const SizedBox(height: 8),
-              _buildDetailRow(Icons.grid_on, 'Spacing', spacing),
+              _buildDetailRow(theme, Icons.grid_on, 'Spacing', spacing),
               const SizedBox(height: 8),
               _buildDetailRow(
+                theme,
                 Icons.landscape,
                 'Area',
                 '${workfile.luasArea?.toStringAsFixed(2) ?? '0'} Ha',
@@ -106,21 +102,21 @@ class WorkfileCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'PROGRESS',
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFB0BEC5),
+                          color: theme.textSecondary,
                           letterSpacing: 1.0,
                         ),
                       ),
                       Text(
                         '${(progress * 100).toStringAsFixed(1)}% ($done/$total)',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: theme.textOnSurface,
                         ),
                       ),
                     ],
@@ -130,8 +126,9 @@ class WorkfileCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: progress,
-                      backgroundColor: const Color(0xFF0F1410),
+                      backgroundColor: theme.pageBackground,
                       valueColor: AlwaysStoppedAnimation<Color>(
+                        // Progress bar stays semantic green
                         progress >= 1.0
                             ? const Color(0xFF10B981)
                             : const Color(0xFF2ECC71),
@@ -148,22 +145,23 @@ class WorkfileCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String value) {
+  Widget _buildDetailRow(
+      AppThemeData theme, IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 14, color: const Color(0xFF64748B)),
+        Icon(icon, size: 14, color: theme.textSecondary),
         const SizedBox(width: 8),
         Text(
           '$label: ',
-          style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+          style: TextStyle(fontSize: 12, color: theme.textSecondary),
         ),
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: Color(0xFFB0BEC5),
+              color: theme.textOnSurface,
             ),
             overflow: TextOverflow.ellipsis,
           ),

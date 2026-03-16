@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import '../../../core/utils/app_theme.dart';
 
 class SummaryCard extends StatelessWidget {
   final String title;
   final String value;
-  final String subUnit; // 'spots/hr', 'cm', 'hours'
-  final String? subValue; // e.g. '187.17 spots/Hr'
+  final String subUnit;
+  final String? subValue;
   final double percent;
-  final Color progressColor;
+  final Color progressColor; // semantic — fixed per metric (blue/red/green/purple)
   final bool isTrendUp;
 
   const SummaryCard({
@@ -23,11 +24,13 @@ class SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F1410),
-        border: Border.all(color: const Color(0xFF1E3A2A), width: 1.5),
+        color: theme.pageBackground,
+        border: Border.all(color: theme.cardBorderColor, width: 1.5),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -41,17 +44,13 @@ class SummaryCard extends StatelessWidget {
                 if (subValue != null) ...[
                   Row(
                     children: [
-                      const Icon(
-                        Icons.bar_chart,
-                        size: 14,
-                        color: Color(0xFFB0BEC5),
-                      ),
+                      Icon(Icons.bar_chart, size: 14, color: theme.textSecondary),
                       const SizedBox(width: 4),
                       Text(
                         subValue!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 10,
-                          color: Color(0xFFB0BEC5),
+                          color: theme.textSecondary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -61,10 +60,10 @@ class SummaryCard extends StatelessWidget {
                 ],
                 Text(
                   title.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     letterSpacing: 1.1,
-                    color: Color(0xFFB0BEC5),
+                    color: theme.textSecondary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -75,18 +74,18 @@ class SummaryCard extends StatelessWidget {
                   children: [
                     Text(
                       value,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.textOnSurface,
                       ),
                     ),
                     const SizedBox(width: 4),
                     Text(
                       subUnit,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF2ECC71),
+                        color: theme.appBarAccent,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -101,14 +100,14 @@ class SummaryCard extends StatelessWidget {
             percent: percent,
             center: Text(
               "${(percent * 100).toStringAsFixed(1)}%",
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
-                color: Colors.white,
+                color: theme.textOnSurface,
               ),
             ),
-            progressColor: progressColor,
-            backgroundColor: const Color(0xFF1E293B),
+            progressColor: progressColor, // metric-specific — semantic, stays fixed
+            backgroundColor: theme.cardSurface,
             circularStrokeCap: CircularStrokeCap.round,
           ),
         ],

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/repositories/app_repository.dart';
 import '../../../../core/models/contractor.dart';
+import '../../../../core/utils/app_theme.dart';
 import 'contractor_card_widget.dart';
 
 class ContractorTab extends ConsumerWidget {
@@ -127,38 +128,42 @@ class ContractorTab extends ConsumerWidget {
   ) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF0F1410),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFF1E3A2A)),
-        ),
-        title: const Text(
-          'Delete Contractor',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          'Are you sure you want to delete "${contractor.name}"?',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white54),
+      builder: (context) {
+        final theme = AppTheme.of(context);
+        return AlertDialog(
+          backgroundColor: theme.dialogBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: theme.cardBorderColor),
+          ),
+          title: Text(
+            'Delete Contractor',
+            style: TextStyle(color: theme.textOnSurface),
+          ),
+          content: Text(
+            'Are you sure you want to delete "${contractor.name}"?',
+            style: TextStyle(color: theme.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: theme.textSecondary),
+              ),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              ref.read(appRepositoryProvider).deleteContractor(contractor.id);
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () {
+                ref.read(appRepositoryProvider).deleteContractor(contractor.id);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFEF4444)),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -233,12 +238,13 @@ class _ContractorEditDialogState extends State<_ContractorEditDialog> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.contractor != null;
+    final theme = AppTheme.of(context);
 
     return Dialog(
-      backgroundColor: const Color(0xFF0F1410),
+      backgroundColor: theme.dialogBackground,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0xFF1E3A2A)),
+        side: BorderSide(color: theme.cardBorderColor),
       ),
       child: Container(
         padding: const EdgeInsets.all(24),
@@ -253,12 +259,12 @@ class _ContractorEditDialogState extends State<_ContractorEditDialog> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.business, color: Color(0xFF2ECC71)),
+                    Icon(Icons.business, color: theme.appBarAccent),
                     const SizedBox(width: 12),
                     Text(
                       isEdit ? 'EDIT CONTRACTOR' : 'ADD CONTRACTOR',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: theme.textOnSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.2,
@@ -268,25 +274,29 @@ class _ContractorEditDialogState extends State<_ContractorEditDialog> {
                 ),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close, color: Colors.white54),
+                  icon: Icon(Icons.close, color: theme.textSecondary),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            const Divider(color: Color(0xFF1E3A2A)),
+            Divider(color: theme.dividerColor),
             const SizedBox(height: 16),
 
             // Form fields
-            _buildField('NAME', _nameController, hint: 'e.g. PT. Maju Jaya'),
+            _buildField(theme, 'NAME', _nameController,
+                hint: 'e.g. PT. Maju Jaya'),
             const SizedBox(height: 16),
-            _buildField('SECTOR', _sectorController, hint: 'e.g. Mining'),
+            _buildField(theme, 'SECTOR', _sectorController,
+                hint: 'e.g. Mining'),
             const SizedBox(height: 16),
-            _buildField('AREA', _areaController, hint: 'e.g. Block A'),
+            _buildField(theme, 'AREA', _areaController,
+                hint: 'e.g. Block A'),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: _buildField(
+                    theme,
                     'NUMBER OF EQUIPMENT',
                     _numEquipmentController,
                     hint: '0',
@@ -296,6 +306,7 @@ class _ContractorEditDialogState extends State<_ContractorEditDialog> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildField(
+                    theme,
                     'NUMBER OF OPERATORS',
                     _numOperatorController,
                     hint: '0',
@@ -313,8 +324,8 @@ class _ContractorEditDialogState extends State<_ContractorEditDialog> {
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white24),
+                      foregroundColor: theme.textOnSurface,
+                      side: BorderSide(color: theme.dividerColor),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -330,9 +341,10 @@ class _ContractorEditDialogState extends State<_ContractorEditDialog> {
                     icon: const Icon(Icons.save_outlined, size: 16),
                     label: const Text('SAVE'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2ECC71),
-                      foregroundColor: Colors.black,
-                      textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                      backgroundColor: theme.primaryButtonBackground,
+                      foregroundColor: theme.primaryButtonText,
+                      textStyle:
+                          const TextStyle(fontWeight: FontWeight.bold),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -349,6 +361,7 @@ class _ContractorEditDialogState extends State<_ContractorEditDialog> {
   }
 
   Widget _buildField(
+    AppThemeData theme,
     String label,
     TextEditingController controller, {
     String? hint,
@@ -359,8 +372,8 @@ class _ContractorEditDialogState extends State<_ContractorEditDialog> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Color(0xFF2ECC71),
+          style: TextStyle(
+            color: theme.appBarAccent,
             fontSize: 10,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.1,
@@ -369,27 +382,27 @@ class _ContractorEditDialogState extends State<_ContractorEditDialog> {
         const SizedBox(height: 8),
         TextField(
           controller: controller,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: theme.textOnSurface),
           keyboardType: isNumber ? TextInputType.number : TextInputType.text,
           inputFormatters: isNumber
               ? [FilteringTextInputFormatter.digitsOnly]
               : null,
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.black26,
+            fillColor: theme.inputFill,
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white24),
+            hintStyle: TextStyle(color: theme.textSecondary),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white10),
+              borderSide: BorderSide(color: theme.inputBorder),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white10),
+              borderSide: BorderSide(color: theme.inputBorder),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Color(0xFF2ECC71)),
+              borderSide: BorderSide(color: theme.appBarAccent),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,

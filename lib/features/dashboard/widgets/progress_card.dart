@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import '../../../core/utils/app_theme.dart';
 
 class ProgressCard extends StatelessWidget {
   final double areaHa;
@@ -21,11 +22,13 @@ class ProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F1410),
-        border: Border.all(color: const Color(0xFF1E3A2A), width: 1.5),
+        color: theme.pageBackground,
+        border: Border.all(color: theme.cardBorderColor, width: 1.5),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -42,37 +45,37 @@ class ProgressCard extends StatelessWidget {
                   children: [
                     Text(
                       "${(percentage * 100).toStringAsFixed(1)}%",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
-                        color: Colors.white,
+                        color: theme.textOnSurface,
                       ),
                     ),
                     Text(
                       "/ ${maxAreaHa.toStringAsFixed(3)} ha",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 10,
-                        color: Color(0xFFB0BEC5),
+                        color: theme.textSecondary,
                       ),
                     ),
                   ],
                 ),
-                progressColor: const Color(0xFF2ECC71),
-                backgroundColor: const Color(0xFF1E293B),
+                progressColor: theme.appBarAccent, // themed accent color
+                backgroundColor: theme.cardSurface,
                 circularStrokeCap: CircularStrokeCap.round,
               ),
               const SizedBox(width: 20),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'TOTAL AREA',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.1,
-                      color: Color(0xFFB0BEC5),
+                      color: theme.textSecondary,
                     ),
                   ),
                   Row(
@@ -80,19 +83,19 @@ class ProgressCard extends StatelessWidget {
                     children: [
                       Text(
                         areaHa.toStringAsFixed(3),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.w900,
-                          color: Colors.white,
+                          color: theme.textOnSurface,
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.only(bottom: 6.0, left: 4.0),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6.0, left: 4.0),
                         child: Text(
                           'Ha',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF2ECC71),
+                            color: theme.appBarAccent,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -104,18 +107,18 @@ class ProgressCard extends StatelessWidget {
                     children: [
                       Text(
                         totalSpots.toStringAsFixed(1),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: theme.textOnSurface,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         productionUnit,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 10,
-                          color: Color(0xFFB0BEC5),
+                          color: theme.textSecondary,
                         ),
                       ),
                     ],
@@ -125,32 +128,29 @@ class ProgressCard extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          const Divider(color: Color(0xFF1E3A2A)),
+          Divider(color: theme.cardBorderColor),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'WORKING PROGRESS',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.1,
-              color: Colors.white,
+              color: theme.textOnSurface,
             ),
           ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Spacing',
-                style: TextStyle(fontSize: 12, color: Color(0xFFB0BEC5)),
-              ),
+              Text('Spacing',
+                  style: TextStyle(fontSize: 12, color: theme.textSecondary)),
               Text(
                 spacing,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: theme.textOnSurface,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -158,17 +158,14 @@ class ProgressCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Luas Area',
-                style: TextStyle(fontSize: 12, color: Color(0xFFB0BEC5)),
-              ),
+              Text('Luas Area',
+                  style: TextStyle(fontSize: 12, color: theme.textSecondary)),
               Text(
                 '${maxAreaHa.toStringAsFixed(3)} Ha',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: theme.textOnSurface,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),

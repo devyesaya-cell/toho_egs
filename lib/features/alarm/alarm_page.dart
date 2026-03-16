@@ -1,36 +1,37 @@
 import 'package:flutter/material.dart';
 import '../../core/widgets/global_app_bar_actions.dart';
+import '../../core/utils/app_theme.dart';
 
 class AlarmPage extends StatelessWidget {
   const AlarmPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0F1410),
+      backgroundColor: theme.pageBackground,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F1410),
-        foregroundColor: Colors.white,
+        backgroundColor: theme.appBarBackground,
+        foregroundColor: theme.appBarForeground,
         elevation: 0,
         title: Row(
           children: [
-            // Green Icon Box
             Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFF1E3A2A),
+                color: theme.iconBoxBackground,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.warning_amber_rounded,
-                color: Color(0xFF2ECC71),
+                color: theme.iconBoxIcon,
                 size: 24,
               ),
             ),
             const SizedBox(width: 16),
-            // Titles
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -39,13 +40,14 @@ class AlarmPage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
                     fontSize: 18,
+                    color: theme.appBarForeground,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   'EGS ALARM V4.0.0',
                   style: TextStyle(
-                    color: Color(0xFF2ECC71), // Primary Green
+                    color: theme.appBarAccent,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,

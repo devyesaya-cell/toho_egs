@@ -3,39 +3,36 @@ import '../../../core/widgets/global_app_bar_actions.dart';
 import '../widgets/debug/rover_debug_tab.dart';
 import '../widgets/debug/basestation_debug_tab.dart';
 import '../widgets/debug/alert_debug_tab.dart';
+import '../../../core/utils/app_theme.dart';
 
 class DebugPage extends StatelessWidget {
   const DebugPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = AppTheme.of(context);
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: const Color(0xFF0F1410),
+        backgroundColor: theme.pageBackground,
         appBar: AppBar(
-          backgroundColor: const Color(0xFF0F1410),
-          foregroundColor: Colors.white,
+          backgroundColor: theme.appBarBackground,
+          foregroundColor: theme.appBarForeground,
           elevation: 0,
           title: Row(
             children: [
-              // Green Icon Box
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E3A2A),
+                  color: theme.iconBoxBackground,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(
-                  Icons.bug_report,
-                  color: Color(0xFF2ECC71),
-                  size: 24,
-                ),
+                child: Icon(Icons.bug_report, color: theme.iconBoxIcon, size: 24),
               ),
               const SizedBox(width: 16),
-              // Titles
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -44,13 +41,14 @@ class DebugPage extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
                       fontSize: 18,
+                      color: theme.appBarForeground,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     'EGS DEBUG V4.0.0',
                     style: TextStyle(
-                      color: Color(0xFF2ECC71), // Primary Green
+                      color: theme.appBarAccent,
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
@@ -61,13 +59,13 @@ class DebugPage extends StatelessWidget {
             ],
           ),
           actions: const [GlobalAppBarActions(), SizedBox(width: 16)],
-          bottom: const TabBar(
+          bottom: TabBar(
             isScrollable: true,
-            indicatorColor: Color(0xFF2ECC71),
-            labelColor: Color(0xFF2ECC71),
-            unselectedLabelColor: Colors.white54,
-            labelStyle: TextStyle(fontWeight: FontWeight.bold),
-            tabs: [
+            indicatorColor: theme.appBarAccent,
+            labelColor: theme.appBarAccent,
+            unselectedLabelColor: theme.textSecondary,
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+            tabs: const [
               Tab(text: 'ROVER'),
               Tab(text: 'BASESTATION'),
               Tab(text: 'ALERT'),
@@ -75,8 +73,8 @@ class DebugPage extends StatelessWidget {
           ),
         ),
         body: Container(
-          decoration: const BoxDecoration(
-            border: Border(top: BorderSide(color: Color(0xFF1E3A2A))),
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: theme.cardBorderColor)),
           ),
           child: const TabBarView(
             children: [RoverDebugTab(), BasestationDebugTab(), AlertDebugTab()],
