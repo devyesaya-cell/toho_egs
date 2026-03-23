@@ -92,7 +92,9 @@ class _RadioPageState extends ConsumerState<RadioPage> {
                   Expanded(
                     child: Center(
                       child: Image.asset(
-                        'images/under_cons.png',
+                        MediaQuery.of(context).platformBrightness == Brightness.dark
+                            ? 'images/dark_cfg.jpeg'
+                            : 'images/light_cfg.jpeg',
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -153,8 +155,8 @@ class _RadioPageState extends ConsumerState<RadioPage> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.sensors, color: theme.appBarAccent, size: 28),
-                      const SizedBox(width: 12),
+                      // Icon(Icons.sensors, color: theme.appBarAccent, size: 28),
+                      // const SizedBox(width: 12),
                       Text(
                         'RADIO PARAMETERS PREVIEW',
                         style: TextStyle(

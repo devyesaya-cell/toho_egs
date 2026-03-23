@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:network_info_plus/network_info_plus.dart';
 import 'package:usb_serial/transaction.dart';
 import 'package:usb_serial/usb_serial.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -110,16 +109,14 @@ class ComService extends Notifier<UsbState> {
   /// Basestation is the Gateway/Router IP for the Rover.
   Future<bool> connectToHostWebSocket({int port = 8080}) async {
     try {
-      final info = NetworkInfo();
       // On Android connected to a hotspot, the Gateway IP is usually the Hotspot owner
+      // final info = NetworkInfo();
       // String? gatewayIp = await info.getWifiGatewayIP();
-      String? gatewayIp = "192.168.100.88";
+      const String gatewayIp = "192.168.100.88";
 
-      if (gatewayIp == null || gatewayIp.isEmpty) {
-        // Fallback or explicit IP if needed, modify here if you have a rigid IP structure
-        // Often hotspot gateway defaults to 192.168.43.1 on older Android, 192.168.x.x on newer
+      if (gatewayIp.isEmpty) {
         debugPrint(
-          "Failed to get Gateway IP from NetworkInfo. Reverting to manual entry or aborting.",
+          "Failed to get Gateway IP. Reverting to manual entry or aborting.",
         );
         return false;
       }
@@ -584,13 +581,17 @@ class BsNotifier extends Notifier<Basestatus?> {
 
 final bsProvider = NotifierProvider<BsNotifier, Basestatus?>(BsNotifier.new);
 
-class ErrorNotifier extends Notifier<ErrorAlert?> {
+class ErrorNotifier extends Notifier<List<ErrorAlert>> {
   @override
-  ErrorAlert? build() => null;
-  void updateState(ErrorAlert err) => state = err;
+  List<ErrorAlert> build() => [];
+
+  void updateState(ErrorAlert err) {
+    // Keep internal buffer of 100 alerts, newest first
+    state = [err, ...state].take(100).toList();
+  }
 }
 
-final errorProvider = NotifierProvider<ErrorNotifier, ErrorAlert?>(
+final errorProvider = NotifierProvider<ErrorNotifier, List<ErrorAlert>>(
   ErrorNotifier.new,
 );
 

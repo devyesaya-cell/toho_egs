@@ -817,10 +817,13 @@ class MapPresenter extends Notifier<MapState> {
     });
 
     // Error Alert
-    ref.listen<ErrorAlert?>(errorProvider, (previous, next) {
-      if (next != null && state.lastError != next) {
-        NotificationService.showError('Error: ${next.message}');
-        state = state.copyWith(lastError: next);
+    ref.listen<List<ErrorAlert>>(errorProvider, (previous, next) {
+      if (next.isNotEmpty) {
+        final latest = next.first;
+        if (state.lastError != latest) {
+          NotificationService.showError('Error: ${latest.message}');
+          state = state.copyWith(lastError: latest);
+        }
       }
     });
   }

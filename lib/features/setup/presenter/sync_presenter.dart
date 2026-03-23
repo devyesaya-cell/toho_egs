@@ -48,7 +48,7 @@ class SyncPresenter extends Notifier<SyncState> {
     _comService = ref.watch(comServiceProvider.notifier);
 
     // Watch for WebSocket connection drops automatically from ComService state
-    ref.listen(comServiceProvider, (previous, next) {
+    ref.listen<UsbState>(comServiceProvider, (previous, next) {
       if (_isDisposed) return;
       if (previous?.isWsConnected == true && next.isWsConnected == false) {
         state = state.copyWith(

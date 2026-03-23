@@ -81,6 +81,7 @@ class ProtocolService {
     // Opcode: 0x0B (SET)
     // Payload: Channel (1), Key (2), Address (2), NetID (1), Air Data Rate (1)
     List<int> payload = [
+      0x01,
       channel,
       key & 0xff,
       (key >> 8) & 0xff,
@@ -93,7 +94,7 @@ class ProtocolService {
     final frame = buildFrame(
       opcode: 0x0B,
       payload: payload,
-      includeOpcodeInLength: false,
+      includeOpcodeInLength: true,
     );
     await port.write(Uint8List.fromList(frame));
   }
@@ -104,8 +105,8 @@ class ProtocolService {
     // Spreadsheet example says Length is 2 (0 target + 2 CRC)
     final frame = buildFrame(
       opcode: 0x0C,
-      payload: [],
-      includeOpcodeInLength: false,
+      payload: [0x01],
+      includeOpcodeInLength: true,
     );
     await port.write(Uint8List.fromList(frame));
   }
