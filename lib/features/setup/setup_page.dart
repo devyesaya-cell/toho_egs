@@ -6,6 +6,9 @@ import 'pages/sync_page.dart';
 import 'pages/radio_page.dart';
 import 'pages/debug_page.dart';
 import 'pages/about_us_page.dart';
+import 'pages/work_config_page.dart';
+import 'pages/wireless_page.dart';
+import 'pages/testing_page.dart';
 
 class SetupPage extends StatelessWidget {
   const SetupPage({super.key});
@@ -44,6 +47,24 @@ class SetupPage extends StatelessWidget {
         'icon': Icons.device_hub,
         'color': Colors.blue,
         'page': const DebugPage(),
+      },
+      {
+        'title': 'Work Config',
+        'icon': Icons.settings,
+        'color': Colors.blueGrey,
+        'page': const WorkConfigPage(),
+      },
+      {
+        'title': 'Wireless',
+        'icon': Icons.wifi,
+        'color': Colors.blue,
+        'page': const WirelessPage(),
+      },
+      {
+        'title': 'Testing',
+        'icon': Icons.gps_fixed,
+        'color': Colors.blue,
+        'page': const TestingPage(),
       },
       {
         'title': 'About',
@@ -92,7 +113,10 @@ class SetupPage extends StatelessWidget {
   }
 
   Widget _buildMenuCard(
-      BuildContext context, Map<String, dynamic> item, AppThemeData theme) {
+    BuildContext context,
+    Map<String, dynamic> item,
+    AppThemeData theme,
+  ) {
     return Material(
       color: theme.cardSurface,
       borderRadius: BorderRadius.circular(12),

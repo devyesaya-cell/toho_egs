@@ -10,6 +10,8 @@ import 'package:toho_egs/core/models/error_alert.dart';
 import 'package:toho_egs/core/models/gps_loc.dart';
 import '../../core/services/coordinate_service.dart';
 import 'package:toho_egs/core/services/notification_service.dart';
+import 'package:toho_egs/core/services/notification_service.dart' as custom_notif;
+import 'package:flutter/material.dart';
 import 'package:toho_egs/core/models/working_spot.dart';
 import 'package:toho_egs/core/models/workfile.dart';
 import 'package:toho_egs/core/models/timesheet_record.dart';
@@ -75,6 +77,8 @@ class MapState {
   // Query Optimization
   final double? lastQueriedExcaLat;
   final double? lastQueriedExcaLng;
+  final bool diggingStatus; // New field
+  final double spotCompletionDelay;
 
   // Timesheet
   final TimesheetRecord? activeTimesheet;
@@ -115,6 +119,8 @@ class MapState {
     this.lastQueriedExcaLng,
     this.crumblingDevSum = 0.0,
     this.crumblingDevCount = 0,
+    this.diggingStatus = false,
+    this.spotCompletionDelay = 2.0,
   });
 
   MapState copyWith({
@@ -153,6 +159,8 @@ class MapState {
     double? lastQueriedExcaLng,
     double? crumblingDevSum,
     int? crumblingDevCount,
+    bool? diggingStatus,
+    double? spotCompletionDelay,
   }) {
     return MapState(
       currentLat: currentLat ?? this.currentLat,
@@ -190,6 +198,8 @@ class MapState {
       lastQueriedExcaLng: lastQueriedExcaLng ?? this.lastQueriedExcaLng,
       crumblingDevSum: crumblingDevSum ?? this.crumblingDevSum,
       crumblingDevCount: crumblingDevCount ?? this.crumblingDevCount,
+      diggingStatus: diggingStatus ?? this.diggingStatus,
+      spotCompletionDelay: spotCompletionDelay ?? this.spotCompletionDelay,
     );
   }
 }
@@ -200,9 +210,10 @@ class MapPresenter extends Notifier<MapState> {
   Timer? _paramTimer;
   Timer? _mockSpotTimer;
   Timer? _timesheetTimer;
-  int _mockSpotIndex = 0;
+  // int _mockSpotIndex = 0;
   List<WorkingSpot> _loadedSpots = [];
   List<WorkingSpot> _cachedNearbySpots = [];
+  DateTime? _spotInRangeSince;
 
   @override
   MapState build() {
@@ -246,12 +257,18 @@ class MapPresenter extends Notifier<MapState> {
     state = state.copyWith(isWorkMode: newMode);
 
     if (newMode) {
-      _startMocking(controller);
+      // _startMocking(controller); // Mock data disabled per user request
     } else {
       _stopMocking();
     }
   }
 
+  void setSpotCompletionDelay(double seconds) {
+    state = state.copyWith(spotCompletionDelay: seconds);
+  }
+
+  // --- Mock logic disabled per user request ---
+  /*
   void _startMocking(maplibre.MapController? controller) {
     if (_mockSpotTimer != null && _mockSpotTimer!.isActive) return;
 
@@ -296,10 +313,11 @@ class MapPresenter extends Notifier<MapState> {
           loadSpots(controller);
         }
       } catch (e) {
-        print("Mock Spot Timer Error: \$e");
+        print("Mock Spot Timer Error: $e");
       }
     });
   }
+  */
 
   void _stopMocking() {
     _mockSpotTimer?.cancel();
@@ -557,7 +575,7 @@ class MapPresenter extends Notifier<MapState> {
                 newTargetSegment = [targetLine[i], targetLine[i + 1]];
               }
             }
-            
+
             // Per pengguna: batasi agar terdekat ini distance nya tidak lebih dari 3 meter saja dari exca
             if (closestSegmentDist > 3.0) {
               newTargetSegment = null;
@@ -629,27 +647,30 @@ class MapPresenter extends Notifier<MapState> {
                   : (newCrumblingDev?.abs() ?? 0.0);
 
               final nowSec = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-              
+
               int exactlyNewlyDoneCount = 0;
-              
+
               final isar = DatabaseService().isar;
               await isar.writeTxn(() async {
                 for (var i = 0; i < 2; i++) {
-                   var node = prevSegment[i];
-                   if (node.status != 1) { // Only update if not already done
-                      node.status = 1;
-                      node.lastUpdate = nowSec;
-                      node.akurasi = avgDev;
-                      await isar.workingSpots.put(node);
-                      
-                      // Remove from memory
-                      _loadedSpots.removeWhere((s) => s.id == node.id);
-                      exactlyNewlyDoneCount++;
-                   }
+                  var node = prevSegment[i];
+                  if (node.status != 1) {
+                    // Only update if not already done
+                    node.status = 1;
+                    node.lastUpdate = nowSec;
+                    node.akurasi = avgDev;
+                    await isar.workingSpots.put(node);
+
+                    // Remove from memory
+                    _loadedSpots.removeWhere((s) => s.id == node.id);
+                    exactlyNewlyDoneCount++;
+                  }
                 }
               });
 
-              state = state.copyWith(spotDone: state.spotDone + exactlyNewlyDoneCount);
+              state = state.copyWith(
+                spotDone: state.spotDone + exactlyNewlyDoneCount,
+              );
 
               // Reset dev tracking for new segment
               nextSum = newCrumblingDev?.abs() ?? 0.0;
@@ -723,31 +744,46 @@ class MapPresenter extends Notifier<MapState> {
             final dist = _calc.getDistance(bucketPos, targetPos);
 
             // Auto-Complete Spot Logic (< 10cm)
-            // NOTE: Time delay (> 2 sec) removed for simulation as requested by user.
+            if (dist > 0.1) {
+              _spotInRangeSince = null;
+            }
+
+            bool shouldComplete = false;
             if (dist <= 0.1) {
+              if (_spotInRangeSince == null) {
+                _spotInRangeSince = DateTime.now();
+              } else {
+                final elapsed = DateTime.now().difference(_spotInRangeSince!).inMilliseconds / 1000.0;
+                if (elapsed >= state.spotCompletionDelay) {
+                  shouldComplete = true;
+                }
+              }
+            }
+
+            if (shouldComplete) {
               // Update entity
-              newTargetSpot.lastUpdate =
-                  DateTime.now().millisecondsSinceEpoch ~/ 1000;
-              newTargetSpot.lat = gps.attachLat;
-              newTargetSpot.lng = gps.attachLng;
-              newTargetSpot.status = 1;
-              newTargetSpot.akurasi = dist * 100; // in cm
+              final spotToSave = newTargetSpot;
+              spotToSave.lastUpdate = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+              spotToSave.lat = gps.attachLat;
+              spotToSave.lng = gps.attachLng;
+              spotToSave.status = 1;
+              spotToSave.akurasi = dist * 100; // in cm
 
               final rand = math.Random();
-              newTargetSpot.deep = 60 + rand.nextInt(21); // 60-80
-              newTargetSpot.alt = 60 + rand.nextInt(21); // 60-80
+              spotToSave.deep = 60 + rand.nextInt(21); // 60-80
+              spotToSave.alt = 60 + rand.nextInt(21); // 60-80
 
               // Save to Isar DB
               final isar = DatabaseService().isar;
-              isar.writeTxn(() async {
-                await isar.workingSpots.put(newTargetSpot!);
+              await isar.writeTxn(() async {
+                await isar.workingSpots.put(spotToSave);
               });
 
               // Update Memory Map & state counter
-              _loadedSpots.removeWhere((s) => s.id == newTargetSpot!.id);
+              _loadedSpots.removeWhere((s) => s.id == spotToSave.id);
               // Also remove from the nearby cache so the same spot is not
               // picked up again on the next GPS tick (which would re-trigger the notification).
-              _cachedNearbySpots.removeWhere((s) => s.id == newTargetSpot!.id);
+              _cachedNearbySpots.removeWhere((s) => s.id == spotToSave.id);
               // We increment spotDone without full reload for immediate UI feedback.
               // When map moves or refreshes, it will call loadSpots anyway.
               state = state.copyWith(spotDone: state.spotDone + 1);
@@ -764,6 +800,12 @@ class MapPresenter extends Notifier<MapState> {
               newDevX = null;
               newDevY = null;
               newTargetBearing = null;
+
+              // Reset digging status
+              state = state.copyWith(diggingStatus: false);
+              ref.read(comServiceProvider.notifier).resetDiggingStatus();
+              
+              _spotInRangeSince = null;
 
               NotificationService.showSuccess('Spot Completed!');
             } else {
@@ -805,6 +847,13 @@ class MapPresenter extends Notifier<MapState> {
       );
     });
 
+    // Listen for USB digging status
+    ref.listen<UsbState>(comServiceProvider, (previous, next) {
+      if (next.diggingStatus != state.diggingStatus) {
+        state = state.copyWith(diggingStatus: next.diggingStatus);
+      }
+    });
+
     // Base Status
     ref.listen<Basestatus?>(bsProvider, (previous, next) {
       if (next != null) {
@@ -826,6 +875,18 @@ class MapPresenter extends Notifier<MapState> {
         }
       }
     });
+  }
+
+  void showDiggingNotification(BuildContext context) {
+    custom_notif.NotificationService.showCommandNotification(
+      context,
+      title: 'Digging Status',
+      message: 'Spot siap di gali',
+      modeStr: 'READY',
+      icon: Icons.agriculture,
+      iconColor: Colors.greenAccent,
+      headerColor: Colors.green.shade900,
+    );
   }
 
   // Calculate 3D Distance between two Lat/Lng/Alt points

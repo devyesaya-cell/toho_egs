@@ -13,14 +13,17 @@ import '../models/calibration_data.dart';
 import '../models/error_alert.dart';
 import '../models/gps_loc.dart';
 import '../models/radio_config.dart';
+import '../models/send_acknowledge.dart';
 import '../utils/parsing.dart';
+import '../services/notification_service.dart' as simple_notif;
 
 // --- State Class ---
 class UsbState {
   final bool isConnected;
   final UsbPort? port;
   final List<UsbDevice> devices;
-  final DateTime? lastDataReceived; // New field
+  final DateTime? lastDataReceived;
+  final bool diggingStatus; // New field
 
   // WebSocket / Sync state properties
   final bool isWsConnected;
@@ -32,6 +35,7 @@ class UsbState {
     this.port,
     this.devices = const [],
     this.lastDataReceived,
+    this.diggingStatus = false,
     this.isWsConnected = false,
     this.wsAddress,
     this.wsData,
@@ -42,6 +46,7 @@ class UsbState {
     UsbPort? port,
     List<UsbDevice>? devices,
     DateTime? lastDataReceived,
+    bool? diggingStatus,
     bool? isWsConnected,
     String? wsAddress,
     dynamic wsData,
@@ -51,6 +56,7 @@ class UsbState {
       port: port ?? this.port,
       devices: devices ?? this.devices,
       lastDataReceived: lastDataReceived ?? this.lastDataReceived,
+      diggingStatus: diggingStatus ?? this.diggingStatus,
       isWsConnected: isWsConnected ?? this.isWsConnected,
       wsAddress: wsAddress ?? this.wsAddress,
       wsData: wsData ?? this.wsData,
@@ -253,6 +259,10 @@ class ComService extends Notifier<UsbState> {
     state = state.copyWith(port: null, isConnected: false);
   }
 
+  void resetDiggingStatus() {
+    state = state.copyWith(diggingStatus: false);
+  }
+
   Future<void> autoConnect(String filterName) async {
     await listDevices();
     for (var device in state.devices) {
@@ -333,6 +343,26 @@ class ComService extends Notifier<UsbState> {
             ref.read(radioProvider.notifier).updateState(config);
           } catch (e) {
             debugPrint('Error parsing RadioConfig: $e');
+          }
+        } else if (opcode == 0xD2) {
+          // Digging Status
+          debugPrint('Digging Status Received (0xD2)');
+          state = state.copyWith(diggingStatus: true);
+        } else if (opcode == 0x81) {
+          // Send Acknowledge
+          try {
+            final ack = _parseSendAcknowledge(packet);
+            debugPrint('Send Acknowledge Received: $ack');
+
+            final message =
+                'Header 0x81: ${ack.isSuccess ? "Success" : "Failed"} from ${ack.sourceID}';
+            if (ack.isSuccess) {
+              simple_notif.NotificationService.showSuccess(message);
+            } else {
+              simple_notif.NotificationService.showError(message);
+            }
+          } catch (e) {
+            debugPrint('Error parsing SendAcknowledge: $e');
           }
         }
       },
@@ -478,6 +508,15 @@ class ComService extends Notifier<UsbState> {
     );
   }
 
+  SendAcknowledge _parseSendAcknowledge(List<int> socketData) {
+    return SendAcknowledge(
+      sourceID: _sourceIDError(socketData[6]),
+      ackOpcode: socketData[7],
+      status: socketData[8],
+      timestamp: DateTime.now(),
+    );
+  }
+
   // --- Helper Functions ---
   String _statusGPS(int status) {
     switch (status) {
@@ -538,16 +577,16 @@ class ComService extends Notifier<UsbState> {
     final type = socketData[7];
     final source = socketData[8]; // Assuming source ID in byte 8
     if (type == 0) {
-      return 'No Data from ${_sourceIDError(source)}';
+      return 'from ${_sourceIDError(source)}';
     }
     if (type == 1) {
-      return 'Fail To sent to ${_sourceIDError(source)}';
+      return 'to ${_sourceIDError(source)}';
     }
     if (type == 2) {
-      return 'Bad Power from ${Parsing.parseFromFloat_32(socketData.sublist(8, 12)).toStringAsFixed(2)}V';
+      return '${Parsing.parseFromFloat_32(socketData.sublist(8, 12)).toStringAsFixed(2)}V';
     }
     if (type == 3) {
-      return 'Just Restarted ${Parsing.parseFromUint_16(socketData.sublist(10, 12)).toStringAsFixed(2)} Times';
+      return '${Parsing.parseFromUint_16(socketData.sublist(10, 12)).toStringAsFixed(2)} Times';
     }
     if (type == 4) {
       return 'Sensor need Calibration';

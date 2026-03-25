@@ -59,7 +59,7 @@ class GuidanceWidget extends ConsumerWidget {
           // Center Target
           Image.asset(
             isCenterLocked
-                ? 'images/ic_cirle_tg.png'
+                ? 'images/done_icon.png'
                 : 'images/ic_cirle.png', // Assuming there's a lit version, or we can tint it. We will use ColorFiltered if no lit image.
             width: 40 * scale,
             height: 40 * scale,

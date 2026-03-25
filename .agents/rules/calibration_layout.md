@@ -1,6 +1,8 @@
 ---
+trigger: always_on
 description: Layout grid and styling patterns for Calibration Tabs
 ---
+
 # Calibration Layout Rule
 
 When the user asks to use the **"calibration layout"**, apply the following predefined structural grid and styling for the current tab/page:
@@ -76,3 +78,19 @@ If tapping a Card opens an edit prompt:
 - Buttons:
   - Cancel: `TextButton` with `Colors.white54`
   - Set: `ElevatedButton` mapped to `Color(0xFF2ECC71)` with `Colors.white` text.
+
+# General Rules
+
+## Context Check
+- **ALWAYS** check the `context7` MCP server first for every prompt to ensure access to the latest database updates and context.
+
+## Architecture & Layout Rules
+1. **Presenter Pattern (MVVM)**: Every major feature or page must have its logic separated into a `Presenter` class (implementing Riverpod's `Notifier` or `StateNotifier`).
+2. **Clean UI**: UI components (`Widget` classes) must remain as thin as possible. Avoid writing complex logic, boolean toggles, timers, or DB transactions directly in `StatefulWidget` states. Use `ConsumerWidget` and delegate all actions to the Presenter. 
+3. **Stream Management**: Never use the classic Flutter `StreamBuilder` for fetching asynchronous list operations from Isar or APIs. Always wrap streams in a Riverpod `StreamProvider` and use the `.when(data: , loading: , error: )` syntax in the UI. This provides better caching and prevents UI flickering.
+4. **Scaffold & AppBar**: When creating a new page's Scaffold, the standard `AppBar` should consist of:
+   - A `title` on the left.
+   - The reusable `StatusBar` (containing the USB connection indicator and user `ProfileWidget`) placed in the `actions` array on the right.
+
+## Riverpod Standard Rules
+1. **Riverpod Lifecycle Side-Effects**: Never modify another provider's state or call synchronous functions that mutate other providers directly inside `onDispose` (e.g., `ref.onDispose()`) or other lifecycle hooks. This will throw the assertion error: *"Cannot use Ref or modify other providers inside life-cycles/selectors."* Instead, wrap the state mutation or disconnect logic in a `Future.microtask(() => ...);` to safely push the execution to the next event loop.

@@ -68,4 +68,77 @@ class DialogUtils {
       ],
     );
   }
+
+  static Future<void> showDelayConfigDialog({
+    required BuildContext context,
+    required double currentDelay,
+    required Function(double) onSave,
+  }) {
+    final isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF1E3020) : Colors.orange.shade50;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final options = [2.0, 3.0, 5.0, 7.0, 10.0];
+    double selectedDelay = currentDelay;
+
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: bgColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                'Spot Completion Delay',
+                style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Select the duration (in seconds) the bucket must remain within 10cm of the target spot.',
+                    style: TextStyle(color: textColor, fontSize: 13),
+                  ),
+                  const SizedBox(height: 16),
+                  ...options.map((val) => RadioListTile<double>(
+                        title: Text('${val.toInt()} seconds',
+                            style: TextStyle(color: textColor)),
+                        value: val,
+                        groupValue: selectedDelay,
+                        activeColor: isDark ? Colors.greenAccent : Colors.orange,
+                        onChanged: (double? newValue) {
+                          setState(() {
+                            selectedDelay = newValue!;
+                          });
+                        },
+                      )),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('Cancel',
+                      style: TextStyle(
+                          color: isDark ? Colors.white54 : Colors.black54)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDark ? Colors.green : Colors.orange,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: () {
+                    onSave(selectedDelay);
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 }

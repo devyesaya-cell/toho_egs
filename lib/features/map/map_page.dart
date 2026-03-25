@@ -8,6 +8,7 @@ import 'widgets/timesheet_start_dialog.dart';
 import 'widgets/timesheet_end_dialog.dart';
 import 'widgets/crumbling_deviation_bar.dart';
 import '../../core/state/auth_state.dart';
+import '../../core/utils/dialog_utils.dart';
 
 class MapPage extends ConsumerStatefulWidget {
   const MapPage({super.key});
@@ -40,9 +41,12 @@ class _MapPageState extends ConsumerState<MapPage> {
     });
   }
 
-  void _toZoom(double zoom) async {
+  void _toZoom(double zoom, double lon, double lat) async {
     if (_controller == null) return;
-    _controller?.moveCamera(zoom: zoom);
+    _controller?.moveCamera(
+      zoom: zoom,
+      center: Geographic(lon: lon, lat: lat),
+    );
   }
 
   @override
@@ -85,6 +89,13 @@ class _MapPageState extends ConsumerState<MapPage> {
           _controller != null) {
         ref.read(mapPresenterProvider.notifier).loadSpots(_controller!);
       }
+
+      // Show notification if diggingStatus becomes true
+      if (previous != null && !previous.diggingStatus && next.diggingStatus) {
+        ref
+            .read(mapPresenterProvider.notifier)
+            .showDiggingNotification(context);
+      }
     });
 
     return Scaffold(
@@ -106,10 +117,11 @@ class _MapPageState extends ConsumerState<MapPage> {
                       .addExcavatorLayers(_controller!);
                 }
               },
-              options: MapOptions(
+              options: const MapOptions(
                 // styleString: _styleString,
-                initCenter: const Geographic(lon: 106.8456, lat: -6.2088),
+                initCenter: Geographic(lon: 106.8456, lat: -6.2088),
                 initZoom: _defaultZoom,
+                initBearing: 0,
               ),
             ),
           ),
@@ -159,7 +171,11 @@ class _MapPageState extends ConsumerState<MapPage> {
                         // _controller?.easeCamera(CameraUpdate.zoomIn()); ??
                         // Reference used explicit moveCamera.
                         // Let's just mock zoom in
-                        _toZoom(21.2);
+                        _toZoom(
+                          21.2,
+                          mapState.currentLng!,
+                          mapState.currentLat!,
+                        );
                       }
                     },
                   ),
@@ -168,7 +184,7 @@ class _MapPageState extends ConsumerState<MapPage> {
                   _buildFloatingButton(
                     icon: Icons.zoom_out,
                     onPressed: () {
-                      _toZoom(19.0);
+                      _toZoom(19.0, mapState.currentLng!, mapState.currentLat!);
                     },
                   ),
                   const SizedBox(height: 10),
@@ -188,20 +204,14 @@ class _MapPageState extends ConsumerState<MapPage> {
                     icon: Icons.settings,
                     color: Colors.amber,
                     onPressed: () {
-                      final mapState = ref.read(mapPresenterProvider);
-                      if (mapState.activeTimesheet == null) {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (ctx) => const TimesheetStartDialog(),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Timesheet is already running.'),
-                          ),
-                        );
-                      }
+                      final currentDelay = ref.read(mapPresenterProvider).spotCompletionDelay;
+                      DialogUtils.showDelayConfigDialog(
+                        context: context,
+                        currentDelay: currentDelay,
+                        onSave: (val) {
+                          ref.read(mapPresenterProvider.notifier).setSpotCompletionDelay(val);
+                        },
+                      );
                     },
                   ),
                 ],

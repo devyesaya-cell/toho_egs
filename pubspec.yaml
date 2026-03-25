@@ -49,6 +49,7 @@ dependencies:
   file_picker: ^10.3.10
   web_socket_channel: ^3.0.3
   network_info_plus: ^7.0.0
+  flutter_svg: ^2.2.4
 
 
 dev_dependencies:
