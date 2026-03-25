@@ -117,14 +117,14 @@ class AppRepository {
       endTime = DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 7, 0, 0);
     }
 
-    final startEpoch = startTime.millisecondsSinceEpoch;
-    final endEpoch = endTime.millisecondsSinceEpoch;
+    final startEpochSec = startTime.millisecondsSinceEpoch ~/ 1000;
+    final endEpochSec = endTime.millisecondsSinceEpoch ~/ 1000;
 
     return await _isar.workingSpots
         .filter()
         .driverIDEqualTo(driverId)
         .statusEqualTo(1)
-        .lastUpdateBetween(startEpoch, endEpoch)
+        .lastUpdateBetween(startEpochSec, endEpochSec)
         .findAll();
   }
 

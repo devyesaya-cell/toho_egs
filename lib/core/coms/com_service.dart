@@ -112,7 +112,7 @@ class ComService extends Notifier<UsbState> {
       // On Android connected to a hotspot, the Gateway IP is usually the Hotspot owner
       // final info = NetworkInfo();
       // String? gatewayIp = await info.getWifiGatewayIP();
-      const String gatewayIp = "192.168.100.88";
+      const String gatewayIp = "192.168.100.69";
 
       if (gatewayIp.isEmpty) {
         debugPrint(
@@ -510,12 +510,12 @@ class ComService extends Notifier<UsbState> {
 
   String _sourceIDError(int id) {
     const ids = {
-      1: 'Tablet Pair',
-      2: 'Rover',
-      3: 'Boom',
-      4: 'Stick',
-      5: 'Bucket',
-      6: 'Plow',
+      0: 'Tablet Pair',
+      1: 'Rover',
+      2: 'Boom',
+      3: 'Stick',
+      4: 'Bucket',
+      5: 'Plow',
     };
     return ids[id] ?? 'Unknown';
   }

@@ -27,8 +27,24 @@ class BasestationDebugTab extends ConsumerWidget {
       );
     }
 
-    return _buildDataView(bsData);
+    return SingleChildScrollView(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height - 
+                     AppBar().preferredSize.height - 
+                     MediaQuery.of(context).padding.top -
+                     kTabBarHeight, // Rough estimate of remaining space
+        ),
+        child: SizedBox(
+          height: 600, // Fixed height to maintain the dashboard layout proportions
+          child: _buildDataView(bsData),
+        ),
+      ),
+    );
   }
+
+  // Define tab bar height if not available
+  static const double kTabBarHeight = 48.0;
 
   Widget _buildDataView(Basestatus bsData) {
     return Padding(
@@ -258,57 +274,61 @@ class BasestationDebugTab extends ConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Icon
-                  Icon(icon, color: Colors.white, size: 28),
-
-                  // Title
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white54,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-
-                  // Main Value
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.topLeft,
+                child: SizedBox(
+                  width: 280, // Target width for internal layout
+                  height: 160, // Target height for internal layout
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Text(
-                          mainValue,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      // Icon
+                      Icon(icon, color: Colors.white, size: 28),
+
+                      // Title
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: Colors.white54,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      if (mainSuffix != null) ...[
-                        const SizedBox(width: 4),
-                        Text(
-                          mainSuffix,
-                          style: const TextStyle(
-                            color: Colors.white54,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+
+                      // Main Value
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            mainValue,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                          if (mainSuffix != null) ...[
+                            const SizedBox(width: 4),
+                            Text(
+                              mainSuffix,
+                              style: const TextStyle(
+                                color: Colors.white54,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+
+                      // Bottom Info
+                      bottomWidget,
                     ],
                   ),
-
-                  // Bottom Info
-                  bottomWidget,
-                ],
+                ),
               ),
             ),
           ],
