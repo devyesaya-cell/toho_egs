@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:math' as math;
 
 import '../../../../core/coms/com_service.dart';
+import '../../../../core/services/voice_recognition_service.dart';
 import '../../../../core/utils/app_theme.dart';
 import '../../../../core/state/auth_state.dart';
 
@@ -15,10 +16,19 @@ class TestingPage extends ConsumerStatefulWidget {
 }
 
 class _TestingPageState extends ConsumerState<TestingPage> {
+  final TextEditingController _ttsController = TextEditingController();
+
+  @override
+  void dispose() {
+    _ttsController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = AppTheme.of(context);
     final gpsAsync = ref.watch(gpsStreamProvider);
+    final voiceState = ref.watch(voiceRecognitionProvider);
 
     return Scaffold(
       backgroundColor: theme.pageBackground,
@@ -39,72 +49,204 @@ class _TestingPageState extends ConsumerState<TestingPage> {
           const SizedBox(width: 16),
         ],
       ),
-      body: Center(
-        child: gpsAsync.when(
-          data: (gps) {
-            // Convert hearing to radians. 
-            // The SVG is facing North natively. 0 degree = North.
-            final headingRadians = gps.heading * (math.pi / 180.0);
+      body: SingleChildScrollView(
+        child: Center(
+          child: gpsAsync.when(
+            data: (gps) {
+              final headingRadians = gps.heading * (math.pi / 180.0);
 
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Heading: ${gps.heading.toStringAsFixed(2)}°',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: theme.textOnSurface,
-                  ),
-                ),
-                const SizedBox(height: 48),
-                Container(
-                  width: 300,
-                  height: 300,
-                  decoration: BoxDecoration(
-                    color: theme.cardSurface,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: theme.cardBorderColor,
-                      width: 2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Transform.rotate(
-                      angle: headingRadians,
-                      child: SvgPicture.asset(
-                        'images/exca_full.svg',
-                        width: 200,
-                        height: 200,
-                        fit: BoxFit.contain,
-                      ),
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 32),
+                  Text(
+                    'Heading: ${gps.heading.toStringAsFixed(2)}°',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: theme.textOnSurface,
                     ),
                   ),
-                ),
-              ],
-            );
-          },
-          loading: () => Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(height: 16),
-              Text(
-                'Waiting for GPS Data...',
-                style: TextStyle(color: theme.textSecondary),
+                  const SizedBox(height: 48),
+                  Container(
+                    width: 300,
+                    height: 300,
+                    decoration: BoxDecoration(
+                      color: theme.cardSurface,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: theme.cardBorderColor, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Transform.rotate(
+                        angle: headingRadians,
+                        child: SvgPicture.asset(
+                          'images/exca_full.svg',
+                          width: 200,
+                          height: 200,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  // STANDBY MODE TOGGLE
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 48.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: theme.cardSurface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: theme.cardBorderColor),
+                      ),
+                      child: SwitchListTile(
+                        title: const Text('Standby Mode',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: const Text('Mendengarkan kata kunci (Jarvis)'),
+                        value: voiceState.isStandbyActive,
+                        activeColor: const Color(0xFF2ECC71),
+                        onChanged: (val) {
+                          ref
+                              .read(voiceRecognitionProvider.notifier)
+                              .toggleStandby(val);
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  // VOICE RECOGNITION DISPLAY
+                  if (voiceState.text.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Text(
+                        'Perintah Suara:\n"${voiceState.text}"',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: theme.textOnSurface,
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  if (voiceState.error.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0, left: 16, right: 16),
+                      child: Text(
+                        voiceState.error,
+                        style: const TextStyle(color: Colors.red, fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  const SizedBox(height: 24),
+                  FloatingActionButton(
+                    heroTag: 'voice_mic',
+                    backgroundColor: voiceState.isListening
+                        ? Colors.red
+                        : const Color(0xFF2ECC71),
+                    onPressed: () {
+                      final notifier = ref.read(
+                        voiceRecognitionProvider.notifier,
+                      );
+                      if (voiceState.isListening) {
+                        notifier.stopListening();
+                      } else {
+                        notifier.startListening();
+                      }
+                    },
+                    child: Icon(
+                      voiceState.isListening ? Icons.mic : Icons.mic_none,
+                      color: Colors.white,
+                    ),
+                  ),
+                  if (voiceState.isListening)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        'Mendengarkan...',
+                        style: TextStyle(
+                          color: theme.textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 48),
+                  const Divider(),
+                  // TEXT TO SPEECH SECTION
+                  Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'TEXT TO SPEECH TEST',
+                          style: TextStyle(
+                            color: theme.textSecondary,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: _ttsController,
+                          style: TextStyle(color: theme.textOnSurface),
+                          decoration: InputDecoration(
+                            hintText: 'Masukkan teks di sini...',
+                            hintStyle: TextStyle(color: theme.textSecondary),
+                            filled: true,
+                            fillColor: theme.cardSurface,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: theme.cardBorderColor),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2ECC71),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            icon: const Icon(Icons.volume_up),
+                            label: const Text('UCAPKAN TEKS'),
+                            onPressed: () {
+                              ref
+                                  .read(voiceRecognitionProvider.notifier)
+                                  .speak(_ttsController.text);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 64),
+                ],
+              );
+            },
+            loading: () => const Padding(
+              padding: EdgeInsets.only(top: 100.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Waiting for GPS Data...'),
+                ],
               ),
-            ],
-          ),
-          error: (err, stack) => Text(
-            'Error reading data: $err',
-            style: const TextStyle(color: Colors.red),
+            ),
+            error: (err, stack) => Text(
+              'Error reading data: $err',
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ),
       ),
@@ -181,8 +323,8 @@ class _TestingPageState extends ConsumerState<TestingPage> {
                       radius: 16,
                       backgroundImage: (photoUrl != null && photoUrl.isNotEmpty)
                           ? AssetImage(photoUrl)
-                          : const AssetImage('images/avatar_person.png')
-                              as ImageProvider,
+                          : const AssetImage('images/driver_exca.png')
+                                as ImageProvider,
                       backgroundColor: theme.surfaceColor,
                     ),
                     const SizedBox(width: 8),

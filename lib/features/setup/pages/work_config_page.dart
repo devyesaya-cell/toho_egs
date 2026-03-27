@@ -485,7 +485,7 @@ class _WorkConfigPageState extends ConsumerState<WorkConfigPage> {
                       radius: 16,
                       backgroundImage: (photoUrl != null && photoUrl.isNotEmpty)
                           ? AssetImage(photoUrl)
-                          : const AssetImage('images/avatar_person.png')
+                          : const AssetImage('images/driver_exca.png')
                                 as ImageProvider,
                       backgroundColor: theme.surfaceColor,
                     ),

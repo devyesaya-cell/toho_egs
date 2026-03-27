@@ -50,6 +50,10 @@ dependencies:
   web_socket_channel: ^3.0.3
   network_info_plus: ^7.0.0
   flutter_svg: ^2.2.4
+  speech_to_text: ^7.3.0
+  porcupine_flutter: ^4.0.0
+  flutter_tts: ^4.2.5
+  flutter_voice_processor: ^1.1.2
 
 
 dev_dependencies:

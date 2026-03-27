@@ -9,6 +9,7 @@ import '../models/contractor.dart';
 import '../models/timesheet_record.dart';
 import '../models/timesheet_data.dart';
 import '../models/status_timesheet.dart';
+import '../models/voice_message.dart';
 
 class DatabaseService {
   late Isar isar;
@@ -33,6 +34,7 @@ class DatabaseService {
       TimesheetRecordSchema,
       TimesheetDataSchema,
       StatusTimesheetSchema,
+      VoiceMessageSchema,
     ], directory: dir.path);
   }
 

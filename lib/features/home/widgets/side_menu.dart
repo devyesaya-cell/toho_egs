@@ -32,9 +32,7 @@ class SideMenu extends ConsumerWidget {
       width: MediaQuery.of(context).size.width * 0.25,
       decoration: BoxDecoration(
         color: theme.menuBackground,
-        border: Border(
-          right: BorderSide(color: theme.menuBorder, width: 1.5),
-        ),
+        border: Border(right: BorderSide(color: theme.menuBorder, width: 1.5)),
       ),
       child: Column(
         children: [
@@ -53,34 +51,54 @@ class SideMenu extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
                 _buildSectionHeader('Menu', theme),
-                _buildMenuItem(context, ref, theme,
-                    index: 0,
-                    icon: Icons.folder_open,
-                    label: 'Work Files',
-                    isSelected: selectedIndex == 0),
-                _buildMenuItem(context, ref, theme,
-                    index: 1,
-                    icon: Icons.dashboard_outlined,
-                    label: 'Dashboard',
-                    isSelected: selectedIndex == 1),
-                _buildMenuItem(context, ref, theme,
-                    index: 2,
-                    icon: Icons.timeline,
-                    label: 'Timesheet',
-                    isSelected: selectedIndex == 2),
-                _buildMenuItem(context, ref, theme,
-                    index: 3,
-                    icon: Icons.notifications_none,
-                    label: 'Alarm',
-                    isSelected: selectedIndex == 3),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  theme,
+                  index: 0,
+                  icon: Icons.folder_open,
+                  label: 'Work Files',
+                  isSelected: selectedIndex == 0,
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  theme,
+                  index: 1,
+                  icon: Icons.dashboard_outlined,
+                  label: 'Dashboard',
+                  isSelected: selectedIndex == 1,
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  theme,
+                  index: 2,
+                  icon: Icons.timeline,
+                  label: 'Timesheet',
+                  isSelected: selectedIndex == 2,
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  theme,
+                  index: 3,
+                  icon: Icons.notifications_none,
+                  label: 'Voice Logs',
+                  isSelected: selectedIndex == 3,
+                ),
 
                 const SizedBox(height: 24),
                 _buildSectionHeader('System', theme),
-                _buildMenuItem(context, ref, theme,
-                    index: 4,
-                    icon: Icons.settings_outlined,
-                    label: 'Setup',
-                    isSelected: selectedIndex == 4),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  theme,
+                  index: 4,
+                  icon: Icons.settings_outlined,
+                  label: 'Setup',
+                  isSelected: selectedIndex == 4,
+                ),
                 const SizedBox(height: 24),
                 _buildSystemStatus(ref, theme),
               ],
@@ -149,8 +167,7 @@ class SideMenu extends ConsumerWidget {
                 color: isSelected
                     ? theme.menuSelectedText
                     : theme.menuUnselectedText,
-                fontWeight:
-                    isSelected ? FontWeight.bold : FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               ),
             ),
           ],
@@ -268,8 +285,18 @@ class _DateTimeWidgetState extends State<_DateTimeWidget> {
         "${_now.hour.toString().padLeft(2, '0')}:${_now.minute.toString().padLeft(2, '0')}:${_now.second.toString().padLeft(2, '0')}";
 
     const monthNames = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
     const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     final monthString = monthNames[_now.month - 1];
@@ -281,10 +308,7 @@ class _DateTimeWidgetState extends State<_DateTimeWidget> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            theme.dateTimeGradientStart,
-            theme.dateTimeGradientEnd,
-          ],
+          colors: [theme.dateTimeGradientStart, theme.dateTimeGradientEnd],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

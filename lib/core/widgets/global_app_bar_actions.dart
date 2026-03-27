@@ -84,7 +84,7 @@ class GlobalAppBarActions extends ConsumerWidget {
                       radius: 16,
                       backgroundImage: photoUrl != null && photoUrl.isNotEmpty
                           ? AssetImage(photoUrl)
-                          : const AssetImage('images/avatar_person.png'),
+                          : const AssetImage('images/driver_exca.png'),
                       backgroundColor: theme.surfaceColor,
                     ),
                     const SizedBox(width: 8),

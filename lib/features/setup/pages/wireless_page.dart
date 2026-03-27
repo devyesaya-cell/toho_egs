@@ -106,7 +106,7 @@ class _WirelessPageState extends ConsumerState<WirelessPage> {
                       radius: 16,
                       backgroundImage: (photoUrl != null && photoUrl.isNotEmpty)
                           ? AssetImage(photoUrl)
-                          : const AssetImage('images/avatar_person.png') as ImageProvider,
+                          : const AssetImage('images/driver_exca.png') as ImageProvider,
                       backgroundColor: theme.surfaceColor,
                     ),
                     const SizedBox(width: 8),
