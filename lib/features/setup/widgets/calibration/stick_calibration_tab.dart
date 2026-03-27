@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/coms/com_service.dart';
 import '../../../../core/utils/app_theme.dart';
+import '../../../../core/utils/dialog_utils.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../presenter/calibration_presenter.dart';
 
@@ -236,48 +237,84 @@ class _StickCalibrationTabState extends ConsumerState<StickCalibrationTab> {
                                 ],
                               ),
                               const SizedBox(height: 8),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  final port = ref
-                                      .read(comServiceProvider)
-                                      .port;
-                                  if (port != null) {
-                                    // Calibrate stick tilt mode 3 with value 0.0
-                                    final command = _presenter.calibrateCommand(
-                                      value1: 0.0,
-                                      mode: 3,
-                                    );
-                                    await port.write(
-                                      Uint8List.fromList(command),
-                                    );
-                                    if (context.mounted) {
-                                      NotificationService.showCommandNotification(
-                                        context,
-                                        title: 'CALIBRATE',
-                                        message: 'Stick Tilt calibrated',
-                                        modeStr: 'Completed',
-                                        icon: Icons.check_circle,
-                                        iconColor: const Color(0xFF2ECC71),
-                                        headerColor: const Color(0xFF1E3A2A),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      final port = ref
+                                          .read(comServiceProvider)
+                                          .port;
+                                      if (port != null) {
+                                        // Calibrate stick tilt mode 3 with value 0.0
+                                        final command = _presenter.calibrateCommand(
+                                          value1: 0.0,
+                                          mode: 3,
+                                        );
+                                        await port.write(
+                                          Uint8List.fromList(command),
+                                        );
+                                        if (context.mounted) {
+                                          NotificationService.showCommandNotification(
+                                            context,
+                                            title: 'CALIBRATE',
+                                            message: 'Stick Tilt calibrated',
+                                            modeStr: 'Completed',
+                                            icon: Icons.check_circle,
+                                            iconColor: const Color(0xFF2ECC71),
+                                            headerColor: const Color(0xFF1E3A2A),
+                                          );
+                                        }
+                                      } else if (context.mounted) {
+                                        NotificationService.showCommandNotification(
+                                          context,
+                                          title: 'ERROR',
+                                          message: 'Port not connected',
+                                          modeStr: 'ERROR',
+                                          icon: Icons.error,
+                                          iconColor: const Color(0xFFEF4444),
+                                          headerColor: const Color(0xFF3F1D1D),
+                                        );
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: theme.primaryButtonBackground,
+                                      foregroundColor: theme.primaryButtonText,
+                                    ),
+                                    child: const Text('Calibrate'),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    onPressed: () async {
+                                      final confirm = await DialogUtils.showConfirmationDialog(
+                                        context: context,
+                                        title: 'Confirm Reset',
+                                        message: 'Are you sure you want to reset Stick Tilt?',
                                       );
-                                    }
-                                  } else if (context.mounted) {
-                                    NotificationService.showCommandNotification(
-                                      context,
-                                      title: 'ERROR',
-                                      message: 'Port not connected',
-                                      modeStr: 'ERROR',
-                                      icon: Icons.error,
-                                      iconColor: const Color(0xFFEF4444),
-                                      headerColor: const Color(0xFF3F1D1D),
-                                    );
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: theme.primaryButtonBackground,
-                                  foregroundColor: theme.primaryButtonText,
-                                ),
-                                child: const Text('Calibrate'),
+                                      if (!confirm) return;
+
+                                      final port = ref.read(comServiceProvider).port;
+                                      if (port != null) {
+                                        final command = _presenter.calibrateCommand(value1: 0.0, mode: 67);
+                                        await port.write(Uint8List.fromList(command));
+                                        if (context.mounted) {
+                                          NotificationService.showCommandNotification(
+                                            context,
+                                            title: 'RESET',
+                                            message: 'Stick Tilt Berhasil di reset',
+                                            modeStr: 'Completed',
+                                            icon: Icons.refresh,
+                                            iconColor: theme.appBarAccent,
+                                            headerColor: theme.cardSurface,
+                                          );
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.refresh),
+                                    color: theme.appBarAccent,
+                                    tooltip: 'Reset Stick Tilt',
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -373,6 +410,37 @@ class _StickCalibrationTabState extends ConsumerState<StickCalibrationTab> {
                                       backgroundColor: const Color(0xFFEF4444),
                                       foregroundColor: Colors.white,
                                     ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    onPressed: () async {
+                                      final confirm = await DialogUtils.showConfirmationDialog(
+                                        context: context,
+                                        title: 'Confirm Reset',
+                                        message: 'Are you sure you want to reset Stick Accelero?',
+                                      );
+                                      if (!confirm) return;
+
+                                      final port = ref.read(comServiceProvider).port;
+                                      if (port != null) {
+                                        final command = _presenter.calibrateCommand(value1: 0.0, mode: 62);
+                                        await port.write(Uint8List.fromList(command));
+                                        if (context.mounted) {
+                                          NotificationService.showCommandNotification(
+                                            context,
+                                            title: 'RESET',
+                                            message: 'Stick Accelero Berhasil di reset',
+                                            modeStr: 'Completed',
+                                            icon: Icons.refresh,
+                                            iconColor: theme.appBarAccent,
+                                            headerColor: theme.cardSurface,
+                                          );
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.refresh),
+                                    color: theme.appBarAccent,
+                                    tooltip: 'Reset Stick Accelero',
                                   ),
                                 ],
                               ),

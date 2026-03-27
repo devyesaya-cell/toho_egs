@@ -573,6 +573,20 @@ class ComService extends Notifier<UsbState> {
     return types[id] ?? 'Unknown';
   }
 
+  String _restartReason(int id) {
+    const reasons = {
+      0: 'Unknown',
+      1: 'Power On',
+      2: 'Panic',
+      3: 'Watchdog',
+      4: 'Brownout',
+      5: 'OTA update',
+      6: 'Internal',
+      7: 'External',
+    };
+    return reasons[id] ?? 'Unknown';
+  }
+
   String _alertContent(List<int> socketData) {
     final type = socketData[7];
     final source = socketData[8]; // Assuming source ID in byte 8
@@ -586,13 +600,18 @@ class ComService extends Notifier<UsbState> {
       return '${Parsing.parseFromFloat_32(socketData.sublist(8, 12)).toStringAsFixed(2)}V';
     }
     if (type == 3) {
-      return '${Parsing.parseFromUint_16(socketData.sublist(10, 12)).toStringAsFixed(2)} Times';
+      final reasonCode = Parsing.parseFromUint_16(socketData.sublist(8, 10));
+      final count = Parsing.parseFromUint_16(socketData.sublist(10, 12));
+      return '${_restartReason(reasonCode)}, $count Times';
     }
     if (type == 4) {
       return 'Sensor need Calibration';
     }
-    if (type == 5 || type == 6) {
-      return _errType(source);
+    if (type == 5) {
+      return 'Delay ${Parsing.parseFromUint_32(socketData.sublist(8, 12))} ms';
+    }
+    if (type == 6) {
+      return 'Sensor Error';
     }
     if (type == 7) {
       return 'Restart External Sensor';

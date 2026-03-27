@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/coms/com_service.dart';
 import '../../../../core/utils/app_theme.dart';
+import '../../../../core/utils/dialog_utils.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../presenter/calibration_presenter.dart';
 
@@ -308,9 +309,9 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                     flex: 1,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B),
+                        color: theme.cardSurface,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFF1E3A2A)),
+                        border: Border.all(color: theme.cardBorderColor),
                       ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24.0,
@@ -326,17 +327,17 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'PITCH: ',
                                     style: TextStyle(
-                                      color: Colors.white54,
+                                      color: theme.textSecondary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Text(
                                     '${(data.pitch > 360 ? 360.0 : data.pitch).toStringAsFixed(2)}°',
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: theme.textOnSurface,
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -344,18 +345,54 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                                 ],
                               ),
                               const SizedBox(height: 8),
-                              ElevatedButton(
-                                onPressed: () => _showCalibrateDialog(
-                                  context,
-                                  'Pitch',
-                                  0, // Mode 0 according to user provided values
-                                  data.pitch,
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF2ECC71),
-                                  foregroundColor: Colors.white,
-                                ),
-                                child: const Text('Calibrate'),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () => _showCalibrateDialog(
+                                      context,
+                                      'Pitch',
+                                      0, // Mode 0 according to user provided values
+                                      data.pitch,
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF2ECC71),
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: const Text('Calibrate'),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    onPressed: () async {
+                                      final confirm = await DialogUtils.showConfirmationDialog(
+                                        context: context,
+                                        title: 'Confirm Reset',
+                                        message: 'Are you sure you want to reset Pitch Calibration?',
+                                      );
+                                      if (!confirm) return;
+
+                                      final port = ref.read(comServiceProvider).port;
+                                      if (port != null) {
+                                        final command = _presenter.calibrateCommand(value1: 0.0, mode: 64);
+                                        await port.write(Uint8List.fromList(command));
+                                        if (context.mounted) {
+                                          NotificationService.showCommandNotification(
+                                            context,
+                                            title: 'RESET',
+                                            message: 'Pitch Berhasil di reset',
+                                            modeStr: 'Completed',
+                                            icon: Icons.refresh,
+                                            iconColor: theme.appBarAccent,
+                                            headerColor: theme.cardSurface,
+                                          );
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.refresh),
+                                    color: theme.appBarAccent,
+                                    tooltip: 'Reset Pitch',
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -366,17 +403,17 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'ROLL: ',
                                     style: TextStyle(
-                                      color: Colors.white54,
+                                      color: theme.textSecondary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Text(
                                     '${(data.roll > 360 ? 360.0 : data.roll).toStringAsFixed(2)}°',
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: theme.textOnSurface,
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -384,18 +421,54 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                                 ],
                               ),
                               const SizedBox(height: 8),
-                              ElevatedButton(
-                                onPressed: () => _showCalibrateDialog(
-                                  context,
-                                  'Roll',
-                                  1, // Mode 1 according to user provided values
-                                  data.roll,
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF2ECC71),
-                                  foregroundColor: Colors.white,
-                                ),
-                                child: const Text('Calibrate'),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () => _showCalibrateDialog(
+                                      context,
+                                      'Roll',
+                                      1, // Mode 1 according to user provided values
+                                      data.roll,
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF2ECC71),
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: const Text('Calibrate'),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    onPressed: () async {
+                                      final confirm = await DialogUtils.showConfirmationDialog(
+                                        context: context,
+                                        title: 'Confirm Reset',
+                                        message: 'Are you sure you want to reset Roll Calibration?',
+                                      );
+                                      if (!confirm) return;
+
+                                      final port = ref.read(comServiceProvider).port;
+                                      if (port != null) {
+                                        final command = _presenter.calibrateCommand(value1: 0.0, mode: 65);
+                                        await port.write(Uint8List.fromList(command));
+                                        if (context.mounted) {
+                                          NotificationService.showCommandNotification(
+                                            context,
+                                            title: 'RESET',
+                                            message: 'Roll Berhasil di reset',
+                                            modeStr: 'Completed',
+                                            icon: Icons.refresh,
+                                            iconColor: theme.appBarAccent,
+                                            headerColor: theme.cardSurface,
+                                          );
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.refresh),
+                                    color: theme.appBarAccent,
+                                    tooltip: 'Reset Roll',
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -403,16 +476,16 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                           Container(
                             width: 1,
                             height: double.infinity,
-                            color: Colors.white24,
+                            color: theme.dividerColor,
                           ),
                           // Accelero Controls
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text(
+                              Text(
                                 'ACCELERO CALIBRATION',
                                 style: TextStyle(
-                                  color: Colors.white54,
+                                  color: theme.textSecondary,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -493,6 +566,37 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                                       foregroundColor: Colors.white,
                                     ),
                                   ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    onPressed: () async {
+                                      final confirm = await DialogUtils.showConfirmationDialog(
+                                        context: context,
+                                        title: 'Confirm Reset',
+                                        message: 'Are you sure you want to reset Body Accelero?',
+                                      );
+                                      if (!confirm) return;
+
+                                      final port = ref.read(comServiceProvider).port;
+                                      if (port != null) {
+                                        final command = _presenter.calibrateCommand(value1: 0.0, mode: 60);
+                                        await port.write(Uint8List.fromList(command));
+                                        if (context.mounted) {
+                                          NotificationService.showCommandNotification(
+                                            context,
+                                            title: 'RESET',
+                                            message: 'Body Accelero Berhasil di reset',
+                                            modeStr: 'Completed',
+                                            icon: Icons.refresh,
+                                            iconColor: theme.appBarAccent,
+                                            headerColor: theme.cardSurface,
+                                          );
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.refresh),
+                                    color: theme.appBarAccent,
+                                    tooltip: 'Reset Body Accelero',
+                                  ),
                                 ],
                               ),
                             ],
@@ -510,20 +614,20 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
               flex: 1,
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
+                  color: theme.cardSurface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF1E3A2A)),
+                  border: Border.all(color: theme.cardBorderColor),
                 ),
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Text(
                         'PARAMETERS',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: theme.textOnSurface,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.2,
                           fontSize: 16,
@@ -533,7 +637,7 @@ class _BodyCalibrationTabState extends ConsumerState<BodyCalibrationTab> {
                     ),
                           // Divider separating the two panels with theme color
                           Divider(
-                            color: const Color(0xFF1E3A2A),
+                            color: theme.dividerColor,
                           ),
                     Expanded(
                       child: ListView(

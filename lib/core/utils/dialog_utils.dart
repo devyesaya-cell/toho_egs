@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'app_theme.dart';
 
 class DialogUtils {
   static Future<void> showDetailDialog({
@@ -30,6 +31,47 @@ class DialogUtils {
         );
       },
     );
+  }
+
+  static Future<bool> showConfirmationDialog({
+    required BuildContext context,
+    required String title,
+    required String message,
+  }) async {
+    final theme = AppTheme.of(context);
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: theme.dialogBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.bold, color: theme.textOnSurface),
+          ),
+          content: Text(
+            message,
+            style: TextStyle(color: theme.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('Cancel', style: TextStyle(color: theme.textSecondary)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEF4444), // Red for destructive actions
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    ) ?? false;
   }
 
   static Widget buildKeyValue(String key, String value, {Color? valueColor}) {

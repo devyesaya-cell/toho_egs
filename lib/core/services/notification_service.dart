@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/app_theme.dart';
 
 class NotificationService {
   static final GlobalKey<ScaffoldMessengerState> messengerKey =
@@ -52,6 +53,7 @@ class NotificationService {
     final double screenHeight = mediaQuery.size.height;
     final double leftRightMargin = screenWidth * 0.4;
     final double bottomMargin = screenHeight * 0.4;
+    final theme = AppTheme.of(context);
 
     scaffoldMessenger.clearSnackBars();
     scaffoldMessenger.showSnackBar(
@@ -68,7 +70,7 @@ class NotificationService {
         content: Container(
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            color: const Color(0xFF1E293B), // Dark content background
+            color: theme.dialogBackground, // Theme content background
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
@@ -95,8 +97,8 @@ class NotificationService {
                     const SizedBox(width: 8),
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: theme.textOnSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -115,8 +117,8 @@ class NotificationService {
                   children: [
                     Text(
                       message,
-                      style: const TextStyle(
-                        color: Color(0xFFB0BEC5), // Light grey text
+                      style: TextStyle(
+                        color: theme.textSecondary,
                         fontSize: 14,
                       ),
                       textAlign: TextAlign.center,
@@ -124,8 +126,8 @@ class NotificationService {
                     const SizedBox(height: 8),
                     Text(
                       modeStr,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: theme.textOnSurface,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),

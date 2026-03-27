@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/coms/com_service.dart';
 import '../../../../core/utils/app_theme.dart';
+import '../../../../core/utils/dialog_utils.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../presenter/calibration_presenter.dart';
 
@@ -201,9 +202,9 @@ class _AttachmentCalibrationTabState
                     flex: 1,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B),
+                        color: theme.cardSurface,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFF1E3A2A)),
+                        border: Border.all(color: theme.cardBorderColor),
                       ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24.0,
@@ -237,49 +238,85 @@ class _AttachmentCalibrationTabState
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  final port = ref
-                                      .read(comServiceProvider)
-                                      .port;
-                                  if (port != null) {
-                                    // Calibrate Bucket tilt mode 4
-                                    final command = _presenter.calibrateCommand(
-                                      value1: 0.0,
-                                      mode: 4,
-                                    );
-                                    await port.write(
-                                      Uint8List.fromList(command),
-                                    );
-                                    if (context.mounted) {
-                                      NotificationService.showCommandNotification(
-                                        context,
-                                        title: 'CALIBRATE',
-                                        message: 'Bucket Tilt calibrated',
-                                        modeStr: 'Completed',
-                                        icon: Icons.check_circle,
-                                        iconColor: const Color(0xFF2ECC71),
-                                        headerColor: const Color(0xFF1E3A2A),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      final port = ref
+                                          .read(comServiceProvider)
+                                          .port;
+                                      if (port != null) {
+                                        // Calibrate Bucket tilt mode 4
+                                        final command = _presenter.calibrateCommand(
+                                          value1: 0.0,
+                                          mode: 4,
+                                        );
+                                        await port.write(
+                                          Uint8List.fromList(command),
+                                        );
+                                        if (context.mounted) {
+                                          NotificationService.showCommandNotification(
+                                            context,
+                                            title: 'CALIBRATE',
+                                            message: 'Bucket Tilt calibrated',
+                                            modeStr: 'Completed',
+                                            icon: Icons.check_circle,
+                                            iconColor: const Color(0xFF2ECC71),
+                                            headerColor: const Color(0xFF1E3A2A),
+                                          );
+                                        }
+                                      } else if (context.mounted) {
+                                        NotificationService.showCommandNotification(
+                                          context,
+                                          title: 'ERROR',
+                                          message: 'Port not connected',
+                                          modeStr: 'ERROR',
+                                          icon: Icons.error,
+                                          iconColor: const Color(0xFFEF4444),
+                                          headerColor: const Color(0xFF3F1D1D),
+                                        );
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: theme.primaryButtonBackground,
+                                      foregroundColor: theme.primaryButtonText,
+                                      minimumSize: const Size(100, 36),
+                                    ),
+                                    child: const Text('Calibrate'),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    onPressed: () async {
+                                      final confirm = await DialogUtils.showConfirmationDialog(
+                                        context: context,
+                                        title: 'Confirm Reset',
+                                        message: 'Are you sure you want to reset Bucket Tilt?',
                                       );
-                                    }
-                                  } else if (context.mounted) {
-                                    NotificationService.showCommandNotification(
-                                      context,
-                                      title: 'ERROR',
-                                      message: 'Port not connected',
-                                      modeStr: 'ERROR',
-                                      icon: Icons.error,
-                                      iconColor: const Color(0xFFEF4444),
-                                      headerColor: const Color(0xFF3F1D1D),
-                                    );
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: theme.primaryButtonBackground,
-                                  foregroundColor: theme.primaryButtonText,
-                                  minimumSize: const Size(100, 36),
-                                ),
-                                child: const Text('Calibrate'),
+                                      if (!confirm) return;
+
+                                      final port = ref.read(comServiceProvider).port;
+                                      if (port != null) {
+                                        final command = _presenter.calibrateCommand(value1: 0.0, mode: 68);
+                                        await port.write(Uint8List.fromList(command));
+                                        if (context.mounted) {
+                                          NotificationService.showCommandNotification(
+                                            context,
+                                            title: 'RESET',
+                                            message: 'Bucket Tilt Berhasil di reset',
+                                            modeStr: 'Completed',
+                                            icon: Icons.refresh,
+                                            iconColor: theme.appBarAccent,
+                                            headerColor: theme.cardSurface,
+                                          );
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.refresh),
+                                    color: theme.appBarAccent,
+                                    tooltip: 'Reset Bucket Tilt',
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -470,6 +507,37 @@ class _AttachmentCalibrationTabState
                                         horizontal: 12,
                                       ),
                                     ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    onPressed: () async {
+                                      final confirm = await DialogUtils.showConfirmationDialog(
+                                        context: context,
+                                        title: 'Confirm Reset',
+                                        message: 'Are you sure you want to reset Bucket Accelero?',
+                                      );
+                                      if (!confirm) return;
+
+                                      final port = ref.read(comServiceProvider).port;
+                                      if (port != null) {
+                                        final command = _presenter.calibrateCommand(value1: 0.0, mode: 63);
+                                        await port.write(Uint8List.fromList(command));
+                                        if (context.mounted) {
+                                          NotificationService.showCommandNotification(
+                                            context,
+                                            title: 'RESET',
+                                            message: 'Bucket Accelero Berhasil di reset',
+                                            modeStr: 'Completed',
+                                            icon: Icons.refresh,
+                                            iconColor: theme.appBarAccent,
+                                            headerColor: theme.cardSurface,
+                                          );
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.refresh),
+                                    color: theme.appBarAccent,
+                                    tooltip: 'Reset Bucket Accelero',
                                   ),
                                 ],
                               ),
