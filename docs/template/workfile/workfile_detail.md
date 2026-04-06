@@ -1,42 +1,63 @@
-# Workfile Feature Detail
+# Workfile Page Blueprint
+Path: `lib/features/workfile/workfile_page.dart`
 
-This document covers the management of job sites, area assignments, and GeoJSON-based work point ingestion.
+This page displays a filtered grid of available workfiles based on the current `SystemMode`.
 
-## 1. Page Layouts
-### A. Workfile List Page
-- **Type**: `ConsumerWidget`.
-- **Structure**:
-  - `Scaffold` with `GridView` (3 columns).
-  - **Filtering**: Files are automatically filtered by the current `SystemMode` (e.g., "SPOT", "CRUMBLING").
-  - **Action**: Tapping a `WorkfileCard` sets it as "Active" and navigates to the Map.
+## 1. Page Architecture (Widget Tree)
+```
+Scaffold
+├── AppBar (Standard Pattern)
+└── Body: StreamBuilder<List<WorkFile>>
+    └── GridView.builder (3 columns)
+        └── WorkfileCard
+└── FloatingActionButton (Add New)
+```
 
-### B. Create Workfile Page
-- **Type**: `ConsumerStatefulWidget`.
-- **Structure**:
-  - Centered form (max width 600) with vertical `Column`.
-  - **Form Fields**: Custom `_buildDropdown` for Area, Contractor, Mode, and Spacing.
-  - **File Ingestion**: `ElevatedButton.icon` for picking GeoJSON files.
-  - **Preview**: Summary card showing `Total Spots` and `Calculated Area` before saving.
+## 2. Layout & Styling Detailing
 
-## 2. Core Widgets
-### A. [WorkfileCard](file:///c:/apps/toho_EGS/lib/features/workfile/widgets/workfile_card.dart)
-- **Role**: Visual representation of a job file in the grid.
-- **Details**: Shows Job Name, Area Name, Date, and a status icon.
+### AppBar
+Use the **Standard AppBar Pattern** defined in `theme_system.md`:
+- **Icon Box**: `Icons.folder`, Background: `theme.iconBoxBackground`, Icon: `theme.iconBoxIcon`.
+- **Title**: 'WORKFILES' (UPPERCASE).
+- **Subtitle**: 'EGS WORKFILE V4.0.0', Color: `theme.appBarAccent`.
+- **Actions**: `GlobalAppBarActions()`.
 
-### B. Form Selectors (Dropdowns)
-- **Styling**: `BoxDecoration` with `white.withOpacity(0.05)` and `greenAccent` icons for a premium dark-mode look.
+### Grid Layout
+- **Container**: `Padding(padding: EdgeInsets.all(16.0))`
+- **GridView**: `SliverGridDelegateWithFixedCrossAxisCount`
+  - `crossAxisCount`: 3
+  - `crossAxisSpacing`: 16.0
+  - `mainAxisSpacing`: 16.0
+  - `childAspectRatio`: 1.1 (slightly wider than tall)
 
-## 3. State Management (Presenter)
-- **Presenter**: `WorkfilePresenter`.
-- **Key Logic**:
-  - `pickFile`: Uses `file_picker` to load GeoJSON.
-  - `saveWorkfile`: Parses the GeoJSON into `WorkingSpot` objects and saves the `WorkFile` metadata to Isar.
-  - `loadData`: Fetches prerequisites (Areas, Contractors) from the database.
+### Floating Action Button
+- **Placement**: Bottom Right.
+- **Icon**: `Icons.add`.
+- **Background**: `theme.primaryButtonBackground`.
+- **Foreground**: `theme.primaryButtonText`.
+- **Action**: Navigates to `CreateWorkfilePage`.
 
-## 4. UI Generation Rules
-- **Consistency**: Use the same header style (Icon Box + Title + Subtitle) as other major pages (Dashboard, Alarm).
-- **Feedback**: Use a `SnackBar` with `Colors.greenAccent[700]` to confirm successful file creation.
+## 3. Theme Token Mapping
+
+| Component | Token | Property |
+|-----------|-------|----------|
+| Scaffold | `theme.pageBackground` | `backgroundColor` |
+| AppBar | `theme.appBarBackground` | `backgroundColor` |
+| Loading | `theme.loadingIndicatorColor` | `valueColor` |
+| Empty Text | `theme.textSecondary` | `color` (16px) |
+
+## 4. Logical Flow & State
+- **Data Source**: `repo.watchWorkFiles()` (Riverpod `appRepositoryProvider`).
+- **Filtering**:
+  ```dart
+  final workfiles = allWorkfiles
+      .where((w) => w.equipment?.toUpperCase() == currentSystemMode)
+      .toList();
+  ```
+- **Interaction**: Tapping a `WorkfileCard`:
+  1. Call `ref.read(authProvider.notifier).setActiveWorkfile(workfile)`.
+  2. Navigate to `MapPage()`.
 
 ---
-> [!NOTE]
-> Workfiles are the logical parent of all work telemetry. A valid workfile must contain at least one GeoJSON work point to be usable in the Map.
+> [!IMPORTANT]
+> The page uses `StreamBuilder` for real-time updates from Isar. Ensure the `currentSystemMode` is derived from `authProvider` to maintain filtering consistency when the user switches equipment modes.

@@ -7,8 +7,8 @@ import '../../core/database/voice_message_repository.dart';
 import '../../core/services/voice_recognition_service.dart';
 import '../../core/models/voice_message.dart';
 
-class AlarmPage extends ConsumerWidget {
-  const AlarmPage({super.key});
+class VoicelogsPage extends ConsumerWidget {
+  const VoicelogsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

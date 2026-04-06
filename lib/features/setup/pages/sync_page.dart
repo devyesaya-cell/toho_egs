@@ -83,7 +83,7 @@ class _SyncPageState extends ConsumerState<SyncPage> {
           children: [
             Expanded(flex: 4, child: _buildLeftPanel(syncState, theme)),
             const SizedBox(width: 24),
-            Expanded(flex: 6, child: _buildRightPanel(theme)),
+            Expanded(flex: 6, child: _buildRightPanel(syncState, theme)),
           ],
         ),
       ),
@@ -162,7 +162,12 @@ class _SyncPageState extends ConsumerState<SyncPage> {
     );
   }
 
-  Widget _buildRightPanel(AppThemeData theme) {
+  Widget _buildRightPanel(SyncState state, AppThemeData theme) {
+    // Determine connection status colors
+    final isLive = state.status != SyncConnectionStatus.idle &&
+        state.status != SyncConnectionStatus.error;
+    final dotColor = isLive ? const Color(0xFF2ECC71) : theme.textSecondary;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -170,7 +175,7 @@ class _SyncPageState extends ConsumerState<SyncPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'DATA PACKETS (6)',
+              'DATA PACKETS (${state.spots.length})',
               style: TextStyle(
                 color: theme.textSecondary,
                 fontWeight: FontWeight.bold,
@@ -180,20 +185,20 @@ class _SyncPageState extends ConsumerState<SyncPage> {
             ),
             Row(
               children: [
-                // LIVE STREAM indicator — semantic green, always
+                // LIVE STREAM indicator — semantic green when active
                 Container(
                   width: 8,
                   height: 8,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF2ECC71),
+                  decoration: BoxDecoration(
+                    color: dotColor,
                     shape: BoxShape.circle,
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Text(
+                Text(
                   'LIVE STREAM',
                   style: TextStyle(
-                    color: Color(0xFF2ECC71),
+                    color: dotColor,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.0,
                     fontSize: 12,
@@ -205,46 +210,49 @@ class _SyncPageState extends ConsumerState<SyncPage> {
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: ListView(
-            children: [
-              _buildPacketItem(
-                theme: theme,
-                title: 'Telemetry_Log_01.dat',
-                subtitle: '1.2 MB • Completed 10:42 AM',
-                icon: Icons.insert_drive_file_outlined,
-                status: PacketStatus.completed,
-              ),
-              const SizedBox(height: 12),
-              _buildPacketItem(
-                theme: theme,
-                title: 'Guidance_Path_A12.gps',
-                subtitle: '840 KB • Completed 10:45 AM',
-                icon: Icons.location_on_outlined,
-                status: PacketStatus.completed,
-              ),
-              const SizedBox(height: 12),
-              _buildPacketItem(
-                theme: theme,
-                title: 'Forest_Scan_V2.raw',
-                subtitle: 'Uploading (1.4MB/2.1MB)',
-                icon: Icons.sync,
-                status: PacketStatus.uploading,
-                progress: 1.4 / 2.1,
-              ),
-              const SizedBox(height: 12),
-              _buildPacketItem(
-                theme: theme,
-                title: 'Operator_Notes_B4.txt',
-                subtitle: 'Waiting in queue',
-                icon: Icons.more_horiz,
-                status: PacketStatus.waiting,
-                trailingText: '12 KB',
-              ),
-            ],
-          ),
+          child: state.spots.isEmpty
+              ? Center(
+                  child: Text(
+                    'No data records to sync.',
+                    style: TextStyle(color: theme.textSecondary, fontSize: 14),
+                  ),
+                )
+              : ListView.separated(
+                  itemCount: state.spots.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final spot = state.spots[index];
+                    final isSent = state.status == SyncConnectionStatus.payloadSent;
+                    final isSending = state.status == SyncConnectionStatus.sendingPayload;
+
+                    // Design Model Mapping
+                    IconData icon = Icons.location_on_outlined;
+                    if (spot.mode == 'DIGGING') icon = Icons.construction;
+                    if (spot.mode == 'TRAVEL') icon = Icons.minor_crash;
+
+                    return _buildPacketItem(
+                      theme: theme,
+                      title: 'Spot #${spot.spotID} - ${spot.mode ?? 'UNKNOWN'}',
+                      subtitle: 'File: ${spot.fileID ?? 'N/A'} • Acc: ${spot.akurasi?.toStringAsFixed(2) ?? '0.00'}m',
+                      icon: icon,
+                      status: isSent
+                          ? PacketStatus.completed
+                          : (isSending ? PacketStatus.uploading : PacketStatus.waiting),
+                      progress: isSending ? 0.7 : null, // Static indicator of activity
+                      trailingText: _formatSyncTime(spot.lastUpdate ?? 0),
+                    );
+                  },
+                ),
         ),
       ],
     );
+  }
+
+  String _formatSyncTime(int epochSec) {
+    if (epochSec == 0) return '--:--';
+    final dt = DateTime.fromMillisecondsSinceEpoch(epochSec * 1000);
+    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 
   Widget _buildPacketItem({

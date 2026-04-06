@@ -3,6 +3,7 @@ import '../../../../core/coms/com_service.dart';
 import '../../../../core/state/auth_state.dart';
 import '../../../../core/repositories/app_repository.dart';
 import '../../../../core/utils/payload_builder.dart';
+import '../../../../core/models/working_spot.dart';
 
 // --- State Status Enum ---
 enum SyncConnectionStatus {
@@ -19,22 +20,26 @@ class SyncState {
   final SyncConnectionStatus status;
   final String statusText;
   final double progress;
+  final List<WorkingSpot> spots;
 
   const SyncState({
     this.status = SyncConnectionStatus.idle,
     this.statusText = 'Waiting to start...',
     this.progress = 0.0,
+    this.spots = const [],
   });
 
   SyncState copyWith({
     SyncConnectionStatus? status,
     String? statusText,
     double? progress,
+    List<WorkingSpot>? spots,
   }) {
     return SyncState(
       status: status ?? this.status,
       statusText: statusText ?? this.statusText,
       progress: progress ?? this.progress,
+      spots: spots ?? this.spots,
     );
   }
 }
@@ -129,6 +134,7 @@ class SyncPresenter extends Notifier<SyncState> {
         state = state.copyWith(
           statusText: 'Sending ${spots.length} Records...',
           progress: 0.8,
+          spots: spots,
         );
       }
 

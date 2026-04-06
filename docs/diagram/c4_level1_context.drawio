@@ -1,0 +1,93 @@
+<mxfile host="app.diagrams.net" modified="2026-03-31T07:35:00.000Z" agent="Toho EGS" version="24.0.0" type="device">
+  <diagram id="c4-l1" name="C4 Level 1 - System Context">
+    <mxGraphModel dx="1800" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="2000" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="&lt;font style=&quot;font-size:20px&quot;&gt;&lt;b&gt;C4 Level 1: System Context — Toho EGS&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="10" width="460" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════ -->
+        <!-- ACTORS (Top)                                          -->
+        <!-- ══════════════════════════════════════════════════════ -->
+        <mxCell id="actor_op" value="&lt;b&gt;Excavator Operator&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Operates excavator, follows&lt;br&gt;on-screen guidance, logs shifts&lt;/font&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="200" y="70" width="30" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="actor_sv" value="&lt;b&gt;Site Supervisor&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Manages workfiles, operators,&lt;br&gt;reviews productivity KPIs&lt;/font&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="610" y="70" width="30" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="actor_tech" value="&lt;b&gt;Field Technician&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Calibrates sensors, configures&lt;br&gt;radio, monitors debug data&lt;/font&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="70" width="30" height="55" as="geometry"/>
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════ -->
+        <!-- MAIN SYSTEM (Center)                                  -->
+        <!-- ══════════════════════════════════════════════════════ -->
+        <mxCell id="egs_sys" value="&lt;font style=&quot;font-size:16px&quot;&gt;&lt;b&gt;Toho EGS&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;br&gt;Android Tablet Application&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;color:#666&quot;&gt;Provides real-time excavation guidance,&lt;br&gt;sensor calibration, productivity tracking,&lt;br&gt;and hardware diagnostics.&lt;br&gt;&lt;br&gt;[Flutter + Riverpod + Isar]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;arcSize=10;fontSize=12;verticalAlign=middle;spacingTop=0;" vertex="1" parent="1">
+          <mxGeometry x="430" y="280" width="380" height="200" as="geometry"/>
+        </mxCell>
+
+        <!-- Actor → System Relationships -->
+        <mxCell id="r1" value="&lt;font style=&quot;font-size:9px&quot;&gt;Authenticates, views map guidance,&lt;br&gt;logs timesheet activities&lt;/font&gt;" style="endArrow=block;endFill=1;strokeColor=#82b366;fontColor=#666666;fontSize=9;" edge="1" source="actor_op" target="egs_sys" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="r2" value="&lt;font style=&quot;font-size:9px&quot;&gt;Creates workfiles, manages&lt;br&gt;operators/equipment, reviews KPIs&lt;/font&gt;" style="endArrow=block;endFill=1;strokeColor=#6c8ebf;fontColor=#666666;fontSize=9;" edge="1" source="actor_sv" target="egs_sys" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="r3" value="&lt;font style=&quot;font-size:9px&quot;&gt;Calibrates sensors, configures radio,&lt;br&gt;monitors Rover/Base debug telemetry&lt;/font&gt;" style="endArrow=block;endFill=1;strokeColor=#d6b656;fontColor=#666666;fontSize=9;" edge="1" source="actor_tech" target="egs_sys" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ══════════════════════════════════════════════════════ -->
+        <!-- EXTERNAL SYSTEMS (Bottom + Sides)                     -->
+        <!-- ══════════════════════════════════════════════════════ -->
+        <mxCell id="ext_mcu" value="&lt;font style=&quot;font-size:14px&quot;&gt;&lt;b&gt;ESP32 MCU&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;br&gt;Embedded Firmware&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666&quot;&gt;Fuses GNSS + IMU sensor data.&lt;br&gt;Streams telemetry to tablet.&lt;br&gt;Accepts config commands.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;arcSize=10;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="330" width="240" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_bs" value="&lt;font style=&quot;font-size:14px&quot;&gt;&lt;b&gt;GNSS Basestation&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;br&gt;RTK Correction Source&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666&quot;&gt;Provides differential corrections&lt;br&gt;via LoRa radio to MCU.&lt;br&gt;WebSocket host for tablet sync.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;arcSize=10;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="940" y="330" width="250" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_gnss" value="&lt;font style=&quot;font-size:13px&quot;&gt;&lt;b&gt;Dual GNSS Receivers&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666&quot;&gt;Two u-blox antennas on excavator.&lt;br&gt;Position + heading data via UART.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;arcSize=10;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="180" y="590" width="250" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="ext_imu" value="&lt;font style=&quot;font-size:13px&quot;&gt;&lt;b&gt;IMU Sensor Array&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666&quot;&gt;Accelerometers on Body, Boom,&lt;br&gt;Stick, Bucket (I2C/SPI to MCU).&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;arcSize=10;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="820" y="590" width="250" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- System ↔ External Relationships -->
+        <mxCell id="r4" value="&lt;font style=&quot;font-size:9px&quot;&gt;Sends commands&lt;br&gt;OpCodes: 0x50, 0x52, 0x53, 0x0B, 0x0C&lt;/font&gt;" style="endArrow=block;endFill=1;strokeColor=#b85450;fontColor=#b85450;fontSize=9;" edge="1" source="egs_sys" target="ext_mcu" parent="1">
+          <mxGeometry x="-0.2" y="20" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="r5" value="&lt;font style=&quot;font-size:9px&quot;&gt;Streams telemetry&lt;br&gt;OpCodes: 0xD0, 0xD1, 0xD2, 0xD3, 0x81, 0x83, 0x86&lt;/font&gt;" style="endArrow=block;endFill=1;strokeColor=#82b366;fontColor=#82b366;fontSize=9;" edge="1" source="ext_mcu" target="egs_sys" parent="1">
+          <mxGeometry x="0.2" y="-20" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="r6" value="&lt;font style=&quot;font-size:9px&quot;&gt;WebSocket sync&lt;br&gt;ws://192.168.100.69:8080&lt;/font&gt;" style="endArrow=block;endFill=1;endSize=8;startArrow=block;startFill=1;startSize=8;strokeColor=#9673a6;fontColor=#9673a6;fontSize=9;" edge="1" source="egs_sys" target="ext_bs" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="r7" value="&lt;font style=&quot;font-size:9px&quot;&gt;RTK corrections&lt;br&gt;LoRa radio link&lt;/font&gt;" style="endArrow=block;endFill=1;strokeColor=#666666;fontColor=#666666;fontSize=9;" edge="1" source="ext_bs" target="ext_mcu" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="r8" value="&lt;font style=&quot;font-size:9px&quot;&gt;Position + heading (UART)&lt;/font&gt;" style="endArrow=block;endFill=1;strokeColor=#666666;fontColor=#666666;fontSize=9;" edge="1" source="ext_gnss" target="ext_mcu" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="r9" value="&lt;font style=&quot;font-size:9px&quot;&gt;Tilt angles (I2C/SPI)&lt;/font&gt;" style="endArrow=block;endFill=1;strokeColor=#666666;fontColor=#666666;fontSize=9;" edge="1" source="ext_imu" target="ext_mcu" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- USB Link label -->
+        <mxCell id="usb_label" value="&lt;font style=&quot;font-size:10px;color:#b85450&quot;&gt;&lt;b&gt;USB RS232&lt;/b&gt; (CP2102N, 115200/8N1)&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="290" width="250" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="&lt;b&gt;Legend&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#82b366&quot;&gt;■&lt;/font&gt; Inbound (MCU → App)&lt;br&gt;&lt;font color=&quot;#b85450&quot;&gt;■&lt;/font&gt; Outbound (App → MCU)&lt;br&gt;&lt;font color=&quot;#9673a6&quot;&gt;■&lt;/font&gt; WebSocket (Bidirectional)&lt;br&gt;&lt;font color=&quot;#666666&quot;&gt;■&lt;/font&gt; Hardware Links" style="text;html=1;align=left;verticalAlign=top;fontSize=10;fillColor=#f5f5f5;strokeColor=#666666;rounded=1;spacingLeft=8;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="60" y="590" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

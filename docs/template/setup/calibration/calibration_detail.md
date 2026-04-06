@@ -1,47 +1,49 @@
-# Equipment Calibration Detail
+# Equipment Calibration Blueprint
 
-This document provides a granular blueprint for implementing the equipment calibration system (Body, Boom, Stick, Attachment, Offset).
+The Equipment Calibration feature is a multi-tab system designed to align machine sensors (Pitch, Roll, Tilt) and define physical geometry (Lengths, Offsets). It strictly follows the **"Calibration Layout"** (3:1 grid) and communicates with the MCU via real-time OpCodes.
 
-## 1. Page Structure
-- **Container**: `DefaultTabController` with 5 tabs.
-- **Layout**: 3:1 Split (Calibration Layout).
-- **Control Bottom (flex: 1)**:
-  - `Pitch/Roll` value displays (using `Text` + degree symbol).
-  - `Start/Stop Accelero` buttons (Toggle stream).
-# Calibration Feature Detail
+## 1. Core Architecture
+- **State Management**: uses Riverpod.
+  - `comServiceProvider`: Manages USB connection state.
+  - `calibStreamProvider`: Provides real-time `CalibrationData` (OpCode `0xD1`).
+- **Presenter Pattern**: `CalibrationPresenter` handles command logic.
+- **Protocol**:
+  - **OpCode 0x52 (CALIBRATE)**: `[Mode (1 byte), Value1 (4 bytes Float32)]`. Used for start/stop/align.
+  - **OpCode 0x53 (SET_PARAM)**: `[Type (1 byte), Value (2 bytes Int16, Little Endian)]`. Used for static geometry.
 
-The Calibration page is a critical setup module used to align machine sensors (Pitch, Roll, Tilt) and define physical geometry (Lengths, Offsets). It follows a specialized **"Calibration Layout"** (3:1 split) and communicates with the MCU via real-time OpCodes.
+## 2. Global UI Standards
+### 2.1 Calibration Layout (3:1 Grid)
+- **Container**: `Padding(padding: EdgeInsets.all(16.0))` wrapping a `Row`.
+- **Left Column** (`Expanded(flex: 3)`):
+  - **Top Region (flex: 3)**: Image container (`Color(0xFF1E293B)`, 16px radius, dark green border). Hosts `images/calibrate_X.png`.
+  - **Bottom Region (flex: 1)**: Control center for real-time sensor alignment.
+- **Right Column** (`Expanded(flex: 1)`):
+  - Parameter list with heading "PARAMETERS" and `ListView` of cards.
 
-## Calibration UI Structure
-The page is organized into five specialized tabs, each targeting a specific component of the excavator:
+### 2.2 Reusable Components
+- **Parameter Card**: Tappable tile showing Abbreviation, Title, and Value. Green accent for numeric values.
+- **Editing Dialog**: `AlertDialog` with dark background and primary green "Set" button.
+- **Notification**: `NotificationService.showCommandNotification` used for every successful or failed write operation.
+- **Confirmation**: `DialogUtils.showConfirmationDialog` required for all "Reset" actions.
 
-- [**Offset Calibration**](file:///c:/apps/toho_EGS/docs/template/setup/calibration/offset_calibration_tab.md): Heading and top-view alignment.
-- [**Body Calibration**](file:///c:/apps/toho_EGS/docs/template/setup/calibration/body_calibration_tab.md): Pitch, Roll, and Antenna offsets.
-- [**Boom Calibration**](file:///c:/apps/toho_EGS/docs/template/setup/calibration/boom_calibration_tab.md): Boom tilt and geometry.
-- [**Stick Calibration**](file:///c:/apps/toho_EGS/docs/template/setup/calibration/stick_calibration_tab.md): Stick tilt and geometry.
-- [**Attachment Calibration**](file:///c:/apps/toho_EGS/docs/template/setup/calibration/attachment_calibration_tab.md): Bucket, I-Link, and H-Link detailing.
+## 3. Top-Level Page Layout (`CalibrationPage`)
+- **Controller**: `DefaultTabController` with `length: 5`.
+- **Scaffold**:
+  - **AppBar**:
+    - Title: "EQUIPMENT CALIBRATION" with subtitle "EGS CALIBRATION V4.0.0".
+    - Actions: `StatusBar` (RS232 & Config status) + `ProfileWidget`.
+  - **TabBar**: Scrollable, highlighted with amber accent (`0xFFF59E0B` or similar theme accent).
+  - **Body**: `TabBarView` containing the 5 specialized tabs.
 
-## Communication Protocol
-Calibration actions use two primary OpCodes defined in `ProtocolService`:
-
-### 1. CALIBRATE (OpCode 0x52)
-Used for real-time sensor alignment (START/STOP) and reference setting.
-- **Payload**: `[Mode (1 byte), Value1 (4 bytes Float32)]`
-- **Logic**: Sent when "Calibrate", "Start", "Stop", or "Reset" buttons are pressed.
-
-### 2. SET_PARAM (OpCode 0x53)
-Used for saving static geometry values (Lengths, Offsets) to hardware memory.
-- **Payload**: `[Type (1 byte), Value (2 bytes Int16, Little Endian)]`
-- **Logic**: Sent when a Parameter Card is tapped and a new value is "Set" in the dialog.
-
----
-## UI Standard
-- **Layout**: 3:1 (Left: Reference Graphic & Controls, Right: Parameter List).
-- **Styling**: `Color(0xFF1E293B)` surfaces, `Color(0xFF2ECC71)` success/values, `Color(0xFFEF4444)` errors/stops.
-- **Components**: `StatusBar`, `Parameter Cards`, `FittedBox` images.
-- **TextField**: Disabled border, background `0xFF0F1410`.
-- **Validation**: Ensure values are correctly parsed as doubles before sending.
+## 4. Initialization & Cleanup
+- **onInit**: Call `presenter.setConfig(port)` to put MCU into configuration mode.
+- **onDispose**: Call `presenter.setNormal(port)` to return MCU to operational mode.
 
 ---
-> [!CAUTION]
-> Always verify that the "Config Active" indicator is green in the AppBar before sending calibration commands.
+
+## Related Tab Specifications
+- [Offset Calibration Tab](file:///c:/apps/toho_EGS/docs/template/setup/calibration/offset_calibration_tab.md)
+- [Body Calibration Tab](file:///c:/apps/toho_EGS/docs/template/setup/calibration/body_calibration_tab.md)
+- [Boom Calibration Tab](file:///c:/apps/toho_EGS/docs/template/setup/calibration/boom_calibration_tab.md)
+- [Stick Calibration Tab](file:///c:/apps/toho_EGS/docs/template/setup/calibration/stick_calibration_tab.md)
+- [Attachment Calibration Tab](file:///c:/apps/toho_EGS/docs/template/setup/calibration/attachment_calibration_tab.md)
