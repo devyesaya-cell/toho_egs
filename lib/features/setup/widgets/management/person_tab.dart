@@ -106,15 +106,17 @@ class _PersonTabState extends ConsumerState<PersonTab> {
                 if (persons.isEmpty)
                   Expanded(
                     child: Center(
-                      child: Builder(builder: (context) {
-                        final theme = AppTheme.of(context);
-                        return Text(
-                          _selectedFilter == 'ALL'
-                              ? 'No persons found.'
-                              : 'No persons found for this filter.',
-                          style: TextStyle(color: theme.textSecondary),
-                        );
-                      }),
+                      child: Builder(
+                        builder: (context) {
+                          final theme = AppTheme.of(context);
+                          return Text(
+                            _selectedFilter == 'ALL'
+                                ? 'No persons found.'
+                                : 'No persons found for this filter.',
+                            style: TextStyle(color: theme.textSecondary),
+                          );
+                        },
+                      ),
                     ),
                   )
                 else
@@ -177,20 +179,14 @@ class _PersonTabState extends ConsumerState<PersonTab> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected
-              ? theme.primaryButtonBackground
-              : theme.cardSurface,
+          color: isSelected ? theme.primaryButtonBackground : theme.cardSurface,
           borderRadius: BorderRadius.circular(20),
-          border: isSelected
-              ? null
-              : Border.all(color: theme.dividerColor),
+          border: isSelected ? null : Border.all(color: theme.dividerColor),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected
-                ? theme.primaryButtonText
-                : theme.textSecondary,
+            color: isSelected ? theme.primaryButtonText : theme.textSecondary,
             fontWeight: FontWeight.bold,
             fontSize: 12,
           ),
@@ -202,7 +198,7 @@ class _PersonTabState extends ConsumerState<PersonTab> {
   bool _canDelete(Person? currentUser, Person targetPerson) {
     if (currentUser == null) return false;
     // Only Admin can delete
-    if (currentUser.role != 'admin') return false;
+    if (currentUser.role!.toLowerCase() != 'admin') return false;
     // Admin cannot delete self
     if (currentUser.uid == targetPerson.uid) return false;
 

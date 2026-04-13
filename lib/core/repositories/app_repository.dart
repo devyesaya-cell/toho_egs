@@ -156,6 +156,10 @@ class AppRepository {
     });
   }
 
+  Future<WorkFile?> getWorkFileByUid(int uid) async {
+    return await _isar.workFiles.filter().uidEqualTo(uid).findFirst();
+  }
+
   Future<void> deleteWorkFile(int id, String fileID) async {
     await _isar.writeTxn(() async {
       // 1. Delete WorkFile
@@ -171,6 +175,10 @@ class AppRepository {
   // --- Equipment ---
   Future<List<Equipment>> getAllEquipment() async {
     return await _isar.equipments.where().findAll();
+  }
+
+  Future<Equipment?> getEquipmentByName(String name) async {
+    return await _isar.equipments.filter().equipNameEqualTo(name).findFirst();
   }
 
   Future<void> saveEquipment(Equipment equipment) async {
@@ -190,6 +198,10 @@ class AppRepository {
     return await _isar.areas.where().findAll();
   }
 
+  Future<Area?> getAreaByName(String name) async {
+    return await _isar.areas.filter().areaNameEqualTo(name).findFirst();
+  }
+
   Future<void> saveArea(Area area) async {
     await _isar.writeTxn(() async {
       await _isar.areas.put(area);
@@ -205,6 +217,10 @@ class AppRepository {
   // --- Contractor ---
   Future<List<Contractor>> getAllContractors() async {
     return await _isar.contractors.where().findAll();
+  }
+
+  Future<Contractor?> getContractorByName(String name) async {
+    return await _isar.contractors.filter().nameEqualTo(name).findFirst();
   }
 
   Future<void> saveContractor(Contractor contractor) async {

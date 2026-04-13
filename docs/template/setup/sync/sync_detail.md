@@ -4,7 +4,7 @@
 **Type**: Page (ConsumerStatefulWidget)
 
 ## 1. Overview
-The `SyncPage` provides a real-time dashboard for transmitting locally captured work records (Spots) to the Host network via WebSocket. It features a high-impact progress visualization on the left and a dynamic stream of data packets on the right.
+The `SyncPage` provides a real-time dashboard for transmitting locally captured work records (Spots) to the Host network via WebSocket. It features a high-impact progress visualization on the left and a dynamic history of activity logs on the right.
 
 ---
 
@@ -30,25 +30,25 @@ The `SyncPage` provides a real-time dashboard for transmitting locally captured 
   - `statusText` (`theme.textOnSurface`, `fontSize: 18`, `bold`).
   - Warning footer: "Automatic transmission active..." (`theme.textSecondary`, `fontSize: 13`).
 
-### Right Panel: Data Stream (Flex: 6)
+### Right Panel: Activity History (Flex: 6)
 - **Header**: 
-  - Title: "DATA PACKETS ([spots.length])" (`theme.textSecondary`).
+  - Title: "ACTIVITY LOGS ([logs.length])" (`theme.textSecondary`).
   - Live Indicator: "LIVE STREAM" with a blinking-capable dot (Green `0xFF2ECC71` when active, `theme.textSecondary` when idle).
-- **Body**: `ListView` (dynamic) iterating over `state.spots`.
+- **Body**: `ListView` (dynamic) iterating over `state.logs`.
 
 ---
 
-## 4. UI Data Model (WorkingSpot Mapping)
+## 4. UI Data Model (SyncLog Mapping)
 
-The right panel items are generated dynamically from the `WorkingSpot` model using the following design mapping:
+The right panel items are generated dynamically from the `SyncLog` model using the following design mapping:
 
 | UI Field | Mapping Logic / Source |
 | :--- | :--- |
-| **Title** | `Spot #[spotID] - [mode]` |
-| **Subtitle** | `File: [fileID] • Acc: [akurasi.toStringAsFixed(2)]m` |
-| **Icon** | `Icons.construction` (DIGGING), `Icons.minor_crash` (TRAVEL), or `Icons.location_on_outlined` (default) |
-| **Trailing Text** | Time formatted as `HH:mm` from `lastUpdate` |
-| **Status Logic** | **Completed**: `payloadSent` \| **Uploading**: `sendingPayload` (static 0.7 progress) \| **Waiting**: otherwise |
+| **Title** | `Sync Successful` or `Sync Failed` |
+| **Subtitle** | `[count] records transmitted` or `Error: [message]` |
+| **Icon** | `Icons.cloud_done` (Success) or `Icons.cloud_off` (Failed) |
+| **Trailing Text** | Time formatted as `HH:mm` from `timestamp` |
+| **Status Logic** | **Completed**: `isSuccess == true` \| **Waiting**: `isSuccess == false` |
 
 ---
 
@@ -68,7 +68,7 @@ The right panel items are generated dynamically from the `WorkingSpot` model usi
 
 ## 6. Verification Checklist
 - [ Yes ] 4:6 horizontal split is maintained using `Expanded`.
-- [ Yes ] `DATA PACKETS` count accurately reflects `state.spots.length`.
+- [ Yes ] `ACTIVITY LOGS` count accurately reflects `state.logs.length`.
 - [ Yes ] Live Stream indicator turns green only when connected (`!idle && !error`).
-- [ Yes ] WorkingSpot `mode` logic correctly switches Icons (Construction vs Crash vs Location).
+- [ Yes ] SyncLog `isSuccess` logic correctly switches Icons (cloud_done vs cloud_off).
 - [ Yes ] Progress value is clamped between 0.0 and 1.0.

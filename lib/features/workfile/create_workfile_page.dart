@@ -105,11 +105,24 @@ class _CreateWorkfilePageState extends ConsumerState<CreateWorkfilePage> {
                       _buildDropdown<String>(
                         label: 'SPACING',
                         value: state.selectedSpacing,
-                        items: ['4x1.87', '4x1.5', '3x2', '3x2.5']
-                            .map(
-                              (s) => DropdownMenuItem(value: s, child: Text(s)),
-                            )
-                            .toList(),
+                        items:
+                            [
+                                  '4x1.87',
+                                  '4x1.5',
+                                  '3x2.5',
+                                  '3x2',
+                                  '2.5x2.5',
+                                  '5x2',
+                                  '6x2',
+                                  'Custom',
+                                ]
+                                .map(
+                                  (s) => DropdownMenuItem(
+                                    value: s,
+                                    child: Text(s),
+                                  ),
+                                )
+                                .toList(),
                         onChanged: (value) => notifier.selectSpacing(value),
                       ),
                       const SizedBox(height: 32),

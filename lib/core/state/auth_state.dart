@@ -4,6 +4,19 @@ import '../models/workfile.dart';
 
 enum SystemMode { spot, crumbling, maintenance }
 
+extension SystemModeExtension on SystemMode {
+  String get stableName {
+    switch (this) {
+      case SystemMode.spot:
+        return 'SPOT';
+      case SystemMode.crumbling:
+        return 'CRUMBLING';
+      case SystemMode.maintenance:
+        return 'MAINTENANCE';
+    }
+  }
+}
+
 class AuthState {
   final Person? currentUser;
   final SystemMode mode;

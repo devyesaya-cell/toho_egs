@@ -30,7 +30,14 @@ class Person {
   @Index()
   String? role;
 
-  String? equipment; // Linked to Equipment.equipName or similar
+  String? username;
+  String? email;
+  String? fullname;
+  String? status;
+  List<String>? groupId;
+  String? created;
+
+  String? equipment;
 
   Person({
     this.uid,
@@ -45,9 +52,63 @@ class Person {
     this.loginState,
     this.lastLogin,
     this.role,
+    this.username,
+    this.email,
+    this.fullname,
+    this.status,
+    this.groupId,
+    this.created,
     this.equipment,
     this.lastUpdate,
   });
+
+  factory Person.fromJson(Map<String, dynamic> json) {
+    final fullname = json['fullname']?.toString();
+    final parts = fullname?.split(' ') ?? [];
+    return Person(
+      uid: json['uid']?.toString(),
+      username: json['username']?.toString(),
+      email: json['email']?.toString(),
+      fullname: fullname,
+      role: json['role']?.toString(),
+      status: json['status']?.toString(),
+      groupId: (json['groupId'] as List?)?.map((e) => e.toString()).toList(),
+      created: json['created']?.toString(),
+      lastUpdate: _parseTimestamp(json['lastUpdate']),
+      // Legacy mapping support
+      firstName: parts.isNotEmpty ? parts.first : null,
+      lastName: parts.length > 1 ? parts.skip(1).join(' ') : null,
+      user: json['username']?.toString(),
+      loginState: json['status']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'uid': uid,
+      'username': username,
+      'email': email,
+      'fullname': fullname,
+      'role': role,
+      'status': status,
+      'groupId': groupId,
+      'created': created,
+      'lastUpdate': lastUpdate?.toString(),
+    };
+  }
+
+  static int? _parseTimestamp(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is String) {
+      try {
+        return DateTime.parse(value).millisecondsSinceEpoch ~/ 1000;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  }
 
   @Index()
   int? lastUpdate;

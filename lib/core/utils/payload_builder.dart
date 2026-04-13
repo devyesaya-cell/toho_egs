@@ -5,6 +5,10 @@ class PayloadBuilder {
   static Uint8List buildSyncPayload({
     required int packageId,
     required List<WorkingSpot> workingSpots,
+    int companyID = 0,
+    int operatorID = 0,
+    int areaID = 0,
+    int equipmentID = 0,
   }) {
     // Determine the number of records
     final int recordCount = workingSpots.length;
@@ -26,20 +30,20 @@ class PayloadBuilder {
     byteData.setUint16(offset, packageId, endian);
     offset += 2;
 
-    // 2-3: companyID (uint16_t: 2 bytes) -> 0
-    byteData.setUint16(offset, 0, endian);
+    // 2-3: companyID (uint16_t: 2 bytes)
+    byteData.setUint16(offset, companyID, endian);
     offset += 2;
 
-    // 4-5: operatorID (uint16_t: 2 bytes) -> 0
-    byteData.setUint16(offset, 0, endian);
+    // 4-5: operatorID (uint16_t: 2 bytes)
+    byteData.setUint16(offset, operatorID, endian);
     offset += 2;
 
-    // 6-7: areaID (uint16_t: 2 bytes) -> 0
-    byteData.setUint16(offset, 0, endian);
+    // 6-7: areaID (uint16_t: 2 bytes)
+    byteData.setUint16(offset, areaID, endian);
     offset += 2;
 
-    // 8-9: equipmentID (uint16_t: 2 bytes) -> 0
-    byteData.setUint16(offset, 0, endian);
+    // 8-9: equipmentID (uint16_t: 2 bytes)
+    byteData.setUint16(offset, equipmentID, endian);
     offset += 2;
 
     // 10-13: timestamp (uint32_t: 4 bytes) -> epoch time in second

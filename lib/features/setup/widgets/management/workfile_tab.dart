@@ -77,8 +77,9 @@ class WorkfileTab extends ConsumerWidget {
 
   bool _canDelete(Person? currentUser) {
     if (currentUser == null) return false;
+    final role = currentUser.role?.toLowerCase();
     // Admin and Supervisor can delete
-    return currentUser.role == 'admin' || currentUser.role == 'supervisor';
+    return role == 'admin' || role == 'supervisor';
   }
 
   Future<void> _confirmDelete(

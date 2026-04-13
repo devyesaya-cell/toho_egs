@@ -247,7 +247,7 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
     // Get Auth Context
     final auth = ref.read(authProvider);
     final driverID = auth.currentUser?.uid ?? '';
-    final systemMode = auth.mode.name.toUpperCase(); // 'SPOT' or 'CRUMBLING'
+    final systemMode = auth.mode.stableName; // 'SPOT' or 'CRUMBLING'
     final fileID = _filter.selectedFileID ?? '';
 
     final activeWorkfile = workfiles.firstWhere(

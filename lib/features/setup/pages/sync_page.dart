@@ -157,7 +157,68 @@ class _SyncPageState extends ConsumerState<SyncPage> {
                 color: theme.textSecondary, fontSize: 13, height: 1.5),
             textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionButton(
+                  context,
+                  ref,
+                  'SYNC DATA',
+                  Icons.sync,
+                  () => ref
+                      .read(syncPresenterProvider.notifier)
+                      .syncDatabase(),
+                  theme,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionButton(
+                  context,
+                  ref,
+                  'GET WORK',
+                  Icons.file_download,
+                  () => ref
+                      .read(syncPresenterProvider.notifier)
+                      .getWorkfile(),
+                  theme,
+                ),
+              ),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton(
+    BuildContext context,
+    WidgetRef ref,
+    String label,
+    IconData icon,
+    VoidCallback onPressed,
+    AppThemeData theme,
+  ) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 18),
+      label: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
+        ),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF2ECC71),
+        foregroundColor: Colors.black,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 0,
       ),
     );
   }
@@ -175,7 +236,7 @@ class _SyncPageState extends ConsumerState<SyncPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'DATA PACKETS (${state.spots.length})',
+              'ACTIVITY LOGS (${state.logs.length})',
               style: TextStyle(
                 color: theme.textSecondary,
                 fontWeight: FontWeight.bold,
@@ -210,37 +271,29 @@ class _SyncPageState extends ConsumerState<SyncPage> {
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: state.spots.isEmpty
+          child: state.logs.isEmpty
               ? Center(
                   child: Text(
-                    'No data records to sync.',
+                    'No activity logs yet.',
                     style: TextStyle(color: theme.textSecondary, fontSize: 14),
                   ),
                 )
               : ListView.separated(
-                  itemCount: state.spots.length,
+                  itemCount: state.logs.length,
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final spot = state.spots[index];
-                    final isSent = state.status == SyncConnectionStatus.payloadSent;
-                    final isSending = state.status == SyncConnectionStatus.sendingPayload;
-
-                    // Design Model Mapping
-                    IconData icon = Icons.location_on_outlined;
-                    if (spot.mode == 'DIGGING') icon = Icons.construction;
-                    if (spot.mode == 'TRAVEL') icon = Icons.minor_crash;
+                    final log = state.logs[index];
 
                     return _buildPacketItem(
                       theme: theme,
-                      title: 'Spot #${spot.spotID} - ${spot.mode ?? 'UNKNOWN'}',
-                      subtitle: 'File: ${spot.fileID ?? 'N/A'} • Acc: ${spot.akurasi?.toStringAsFixed(2) ?? '0.00'}m',
-                      icon: icon,
-                      status: isSent
-                          ? PacketStatus.completed
-                          : (isSending ? PacketStatus.uploading : PacketStatus.waiting),
-                      progress: isSending ? 0.7 : null, // Static indicator of activity
-                      trailingText: _formatSyncTime(spot.lastUpdate ?? 0),
+                      title: log.isSuccess ? 'Sync Successful' : 'Sync Failed',
+                      subtitle: log.isSuccess 
+                          ? '${log.spotsCount} records transmitted'
+                          : 'Error: ${log.errorMessage ?? "Unknown error"}',
+                      icon: log.isSuccess ? Icons.cloud_done : Icons.cloud_off,
+                      status: log.isSuccess ? PacketStatus.completed : PacketStatus.waiting,
+                      trailingText: _formatSyncTime(log.timestamp.millisecondsSinceEpoch ~/ 1000),
                     );
                   },
                 ),

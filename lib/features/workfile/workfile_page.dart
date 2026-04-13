@@ -17,7 +17,7 @@ class WorkfilePage extends ConsumerWidget {
     final theme = AppTheme.of(context);
     final repo = ref.watch(appRepositoryProvider);
     final authState = ref.watch(authProvider);
-    final currentSystemMode = authState.mode.name.toUpperCase();
+    final currentSystemMode = authState.mode.stableName;
     final workfilesStream = repo.watchWorkFiles();
 
     return Scaffold(

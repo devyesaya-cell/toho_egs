@@ -22,7 +22,7 @@ class _MapPageState extends ConsumerState<MapPage> {
   bool _showMenu = false;
   MapController? _controller;
   // Using a public demo style for initialization
-  // final String _styleString = 'https://demotiles.maplibre.org/style.json';
+  final String _styleString = 'assets/map_styles/smf_style.json';
 
   bool _hasInitialCenter = false;
 
@@ -117,9 +117,9 @@ class _MapPageState extends ConsumerState<MapPage> {
                       .addExcavatorLayers(_controller!);
                 }
               },
-              options: const MapOptions(
-                // styleString: _styleString,
-                initCenter: Geographic(lon: 106.8456, lat: -6.2088),
+              options: MapOptions(
+                initStyle: _styleString,
+                initCenter: const Geographic(lon: 106.8456, lat: -6.2088),
                 initZoom: _defaultZoom,
                 initBearing: 0,
               ),
@@ -171,11 +171,13 @@ class _MapPageState extends ConsumerState<MapPage> {
                         // _controller?.easeCamera(CameraUpdate.zoomIn()); ??
                         // Reference used explicit moveCamera.
                         // Let's just mock zoom in
-                        _toZoom(
-                          21.2,
-                          mapState.currentLng!,
-                          mapState.currentLat!,
-                        );
+                        if (mapState.currentLng != null && mapState.currentLat != null) {
+                          _toZoom(
+                            21.2,
+                            mapState.currentLng!,
+                            mapState.currentLat!,
+                          );
+                        }
                       }
                     },
                   ),
@@ -184,7 +186,9 @@ class _MapPageState extends ConsumerState<MapPage> {
                   _buildFloatingButton(
                     icon: Icons.zoom_out,
                     onPressed: () {
-                      _toZoom(19.0, mapState.currentLng!, mapState.currentLat!);
+                      if (mapState.currentLng != null && mapState.currentLat != null) {
+                        _toZoom(19.0, mapState.currentLng!, mapState.currentLat!);
+                      }
                     },
                   ),
                   const SizedBox(height: 10),
@@ -193,6 +197,7 @@ class _MapPageState extends ConsumerState<MapPage> {
                     icon: mapState.isWorkMode ? Icons.stop : Icons.play_arrow,
                     color: mapState.isWorkMode ? Colors.red : Colors.green,
                     onPressed: () {
+                      // NOTE: Mock data logic has been deactivated in MapPresenter.
                       ref
                           .read(mapPresenterProvider.notifier)
                           .toggleWorkMode(_controller);

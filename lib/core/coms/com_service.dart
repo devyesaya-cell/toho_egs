@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:usb_serial/transaction.dart';
 import 'package:usb_serial/usb_serial.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -116,11 +117,11 @@ class ComService extends Notifier<UsbState> {
   Future<bool> connectToHostWebSocket({int port = 8080}) async {
     try {
       // On Android connected to a hotspot, the Gateway IP is usually the Hotspot owner
-      // final info = NetworkInfo();
-      // String? gatewayIp = await info.getWifiGatewayIP();
-      const String gatewayIp = "192.168.100.69";
+      final info = NetworkInfo();
+      String? gatewayIp = await info.getWifiGatewayIP();
+      // const String gatewayIp = "[IP_ADDRESS]";
 
-      if (gatewayIp.isEmpty) {
+      if (gatewayIp == null) {
         debugPrint(
           "Failed to get Gateway IP. Reverting to manual entry or aborting.",
         );
@@ -163,6 +164,22 @@ class ComService extends Notifier<UsbState> {
       debugPrint("WebSocket Connection Failed: $e");
       _handleWsDisconnect();
       return false;
+    }
+  }
+
+  /// Sends a raw string over the active WebSocket channel.
+  void sendString(String message) {
+    if (_wsChannel != null && state.isWsConnected) {
+      try {
+        _wsChannel!.sink.add(message);
+        debugPrint("WebSocket String Sent: $message");
+      } catch (e) {
+        debugPrint("WebSocket Send String Error: $e");
+      }
+    } else {
+      debugPrint(
+        "Attempted to send WebSocket string but connection is not active.",
+      );
     }
   }
 

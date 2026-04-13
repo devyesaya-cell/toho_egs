@@ -38,16 +38,21 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
   @override
   void initState() {
     super.initState();
-    _firstNameController =
-        TextEditingController(text: widget.person?.firstName ?? '');
-    _lastNameController =
-        TextEditingController(text: widget.person?.lastName ?? '');
-    _driverIdController =
-        TextEditingController(text: widget.person?.driverID ?? '');
-    _passwordController =
-        TextEditingController(text: widget.person?.password ?? '');
-    _picUrlController =
-        TextEditingController(text: widget.person?.picURL ?? '');
+    _firstNameController = TextEditingController(
+      text: widget.person?.firstName ?? '',
+    );
+    _lastNameController = TextEditingController(
+      text: widget.person?.lastName ?? '',
+    );
+    _driverIdController = TextEditingController(
+      text: widget.person?.driverID ?? '',
+    );
+    _passwordController = TextEditingController(
+      text: widget.person?.password ?? '',
+    );
+    _picUrlController = TextEditingController(
+      text: widget.person?.picURL ?? '',
+    );
 
     _selectedContractor = widget.person?.kontraktor;
     _selectedEquipment = widget.person?.equipment;
@@ -66,7 +71,7 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
 
   Future<void> _save() async {
     final personToSave = widget.person ?? Person();
-    final uid = DateTime.now().millisecondsSinceEpoch.toString();
+    // final uid = DateTime.now().millisecondsSinceEpoch.toString();
 
     personToSave
       ..firstName = _firstNameController.text
@@ -81,7 +86,7 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
       ..lastLogin = DateTime.now().millisecondsSinceEpoch
       ..loginState = 'ON'
       ..user = _firstNameController.text.toLowerCase()
-      ..uid = uid;
+      ..uid = personToSave.uid;
 
     await ref.read(appRepositoryProvider).savePerson(personToSave);
 
@@ -145,8 +150,7 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                 ),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon:
-                      Icon(Icons.close, color: theme.textSecondary),
+                  icon: Icon(Icons.close, color: theme.textSecondary),
                 ),
               ],
             ),
@@ -199,8 +203,7 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                                   )
                                 else
                                   Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
                                         Icons.camera_alt_outlined,
@@ -222,10 +225,8 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                                   child: Material(
                                     color: Colors.transparent,
                                     child: InkWell(
-                                      borderRadius:
-                                          BorderRadius.circular(12),
-                                      onTap: () =>
-                                          _showImagePickerModal(theme),
+                                      borderRadius: BorderRadius.circular(12),
+                                      onTap: () => _showImagePickerModal(theme),
                                     ),
                                   ),
                                 ),
@@ -241,8 +242,7 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                                     ),
                                     decoration: BoxDecoration(
                                       color: theme.primaryButtonBackground,
-                                      borderRadius:
-                                          BorderRadius.circular(20),
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Text(
                                       'READY',
@@ -286,14 +286,20 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                             children: [
                               Expanded(
                                 child: _buildTextField(
-                                    theme, 'FIRST NAME', _firstNameController,
-                                    hint: 'e.g. Jonas'),
+                                  theme,
+                                  'FIRST NAME',
+                                  _firstNameController,
+                                  hint: 'e.g. Jonas',
+                                ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: _buildTextField(
-                                    theme, 'LAST NAME', _lastNameController,
-                                    hint: 'e.g. Lindholm'),
+                                  theme,
+                                  'LAST NAME',
+                                  _lastNameController,
+                                  hint: 'e.g. Lindholm',
+                                ),
                               ),
                             ],
                           ),
@@ -306,11 +312,9 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                           ),
                           Row(
                             children: [
-                              Expanded(
-                                  child: _buildContractorDropdown(theme)),
+                              Expanded(child: _buildContractorDropdown(theme)),
                               const SizedBox(width: 16),
-                              Expanded(
-                                  child: _buildEquipmentDropdown(theme)),
+                              Expanded(child: _buildEquipmentDropdown(theme)),
                               const SizedBox(width: 16),
                               Expanded(child: _buildRoleDropdown(theme)),
                             ],
@@ -356,8 +360,7 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.primaryButtonBackground,
                       foregroundColor: theme.primaryButtonText,
-                      textStyle:
-                          const TextStyle(fontWeight: FontWeight.bold),
+                      textStyle: const TextStyle(fontWeight: FontWeight.bold),
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -492,8 +495,6 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
     );
   }
 
-
-
   Widget _buildContractorDropdown(AppThemeData theme) {
     return FutureBuilder<List<Contractor>>(
       future: ref.read(appRepositoryProvider).getAllContractors(),
@@ -530,7 +531,9 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                     borderSide: BorderSide(color: theme.inputBorder),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 16),
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                 ),
                 items: contractors.map((c) {
                   return DropdownMenuItem<String>(
@@ -588,7 +591,9 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                     borderSide: BorderSide(color: theme.inputBorder),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 16),
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                 ),
                 items: equipments.map((e) {
                   return DropdownMenuItem<String>(
@@ -612,7 +617,11 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
 
   Widget _buildRoleDropdown(AppThemeData theme) {
     final items = <String>[
-      'Operator', 'Helper', 'Supervisor', 'Engineer', 'Admin',
+      'Operator',
+      'Helper',
+      'Supervisor',
+      'Engineer',
+      'Admin',
     ];
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
@@ -645,11 +654,12 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                 borderSide: BorderSide(color: theme.inputBorder),
               ),
               contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 16),
+                horizontal: 16,
+                vertical: 16,
+              ),
             ),
             items: items
-                .map((e) =>
-                    DropdownMenuItem<String>(value: e, child: Text(e)))
+                .map((e) => DropdownMenuItem<String>(value: e, child: Text(e)))
                 .toList(),
             onChanged: (value) => setState(() => _selectedRole = value),
             hint: Text(
@@ -661,6 +671,4 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
       ),
     );
   }
-
-
 }

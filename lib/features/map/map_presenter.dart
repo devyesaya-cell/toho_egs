@@ -210,7 +210,6 @@ class MapPresenter extends Notifier<MapState> {
   Timer? _paramTimer;
   Timer? _mockSpotTimer;
   Timer? _timesheetTimer;
-  // int _mockSpotIndex = 0;
   List<WorkingSpot> _loadedSpots = [];
   List<WorkingSpot> _cachedNearbySpots = [];
   DateTime? _spotInRangeSince;
@@ -257,7 +256,9 @@ class MapPresenter extends Notifier<MapState> {
     state = state.copyWith(isWorkMode: newMode);
 
     if (newMode) {
-      // _startMocking(controller); // Mock data disabled per user request
+      // NOTE: Mock data logic is disabled for production. 
+      // Re-enable below for debugging if needed.
+      // _startMocking(controller);
     } else {
       _stopMocking();
     }
@@ -267,8 +268,7 @@ class MapPresenter extends Notifier<MapState> {
     state = state.copyWith(spotCompletionDelay: seconds);
   }
 
-  // --- Mock logic disabled per user request ---
-  /*
+  // TODO: PROD_RELEASE: Remove this mock method for production release.
   void _startMocking(maplibre.MapController? controller) {
     if (_mockSpotTimer != null && _mockSpotTimer!.isActive) return;
 
@@ -281,7 +281,9 @@ class MapPresenter extends Notifier<MapState> {
         final fileID = activeWorkfile.uid.toString();
 
         final isar = DatabaseService().isar;
-        // Filter by fileID and status == 0
+        
+        // Ambil spot dengan status 0 (pending) berdasarkan fileID
+        // Urutkan berdasarkan ID (index terkecil dahulu)
         final spots = await isar.workingSpots
             .filter()
             .fileIDEqualTo(fileID)
@@ -289,35 +291,36 @@ class MapPresenter extends Notifier<MapState> {
             .findAll();
 
         if (spots.isEmpty) return;
+        
+        // Sort explicitly by ID ascending to ensure "index terkecil lebih dahulu"
+        spots.sort((a, b) => a.id.compareTo(b.id));
 
-        // Loop back to 0 if out of bounds
-        if (_mockSpotIndex >= spots.length) {
-          _mockSpotIndex = 0;
-        }
+        // Ambil spot pertama dari hasil filter status 0
+        final targetSpot = spots.first;
 
-        final targetSpot = spots[_mockSpotIndex];
+        // Jika spot sudah dikerjakan, lewati saja dan lanjut index berikutnya.
+        // Tapi perintahnya: "ubah status workingspot menjadi 1 mulai dari index pertama".
+        if (targetSpot.status != 1) {
+          targetSpot.lastUpdate = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+          targetSpot.status = 1;
+          targetSpot.akurasi = 4.0 + (math.Random().nextDouble() * 6.0);
 
-        // Update fields: lastUpdate -> date now, status -> 1, akurasi -> random 4-10
-        targetSpot.lastUpdate = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-        targetSpot.status = 1;
-        targetSpot.akurasi = 4.0 + (math.Random().nextDouble() * 6.0);
+          await isar.writeTxn(() async {
+            await isar.workingSpots.put(targetSpot);
+          });
+          
+          state = state.copyWith(spotDone: state.spotDone + 1);
 
-        await isar.writeTxn(() async {
-          await isar.workingSpots.put(targetSpot);
-        });
-
-        _mockSpotIndex++;
-
-        // Refresh UI points on map
-        if (controller != null) {
-          loadSpots(controller);
+          // Refresh UI points on map supaya spot jadi hijau (status 1)
+          if (controller != null) {
+            loadSpots(controller);
+          }
         }
       } catch (e) {
-        print("Mock Spot Timer Error: $e");
+        print("Mock Spot Timer Error: \$e");
       }
     });
   }
-  */
 
   void _stopMocking() {
     _mockSpotTimer?.cancel();
@@ -479,7 +482,7 @@ class MapPresenter extends Notifier<MapState> {
 
         // Mode check for logic branches
         final auth = ref.read(authProvider);
-        final systemMode = auth.mode.name.toUpperCase();
+        final systemMode = auth.mode.stableName;
 
         if (systemMode == 'CRUMBLING') {
           // ==================
@@ -919,7 +922,8 @@ class MapPresenter extends Notifier<MapState> {
 
   Future<void> addExcavatorLayers(maplibre.MapController controller) async {
     try {
-      if (controller.style == null) return;
+      final style = controller.style;
+      if (style == null) return;
 
       // Initialize empty sources or dummy data to prevent errors before first GPS update
       // Just waiting for the first update is often better, but we need definitions.
@@ -930,11 +934,11 @@ class MapPresenter extends Notifier<MapState> {
       });
 
       // 0. Spots Source & Layer (Bottom Layer)
-      await controller.style!.addSource(
+      await style.addSource(
         maplibre.GeoJsonSource(id: 'spots_source', data: emptyGeoJson),
       );
 
-      await controller.style!.addLayer(
+      await style.addLayer(
         const maplibre.CircleStyleLayer(
           id: 'spots_layer',
           sourceId: 'spots_source',
@@ -953,7 +957,7 @@ class MapPresenter extends Notifier<MapState> {
         ),
       );
 
-      await controller.style!.addLayer(
+      await style.addLayer(
         const maplibre.LineStyleLayer(
           id: 'crumbling_line_layer',
           sourceId: 'spots_source',
@@ -973,17 +977,15 @@ class MapPresenter extends Notifier<MapState> {
       );
 
       // Load initial spots
-      // We can't await this blocking if it takes time, but for now it's fine.
-      // Better to call it unawaited or let it update async.
       loadSpots(controller);
 
       // 1. Excavator Body/Tracks Source
-      await controller.style!.addSource(
+      await style.addSource(
         maplibre.GeoJsonSource(id: 'exca_body_source', data: emptyGeoJson),
       );
 
       // 2. Body Layer
-      await controller.style!.addLayer(
+      await style.addLayer(
         const maplibre.FillStyleLayer(
           id: 'exca_body_layer',
           sourceId: 'exca_body_source',
@@ -993,7 +995,7 @@ class MapPresenter extends Notifier<MapState> {
       );
 
       // 3. Tracks Layer
-      await controller.style!.addLayer(
+      await style.addLayer(
         const maplibre.FillStyleLayer(
           id: 'exca_tracks_layer',
           sourceId: 'exca_body_source',
@@ -1002,23 +1004,12 @@ class MapPresenter extends Notifier<MapState> {
         ),
       );
 
-      // 4. Cockpit/Arm Source (If separate, but we can combine if needed. The reference kept them separate?)
-      // The reference used 'excavator_source' for base, cockpit, arm.
-      // Let's use 'exca_upper_source' for rotating parts (cockpit, arm) vs 'exca_body_source' for tracks/chassis?
-      // Actually, in an excavator, the tracks/chassis stay aligned with the heading, but the cabin/arm rotates with the "Swing"?
-      // Wait, GPS heading usually gives the "Machine Heading" (tracks).
-      // Does the GPS data give "Swing" or "Azimuth"?
-      // `GPSLoc` has `heading`. Is this tracks or cabin?
-      // The reference `addBodyML` uses `gps.heading`. `addCockpitML` ALSO uses `gps.heading`.
-      // If both use the same heading, they move together.
-      // For now, I will follow the reference and separate sources 'exca_body_source' and 'excavator_source' (cockpit/arm).
-
-      await controller.style!.addSource(
+      await style.addSource(
         maplibre.GeoJsonSource(id: 'excavator_source', data: emptyGeoJson),
       );
 
       // Base (Cockpit Base)
-      await controller.style!.addLayer(
+      await style.addLayer(
         const maplibre.FillStyleLayer(
           id: 'base_layer',
           sourceId: 'excavator_source',
@@ -1028,7 +1019,7 @@ class MapPresenter extends Notifier<MapState> {
       );
 
       // Cockpit
-      await controller.style!.addLayer(
+      await style.addLayer(
         const maplibre.FillStyleLayer(
           id: 'cockpit_layer',
           sourceId: 'excavator_source',
@@ -1038,8 +1029,8 @@ class MapPresenter extends Notifier<MapState> {
       );
 
       // Arm
-      await controller.style!.addLayer(
-        maplibre.FillStyleLayer(
+      await style.addLayer(
+        const maplibre.FillStyleLayer(
           id: 'arm_layer',
           sourceId: 'excavator_source',
           paint: {'fill-color': '#808080'},
@@ -1048,12 +1039,12 @@ class MapPresenter extends Notifier<MapState> {
       );
 
       // Attachment Source & Layer
-      await controller.style!.addSource(
+      await style.addSource(
         maplibre.GeoJsonSource(id: 'attach_source', data: emptyGeoJson),
       );
 
-      await controller.style!.addLayer(
-        maplibre.FillStyleLayer(
+      await style.addLayer(
+        const maplibre.FillStyleLayer(
           id: 'attach_layer',
           sourceId: 'attach_source',
           paint: {'fill-color': '#E78A00'}, // Example color
@@ -1061,11 +1052,11 @@ class MapPresenter extends Notifier<MapState> {
       );
 
       // Guidance Line Source & Layer (Bucket to Target)
-      await controller.style!.addSource(
+      await style.addSource(
         maplibre.GeoJsonSource(id: 'guidance_line_source', data: emptyGeoJson),
       );
 
-      await controller.style!.addLayer(
+      await style.addLayer(
         const maplibre.LineStyleLayer(
           id: 'guidance_line_layer',
           sourceId: 'guidance_line_source',
@@ -1078,6 +1069,7 @@ class MapPresenter extends Notifier<MapState> {
       );
     } catch (e) {
       print('Error adding excavator layers: $e');
+      NotificationService.showError('Failed to initialize map layers');
     }
   }
 
@@ -1085,24 +1077,25 @@ class MapPresenter extends Notifier<MapState> {
     maplibre.MapController controller,
     GPSLoc gps,
   ) async {
-    if (controller.style == null) return;
+    final style = controller.style;
+    if (style == null) return;
     // Update Body (Tracks)
-    await _updateBody(controller, gps);
+    await _updateBody(style, gps);
     // Update Upper Structure (Cockpit, Arm)
-    await _updateCockpit(controller, gps);
+    await _updateCockpit(style, gps);
     // Update Attachment
-    await _updateAttachment(controller, gps);
+    await _updateAttachment(style, gps);
     // Update Guidance Line
-    await _updateGuidanceLine(controller, gps);
+    await _updateGuidanceLine(style, gps);
   }
 
   Future<void> _updateGuidanceLine(
-    maplibre.MapController controller,
+    maplibre.StyleController style,
     GPSLoc gps,
   ) async {
     try {
       final auth = ref.read(authProvider);
-      final systemMode = auth.mode.name.toUpperCase();
+      final systemMode = auth.mode.stableName;
 
       List<List<double>> lineCoords = [];
 
@@ -1154,14 +1147,14 @@ class MapPresenter extends Notifier<MapState> {
           ],
         };
 
-        await controller.style!.updateGeoJsonSource(
+        await style.updateGeoJsonSource(
           id: "guidance_line_source",
           data: jsonEncode(geoJson),
         );
       } else {
         // Clear the line
         final emptyGeoJson = {"type": "FeatureCollection", "features": []};
-        await controller.style!.updateGeoJsonSource(
+        await style.updateGeoJsonSource(
           id: "guidance_line_source",
           data: jsonEncode(emptyGeoJson),
         );
@@ -1172,7 +1165,7 @@ class MapPresenter extends Notifier<MapState> {
   }
 
   Future<void> _updateBody(
-    maplibre.MapController controller,
+    maplibre.StyleController style,
     GPSLoc gps,
   ) async {
     try {
@@ -1333,7 +1326,7 @@ class MapPresenter extends Notifier<MapState> {
         ],
       };
 
-      await controller.style!.updateGeoJsonSource(
+      await style.updateGeoJsonSource(
         id: "exca_body_source",
         data: jsonEncode(geoJson),
       );
@@ -1343,7 +1336,7 @@ class MapPresenter extends Notifier<MapState> {
   }
 
   Future<void> _updateAttachment(
-    maplibre.MapController controller,
+    maplibre.StyleController style,
     GPSLoc gps,
   ) async {
     try {
@@ -1367,7 +1360,7 @@ class MapPresenter extends Notifier<MapState> {
         ],
       };
 
-      await controller.style!.updateGeoJsonSource(
+      await style.updateGeoJsonSource(
         id: "attach_source",
         data: jsonEncode(geoJson),
       );
@@ -1377,7 +1370,7 @@ class MapPresenter extends Notifier<MapState> {
   }
 
   Future<void> _updateCockpit(
-    maplibre.MapController controller,
+    maplibre.StyleController style,
     GPSLoc gps,
   ) async {
     try {
@@ -1510,7 +1503,7 @@ class MapPresenter extends Notifier<MapState> {
         ],
       };
 
-      await controller.style!.updateGeoJsonSource(
+      await style.updateGeoJsonSource(
         id: "excavator_source",
         data: jsonEncode(geoJson),
       );
@@ -1525,7 +1518,7 @@ class MapPresenter extends Notifier<MapState> {
       final auth = ref.read(authProvider);
       final activeFile = auth.activeWorkfile;
       final driver = auth.currentUser;
-      final systemMode = auth.mode.name.toUpperCase();
+      final systemMode = auth.mode.stableName;
 
       if (activeFile == null || driver == null) {
         return; // Wait until session is ready
@@ -1544,6 +1537,9 @@ class MapPresenter extends Notifier<MapState> {
           .modeEqualTo(systemMode)
           .findAll();
 
+      // Ensure spots are sorted by ID for consistent logic across the app
+      spots.sort((a, b) => a.id.compareTo(b.id));
+
       // Store in memory for proximity targeting
       _loadedSpots = spots;
 
@@ -1557,8 +1553,9 @@ class MapPresenter extends Notifier<MapState> {
       if (spots.isEmpty) {
         // Clear map if spots are empty
         final emptyGeoJson = {"type": "FeatureCollection", "features": []};
-        if (controller.style != null) {
-          await controller.style!.updateGeoJsonSource(
+        final style = controller.style;
+        if (style != null) {
+          await style.updateGeoJsonSource(
             id: "spots_source",
             data: jsonEncode(emptyGeoJson),
           );
@@ -1637,8 +1634,9 @@ class MapPresenter extends Notifier<MapState> {
 
       final geoJson = {"type": "FeatureCollection", "features": features};
 
-      if (controller.style != null) {
-        await controller.style!.updateGeoJsonSource(
+      final style = controller.style;
+      if (style != null) {
+        await style.updateGeoJsonSource(
           id: "spots_source",
           data: jsonEncode(geoJson),
         );

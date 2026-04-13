@@ -158,7 +158,8 @@ class ContractorTab extends ConsumerWidget {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFEF4444)),
+                backgroundColor: const Color(0xFFEF4444),
+              ),
               child: const Text('Delete'),
             ),
           ],
@@ -220,13 +221,13 @@ class _ContractorEditDialogState extends State<_ContractorEditDialog> {
     final contractorToSave = widget.contractor ?? Contractor();
 
     contractorToSave
-      ..uid = now.millisecondsSinceEpoch.toString()
+      // ..uid = now.millisecondsSinceEpoch.toString()
       ..name = name
       ..sector = _sectorController.text.trim()
       ..area = _areaController.text.trim()
       ..numberEquipment = double.tryParse(_numEquipmentController.text) ?? 0
       ..numberOperator = double.tryParse(_numOperatorController.text) ?? 0
-      ..lastUpdate = now.millisecondsSinceEpoch;
+      ..lastUpdate = now.millisecondsSinceEpoch ~/ 1000;
 
     await widget.ref
         .read(appRepositoryProvider)
@@ -283,14 +284,21 @@ class _ContractorEditDialogState extends State<_ContractorEditDialog> {
             const SizedBox(height: 16),
 
             // Form fields
-            _buildField(theme, 'NAME', _nameController,
-                hint: 'e.g. PT. Maju Jaya'),
+            _buildField(
+              theme,
+              'NAME',
+              _nameController,
+              hint: 'e.g. PT. Maju Jaya',
+            ),
             const SizedBox(height: 16),
-            _buildField(theme, 'SECTOR', _sectorController,
-                hint: 'e.g. Mining'),
+            _buildField(
+              theme,
+              'SECTOR',
+              _sectorController,
+              hint: 'e.g. Mining',
+            ),
             const SizedBox(height: 16),
-            _buildField(theme, 'AREA', _areaController,
-                hint: 'e.g. Block A'),
+            _buildField(theme, 'AREA', _areaController, hint: 'e.g. Block A'),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -343,8 +351,7 @@ class _ContractorEditDialogState extends State<_ContractorEditDialog> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.primaryButtonBackground,
                       foregroundColor: theme.primaryButtonText,
-                      textStyle:
-                          const TextStyle(fontWeight: FontWeight.bold),
+                      textStyle: const TextStyle(fontWeight: FontWeight.bold),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),

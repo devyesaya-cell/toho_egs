@@ -5,7 +5,7 @@
 **Class Name**: `SyncPresenter` (Notifier)
 
 ## 1. Overview
-The `SyncPresenter` is responsible for managing the lifecycle of the data synchronization process. It orchestrates WebSocket connectivity, database queries (Fetching Spots), and the construction of byte payloads to be sent to the Host.
+The `SyncPresenter` is responsible for managing the lifecycle of the data synchronization process. It orchestrates WebSocket connectivity, database queries (Fetching Spots), the construction of byte payloads to be sent to the Host, and the maintenance of a session activity log.
 
 ---
 
@@ -24,7 +24,7 @@ The `SyncPresenter` is responsible for managing the lifecycle of the data synchr
 | `status` | `SyncConnectionStatus` | `idle` | Enum (idle, connecting, connected, sendingPayload, payloadSent, error) |
 | `statusText` | `String` | 'Waiting...' | Human-readable feedback for the UI |
 | `progress` | `double` | 0.0 | Sync percentage (0.0 to 1.0) |
-| `spots` | `List<WorkingSpot>` | `[]` | The collection of records fetched for current sync |
+| `logs` | `List<SyncLog>` | `[]` | The history of sync attempts in the current session |
 
 ---
 
@@ -46,12 +46,12 @@ The `SyncPresenter` is responsible for managing the lifecycle of the data synchr
 3. **State Buffering**: Stores the fetched `spots` in the `SyncState`.
 4. **Binary Building**: Uses `PayloadBuilder.buildSyncPayload()` to generate the byte array.
 5. **Transmission**: Pushes the binary payload over the WebSocket via `_comService.sendRawDataToHost()`.
-6. **Completion**: Sets status to `payloadSent` (progress: 1.0).
+6. **Completion**: Appends a `SyncLog` (Success) to the state and sets status to `payloadSent` (progress: 1.0).
 
 ---
 
 ## 5. Error Management
-The presenter uses a `try/catch` block wrapping the entire sync operation. Errors are captured and stored in the `statusText` while the `SyncConnectionStatus` is set to `error`. This ensures the UI can reactively display the error state.
+The presenter uses a `try/catch` block wrapping the entire sync operation. Errors are captured, a `SyncLog` (Failure) is appended to the state, and the `SyncConnectionStatus` is set to `error`. This ensures the UI can reactively display the error state and the history of failures.
 
 ---
 

@@ -17,17 +17,18 @@ class EquipmentTab extends ConsumerWidget {
     'Volvo',
     'Doosan',
     'Sany',
+    'D6',
     'Other',
   ];
 
   static const List<String> _types = [
-    'Excavator',
-    'Dozer',
-    'Grader',
-    'Truck',
-    'Compactor',
-    'Wheel Loader',
-    'Crane',
+    'excavator',
+    'dozer',
+    'grader',
+    'truck',
+    'compactor',
+    'wheel loader',
+    'crane',
     'Other',
   ];
 
@@ -86,13 +87,15 @@ class EquipmentTab extends ConsumerWidget {
                 if (equipments.isEmpty)
                   Expanded(
                     child: Center(
-                      child: Builder(builder: (ctx) {
-                        final theme = AppTheme.of(ctx);
-                        return Text(
-                          'No equipment found.',
-                          style: TextStyle(color: theme.textSecondary),
-                        );
-                      }),
+                      child: Builder(
+                        builder: (ctx) {
+                          final theme = AppTheme.of(ctx);
+                          return Text(
+                            'No equipment found.',
+                            style: TextStyle(color: theme.textSecondary),
+                          );
+                        },
+                      ),
                     ),
                   )
                 else
@@ -160,8 +163,10 @@ class EquipmentTab extends ConsumerWidget {
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(color: theme.cardBorderColor),
           ),
-          title: Text('Delete Equipment',
-              style: TextStyle(color: theme.textOnSurface)),
+          title: Text(
+            'Delete Equipment',
+            style: TextStyle(color: theme.textOnSurface),
+          ),
           content: Text(
             'Are you sure you want to delete "${equipment.equipName ?? equipment.unitNumber}"?',
             style: TextStyle(color: theme.textSecondary),
@@ -169,8 +174,10 @@ class EquipmentTab extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel',
-                  style: TextStyle(color: theme.textSecondary)),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: theme.textSecondary),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -178,7 +185,8 @@ class EquipmentTab extends ConsumerWidget {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFEF4444)),
+                backgroundColor: const Color(0xFFEF4444),
+              ),
               child: const Text('Delete'),
             ),
           ],
@@ -243,14 +251,14 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
     final equipToSave = widget.equipment ?? Equipment();
 
     equipToSave
-      ..uid = now.millisecondsSinceEpoch.toString()
+      // ..uid = now.millisecondsSinceEpoch.toString()
       ..equipName = _equipNameController.text.trim()
       ..partName = _partNameController.text.trim()
       ..unitNumber = _unitNumberController.text.trim()
       ..armLength = double.tryParse(_armLengthController.text)
       ..model = _selectedModel
       ..type = _selectedType
-      ..lastUpdate = now.millisecondsSinceEpoch;
+      ..lastUpdate = now.millisecondsSinceEpoch ~/ 1000;
     // lastDriver and ipAddress left empty as requested
 
     await widget.ref.read(appRepositoryProvider).saveEquipment(equipToSave);
@@ -308,13 +316,21 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildField(theme, 'EQUIP NAME',
-                        _equipNameController, hint: 'e.g. PC200'),
+                    child: _buildField(
+                      theme,
+                      'EQUIP NAME',
+                      _equipNameController,
+                      hint: 'e.g. PC200',
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _buildField(theme, 'PART NAME',
-                        _partNameController, hint: 'e.g. Bucket'),
+                    child: _buildField(
+                      theme,
+                      'PART NAME',
+                      _partNameController,
+                      hint: 'e.g. Bucket',
+                    ),
                   ),
                 ],
               ),
@@ -322,14 +338,22 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildField(theme, 'UNIT NUMBER',
-                        _unitNumberController, hint: 'e.g. EX-001'),
+                    child: _buildField(
+                      theme,
+                      'UNIT NUMBER',
+                      _unitNumberController,
+                      hint: 'e.g. EX-001',
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _buildField(theme, 'ARM LENGTH (m)',
-                        _armLengthController,
-                        hint: 'e.g. 5.5', isDecimal: true),
+                    child: _buildField(
+                      theme,
+                      'ARM LENGTH (m)',
+                      _armLengthController,
+                      hint: 'e.g. 5.5',
+                      isDecimal: true,
+                    ),
                   ),
                 ],
               ),
@@ -337,15 +361,23 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildDropdown(theme, 'MODEL', widget.models,
-                        _selectedModel,
-                        (v) => setState(() => _selectedModel = v)),
+                    child: _buildDropdown(
+                      theme,
+                      'MODEL',
+                      widget.models,
+                      _selectedModel,
+                      (v) => setState(() => _selectedModel = v),
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _buildDropdown(theme, 'TYPE', widget.types,
-                        _selectedType,
-                        (v) => setState(() => _selectedType = v)),
+                    child: _buildDropdown(
+                      theme,
+                      'TYPE',
+                      widget.types,
+                      _selectedType,
+                      (v) => setState(() => _selectedType = v),
+                    ),
                   ),
                 ],
               ),
@@ -360,7 +392,8 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
                         side: BorderSide(color: theme.dividerColor),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: const Text('CANCEL'),
                     ),
@@ -374,11 +407,11 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.primaryButtonBackground,
                         foregroundColor: theme.primaryButtonText,
-                        textStyle:
-                            const TextStyle(fontWeight: FontWeight.bold),
+                        textStyle: const TextStyle(fontWeight: FontWeight.bold),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
                   ),
@@ -491,13 +524,9 @@ class _EquipmentEditDialogState extends State<_EquipmentEditDialog> {
               vertical: 14,
             ),
           ),
-          hint: Text(
-            'Select...',
-            style: TextStyle(color: theme.textSecondary),
-          ),
+          hint: Text('Select...', style: TextStyle(color: theme.textSecondary)),
           items: items
-              .map((item) =>
-                  DropdownMenuItem(value: item, child: Text(item)))
+              .map((item) => DropdownMenuItem(value: item, child: Text(item)))
               .toList(),
           onChanged: onChanged,
         ),

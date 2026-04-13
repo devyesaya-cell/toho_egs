@@ -17,7 +17,7 @@ class DashboardPage extends ConsumerWidget {
     final theme = AppTheme.of(context);
     final dashboardDataAsync = ref.watch(dashboardPresenterProvider);
     final auth = ref.watch(authProvider);
-    final systemMode = auth.mode.name.toUpperCase();
+    final systemMode = auth.mode.stableName;
     final isCrumbling = systemMode == 'CRUMBLING';
 
     return Scaffold(

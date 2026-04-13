@@ -135,8 +135,10 @@ class AreaTab extends ConsumerWidget {
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(color: theme.cardBorderColor),
           ),
-          title: Text('Delete Area',
-              style: TextStyle(color: theme.textOnSurface)),
+          title: Text(
+            'Delete Area',
+            style: TextStyle(color: theme.textOnSurface),
+          ),
           content: Text(
             'Are you sure you want to delete "${area.areaName}"?',
             style: TextStyle(color: theme.textSecondary),
@@ -144,8 +146,10 @@ class AreaTab extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel',
-                  style: TextStyle(color: theme.textSecondary)),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: theme.textSecondary),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -153,7 +157,8 @@ class AreaTab extends ConsumerWidget {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFEF4444)),
+                backgroundColor: const Color(0xFFEF4444),
+              ),
               child: const Text('Delete'),
             ),
           ],
@@ -216,11 +221,12 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
     final areaToSave = widget.area ?? Area();
 
     areaToSave
-      ..uid = now.millisecondsSinceEpoch.toString()
+      // ..uid = now.millisecondsSinceEpoch.toString()
       ..areaName = name
-      ..luasArea = double.tryParse(_luasAreaController.text)
-      ..targetDone = int.tryParse(_targetDoneController.text)
-      ..spacing = _selectedSpacing;
+      ..luasArea = double.tryParse(_luasAreaController.text) ?? 0
+      ..targetDone = int.tryParse(_targetDoneController.text) ?? 0
+      ..spacing = _selectedSpacing
+      ..lastUpdate = now.millisecondsSinceEpoch ~/ 1000;
 
     await widget.ref.read(appRepositoryProvider).saveArea(areaToSave);
     if (mounted) Navigator.of(context).pop();
@@ -271,29 +277,44 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
             ),
             Divider(color: theme.dividerColor),
             const SizedBox(height: 16),
-            _buildField(theme, 'AREA NAME', _areaNameController,
-                hint: 'e.g. Block A - North'),
+            _buildField(
+              theme,
+              'AREA NAME',
+              _areaNameController,
+              hint: 'e.g. Block A - North',
+            ),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: _buildField(
-                    theme, 'LUAS AREA (Ha)', _luasAreaController,
-                    hint: 'e.g. 25.5', isDecimal: true,
+                    theme,
+                    'LUAS AREA (Ha)',
+                    _luasAreaController,
+                    hint: 'e.g. 25.5',
+                    isDecimal: true,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildField(
-                    theme, 'TARGET SELESAI (Days)', _targetDoneController,
-                    hint: 'e.g. 30', isInteger: true,
+                    theme,
+                    'TARGET SELESAI (Days)',
+                    _targetDoneController,
+                    hint: 'e.g. 30',
+                    isInteger: true,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            _buildDropdown(theme, 'SPACING', widget.spacingOptions,
-                _selectedSpacing, (v) => setState(() => _selectedSpacing = v)),
+            _buildDropdown(
+              theme,
+              'SPACING',
+              widget.spacingOptions,
+              _selectedSpacing,
+              (v) => setState(() => _selectedSpacing = v),
+            ),
             const SizedBox(height: 24),
             Row(
               children: [
@@ -305,7 +326,8 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
                       side: BorderSide(color: theme.dividerColor),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     child: const Text('CANCEL'),
                   ),
@@ -322,7 +344,8 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
                       textStyle: const TextStyle(fontWeight: FontWeight.bold),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ),
@@ -444,8 +467,7 @@ class _AreaEditDialogState extends State<_AreaEditDialog> {
             style: TextStyle(color: theme.textSecondary),
           ),
           items: items
-              .map((item) =>
-                  DropdownMenuItem(value: item, child: Text(item)))
+              .map((item) => DropdownMenuItem(value: item, child: Text(item)))
               .toList(),
           onChanged: onChanged,
         ),
