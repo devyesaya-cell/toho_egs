@@ -902,7 +902,7 @@ class TimesheetPage extends ConsumerWidget {
       final e = r.endTime > r.startTime
           ? DateTime.fromMillisecondsSinceEpoch(r.endTime * 1000)
           : null;
-      int mins = r.totalTime;
+      int mins = r.totalTime ~/ 60;
       if (mins == 0 && e != null) {
         mins = e.difference(s).inMinutes;
       }

@@ -1,0 +1,34 @@
+import 'dart:convert';
+import '../lib/core/models/timesheet_record.dart';
+
+void main() {
+  final record = TimesheetRecord(
+    id: 12345,
+    modeSystem: 'EGS',
+    activityType: 'MDT',
+    activityName: 'Production',
+    totalTime: 3600,
+    startTime: 1713945600,
+    endTime: 1713949200,
+    hmStart: 1234.5,
+    hmEnd: 1240.75,
+    totalSpots: 10,
+    workspeed: 5.5,
+    personID: 'person_001',
+    compUid: '6618f1a2c9d4e3b5a7c81111',
+    opUid: '6618f1a2c9d4e3b5a7c89999',
+    equUid: '6618f1a2c9d4e3b5a7c87777',
+    areaUid: '6618f1a2c9d4e3b5a7c86666',
+    fuel: 56.3,
+    activity: 1,
+    activityTypeInt: 2,
+    productivity: 75.5,
+    production: 120.8,
+    accuracy: 98.7,
+    alarm: 0,
+    workhours: 8.5,
+  );
+
+  final jsonMap = record.toJson();
+  print(JsonEncoder.withIndent('  ').convert(jsonMap));
+}

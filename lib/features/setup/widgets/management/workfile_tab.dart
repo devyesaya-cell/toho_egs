@@ -5,6 +5,7 @@ import '../../../../core/repositories/app_repository.dart';
 import '../../../../core/models/workfile.dart';
 import '../../../../core/state/auth_state.dart';
 import '../../../../core/utils/app_theme.dart';
+import '../../../workfile/create_workfile_page.dart';
 import 'workfile_card_widget.dart';
 
 class WorkfileTab extends ConsumerWidget {
@@ -63,6 +64,14 @@ class WorkfileTab extends ConsumerWidget {
                 return WorkfileCardWidget(
                   workfile: workfile,
                   showDelete: _canDelete(currentUser),
+                  onEdit: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateWorkfilePage(workfileToEdit: workfile),
+                      ),
+                    );
+                  },
                   onDelete: () {
                     _confirmDelete(context, ref, workfile);
                   },

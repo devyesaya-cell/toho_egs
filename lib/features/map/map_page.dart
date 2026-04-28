@@ -209,12 +209,15 @@ class _MapPageState extends ConsumerState<MapPage> {
                     icon: Icons.settings,
                     color: Colors.amber,
                     onPressed: () {
-                      final currentDelay = ref.read(mapPresenterProvider).spotCompletionDelay;
+                      final ms = ref.read(mapPresenterProvider);
                       DialogUtils.showDelayConfigDialog(
                         context: context,
-                        currentDelay: currentDelay,
-                        onSave: (val) {
-                          ref.read(mapPresenterProvider.notifier).setSpotCompletionDelay(val);
+                        currentDelay: ms.spotCompletionDelay,
+                        isAutoEnabled: ms.autoCompleteEnabled,
+                        onSave: (delay, isEnabled) {
+                          final notifier = ref.read(mapPresenterProvider.notifier);
+                          notifier.setSpotCompletionDelay(delay);
+                          notifier.setAutoComplete(isEnabled);
                         },
                       );
                     },

@@ -69,9 +69,9 @@ class _TimesheetStartDialogState extends ConsumerState<TimesheetStartDialog> {
       totalTime: 0,
       startTime: now,
       endTime: now,
-      hmStart: hmStart,
-      hmEnd:
-          hmStart, // Will be updated on stop if necessary, though MapPage only stops workspeed
+      hmStart: hmStart.toDouble(),
+      hmEnd: hmStart
+          .toDouble(), // Will be updated on stop if necessary, though MapPage only stops workspeed
       totalSpots: 0.0,
       workspeed: 0.0,
       personID: driverId,

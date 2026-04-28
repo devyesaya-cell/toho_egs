@@ -117,11 +117,11 @@ class ComService extends Notifier<UsbState> {
   Future<bool> connectToHostWebSocket({int port = 8080}) async {
     try {
       // On Android connected to a hotspot, the Gateway IP is usually the Hotspot owner
-      final info = NetworkInfo();
-      String? gatewayIp = await info.getWifiGatewayIP();
-      // const String gatewayIp = "[IP_ADDRESS]";
+      // final info = NetworkInfo();
+      // String? gatewayIp = await info.getWifiGatewayIP();
+      const String gatewayIp = '192.168.100.186';
 
-      if (gatewayIp == null) {
+      if (gatewayIp.isEmpty) {
         debugPrint(
           "Failed to get Gateway IP. Reverting to manual entry or aborting.",
         );

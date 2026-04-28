@@ -10,6 +10,7 @@ import '../models/timesheet_record.dart';
 import '../models/timesheet_data.dart';
 import '../models/status_timesheet.dart';
 import '../models/voice_message.dart';
+import '../models/sync_data_result.dart';
 
 class DatabaseService {
   late Isar isar;
@@ -35,6 +36,7 @@ class DatabaseService {
       TimesheetDataSchema,
       StatusTimesheetSchema,
       VoiceMessageSchema,
+      SyncDataResultSchema,
     ], directory: dir.path);
   }
 

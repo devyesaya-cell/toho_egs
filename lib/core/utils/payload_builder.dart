@@ -3,8 +3,9 @@ import '../models/working_spot.dart';
 
 class PayloadBuilder {
   static Uint8List buildSyncPayload({
-    required int packageId,
+    required int workHours,
     required List<WorkingSpot> workingSpots,
+    double avgAccuracy = 0,
     int companyID = 0,
     int operatorID = 0,
     int areaID = 0,
@@ -19,15 +20,13 @@ class PayloadBuilder {
     int offset = 0;
 
     // Helper functions to manage Endianness effectively
-    // The instructions don't strictly specify endianness. Standard network byte order is Big Endian,
-    // but many times raw serial protocols use Little Endian. I'll use Little Endian as it's common
-    // for embedded C platforms (like uint16_t, uint32_t usually map to little endian structs).
     const endian = Endian.little;
 
     // --- Header ---
 
-    // 0-1: packageID (uint16_t: 2 bytes)
-    byteData.setUint16(offset, packageId, endian);
+    // 0-1: workHours (uint16_t: 2 bytes) -> total seconds
+    // Clamp to 0 and ensure it fits in uint16
+    byteData.setUint16(offset, workHours.clamp(0, 65535), endian);
     offset += 2;
 
     // 2-3: companyID (uint16_t: 2 bytes)
@@ -58,26 +57,12 @@ class PayloadBuilder {
 
     // 16-17: productivity (uint16_t: 2 bytes) -> (dibagi 1000) ha/hours
     // productivity = (total spots / hours elapsed in shift) * (4 * 1.87) / 10000 * 1000
-    // But since the current hours elapsed is difficult to track accurately without knowing user login,
-    // a simpler approach is total spots * expected rate. The instructions say calculate workingspots per hour:
-    // "cari dulu berapa kira2 workingspot per hours nya lalu di kalikan (4x1.87) di dapatlah luas meter per jam ... dibagi 10000 ... dikalikan 1000"
-    // Basically: (spotsPerHour * 4 * 1.87 / 10000) * 1000 => spotsPerHour * 0.748
-    // We will estimate spotsPerHour as just `recordCount` since we might not have elapsed hours easily, or we can use the difference between first spot timestamp and current time. Let's use difference if available.
-
     int productivityVal = 0;
-    if (recordCount > 1) {
-      final firstTimeMs =
-          workingSpots.first.lastUpdate ??
-          DateTime.now().millisecondsSinceEpoch;
-      final lastTimeMs =
-          workingSpots.last.lastUpdate ?? DateTime.now().millisecondsSinceEpoch;
-      final diffHours = (lastTimeMs - firstTimeMs) / (1000 * 60 * 60);
-
-      double spotsPerHour = recordCount.toDouble();
-      if (diffHours > 0.1) {
-        spotsPerHour = recordCount / diffHours;
-      }
-      productivityVal = (spotsPerHour * 4 * 1.87 / 10000 * 1000).toInt();
+    if (workHours > 0) {
+      // productivity = (spots / seconds) * 3600 (to get spots per hour)
+      double spotsPerHour = (recordCount / workHours) * 3600;
+      // Formula: (spotsPerHour * 4 * 1.87 / 10000) * 1000
+      productivityVal = (spotsPerHour * 0.748).toInt();
     }
 
     byteData.setUint16(offset, productivityVal, endian);
@@ -103,8 +88,10 @@ class PayloadBuilder {
     byteData.setInt32(offset, lastLng, endian);
     offset += 4;
 
-    // 28: alarm (uint8_t: 1 byte) -> 0
-    byteData.setUint8(offset, 0);
+    // 28: alarm (uint8_t: 1 byte) -> now accuracy (avg)
+    // Server will divide by 10. Max 10cm -> 100.
+    int scaledAccuracy = (avgAccuracy * 10).toInt().clamp(0, 255);
+    byteData.setUint8(offset, scaledAccuracy);
     offset += 1;
 
     // --- Records ---

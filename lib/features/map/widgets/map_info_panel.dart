@@ -35,8 +35,8 @@ class MapInfoPanel extends ConsumerWidget {
           _buildPanelItem(
             context: context,
             icon: Icons.warning_amber_rounded,
-            label: mapState.lastError?.alertType ?? '-',
-            color: mapState.lastError != null ? Colors.red : Colors.grey,
+            label: mapState.errors.isEmpty ? '-' : 'Alert (${mapState.errors.length})',
+            color: mapState.errors.isNotEmpty ? Colors.red : Colors.grey,
             onTap: () => _showAlertDetail(context, mapState),
           ),
           _buildDivider(),
@@ -186,23 +186,56 @@ class MapInfoPanel extends ConsumerWidget {
   // --- Dialogs ---
 
   void _showAlertDetail(BuildContext context, MapState state) {
-    if (state.lastError == null) return;
+    if (state.errors.isEmpty) return;
     DialogUtils.showDetailDialog(
       context: context,
-      title: 'Current Alert',
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          DialogUtils.buildKeyValue("Source ID", state.lastError!.sourceID),
-          DialogUtils.buildKeyValue("Type", state.lastError!.alertType),
-          DialogUtils.buildKeyValue("Message", state.lastError!.message),
-          DialogUtils.buildKeyValue(
-            "Time",
-            state.lastError!.timestamp.toString(),
-          ),
-        ],
+      title: 'Alert History',
+      content: SizedBox(
+        width: 400,
+        height: 300,
+        child: ListView.separated(
+          itemCount: state.errors.length,
+          separatorBuilder: (context, index) => const Divider(color: Colors.white24),
+          itemBuilder: (context, index) {
+            final err = state.errors[index];
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        err.alertType,
+                        style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        _formatTime(err.timestamp),
+                        style: const TextStyle(color: Colors.white54, fontSize: 10),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    err.message,
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                  Text(
+                    'Source: ${err.sourceID}',
+                    style: const TextStyle(color: Colors.white38, fontSize: 10),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
+  }
+
+  String _formatTime(DateTime dt) {
+    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}:${dt.second.toString().padLeft(2, '0')}';
   }
 
   void _showProgressDetail(BuildContext context) {

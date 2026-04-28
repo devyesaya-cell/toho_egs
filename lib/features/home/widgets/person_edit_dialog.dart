@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/person.dart';
@@ -70,8 +71,15 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
   }
 
   Future<void> _save() async {
+    final nowSec = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     final personToSave = widget.person ?? Person();
-    // final uid = DateTime.now().millisecondsSinceEpoch.toString();
+    final isNew = widget.person == null;
+
+    if (isNew) {
+      // Generate 2-byte random hex UID (4 chars)
+      final rand = Random().nextInt(65536);
+      personToSave.uid = rand.toRadixString(16).padLeft(4, '0').toUpperCase();
+    }
 
     personToSave
       ..firstName = _firstNameController.text
@@ -84,9 +92,9 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
       ..role = _selectedRole
       ..preset = ref.read(authProvider).mode.name
       ..lastLogin = DateTime.now().millisecondsSinceEpoch
+      ..lastUpdate = nowSec
       ..loginState = 'ON'
-      ..user = _firstNameController.text.toLowerCase()
-      ..uid = personToSave.uid;
+      ..user = _firstNameController.text.toLowerCase();
 
     await ref.read(appRepositoryProvider).savePerson(personToSave);
 

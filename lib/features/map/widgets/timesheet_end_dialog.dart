@@ -14,7 +14,7 @@ class _TimesheetEndDialogState extends ConsumerState<TimesheetEndDialog> {
 
   void _stop() async {
     final hmText = _hmController.text;
-    final hmEnd = int.tryParse(hmText) ?? 0;
+    final hmEnd = double.tryParse(hmText) ?? 0;
 
     if (hmText.isEmpty || hmEnd <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(

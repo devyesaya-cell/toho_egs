@@ -10,6 +10,7 @@ import '../models/working_spot.dart';
 import '../models/timesheet_record.dart';
 import '../models/timesheet_data.dart';
 import '../models/status_timesheet.dart';
+import '../models/sync_data_result.dart';
 
 // Provides the generic AppRepository
 final appRepositoryProvider = Provider<AppRepository>((ref) {
@@ -29,6 +30,12 @@ class AppRepository {
     });
   }
 
+  Future<void> deleteWorkingSpotsByFileID(String fileID) async {
+    await _isar.writeTxn(() async {
+      await _isar.workingSpots.filter().fileIDEqualTo(fileID).deleteAll();
+    });
+  }
+
   // --- Seed Logic ---
   Future<void> checkAndSeedDefaultUser() async {
     final count = await _isar.persons.count();
@@ -44,6 +51,7 @@ class AppRepository {
         password: 'asd123', // Hardcoded as requested
         loginState: 'OFF',
         lastLogin: DateTime.now().millisecondsSinceEpoch,
+        lastUpdate: DateTime.now().millisecondsSinceEpoch ~/ 1000,
       );
 
       await _isar.writeTxn(() async {
@@ -126,6 +134,111 @@ class AppRepository {
         .statusEqualTo(1)
         .lastUpdateBetween(startEpochSec, endEpochSec)
         .findAll();
+  }
+
+  int _getShiftTime(DateTime time) {
+    int hour = time.hour;
+    if (hour >= 7 && hour < 19) {
+      return DateTime(time.year, time.month, time.day, 7).millisecondsSinceEpoch ~/ 1000;
+    } else if (hour < 7) {
+      return DateTime(time.year, time.month, time.day, 19).subtract(const Duration(days: 1)).millisecondsSinceEpoch ~/ 1000;
+    } else {
+      return DateTime(time.year, time.month, time.day, 19).millisecondsSinceEpoch ~/ 1000;
+    }
+  }
+
+  String _getShiftString(DateTime time) {
+    int hour = time.hour;
+    return (hour >= 7 && hour < 19) ? "pagi" : "malam";
+  }
+
+  Future<void> generatePendingSyncData(String driverId) async {
+    final spots = await _isar.workingSpots
+        .filter()
+        .driverIDEqualTo(driverId)
+        .statusEqualTo(1)
+        .findAll();
+
+    if (spots.isEmpty) return;
+
+    Map<int, List<WorkingSpot>> groupedSpots = {};
+    for (var spot in spots) {
+      if (spot.lastUpdate == null) continue;
+      final time = DateTime.fromMillisecondsSinceEpoch(spot.lastUpdate! * 1000);
+      final shiftTime = _getShiftTime(time);
+      if (!groupedSpots.containsKey(shiftTime)) {
+        groupedSpots[shiftTime] = [];
+      }
+      groupedSpots[shiftTime]!.add(spot);
+    }
+
+    await _isar.writeTxn(() async {
+      for (var entry in groupedSpots.entries) {
+        final shiftTime = entry.key;
+        final shiftSpots = entry.value;
+
+        var syncResult = await _isar.syncDataResults
+            .filter()
+            .driverIDEqualTo(driverId)
+            .shiftTimeEqualTo(shiftTime)
+            .findFirst();
+
+        int minTime = shiftSpots.first.lastUpdate!;
+        int maxTime = minTime;
+        for (var s in shiftSpots) {
+          if (s.lastUpdate! < minTime) minTime = s.lastUpdate!;
+          if (s.lastUpdate! > maxTime) maxTime = s.lastUpdate!;
+        }
+
+        if (syncResult == null) {
+          final shiftStr = _getShiftString(DateTime.fromMillisecondsSinceEpoch(minTime * 1000));
+          syncResult = SyncDataResult(
+            driverID: driverId,
+            startTime: minTime,
+            endTime: maxTime,
+            status: 'pending',
+            shift: shiftStr,
+            shiftTime: shiftTime,
+            totalSpot: shiftSpots.length,
+          );
+          await _isar.syncDataResults.put(syncResult);
+        } else {
+          // If status is pending, make sure total spot is updated if there were changes
+          if (syncResult.status == 'pending' && syncResult.totalSpot != shiftSpots.length) {
+            syncResult.startTime = minTime;
+            syncResult.endTime = maxTime;
+            syncResult.totalSpot = shiftSpots.length;
+            await _isar.syncDataResults.put(syncResult);
+          }
+        }
+      }
+    });
+  }
+
+  Future<List<WorkingSpot>> getWorkingSpotsByShiftTime(String driverId, int shiftTime) async {
+    final spots = await _isar.workingSpots
+        .filter()
+        .driverIDEqualTo(driverId)
+        .statusEqualTo(1)
+        .findAll();
+
+    return spots.where((spot) {
+      if (spot.lastUpdate == null) return false;
+      final time = DateTime.fromMillisecondsSinceEpoch(spot.lastUpdate! * 1000);
+      return _getShiftTime(time) == shiftTime;
+    }).toList();
+  }
+
+  Future<void> updateSyncDataResult(SyncDataResult data) async {
+    await _isar.writeTxn(() async {
+      await _isar.syncDataResults.put(data);
+    });
+  }
+
+  Future<void> deleteSyncDataResult(int id) async {
+    await _isar.writeTxn(() async {
+      await _isar.syncDataResults.delete(id);
+    });
   }
 
   // --- Person ---
@@ -345,5 +458,13 @@ class AppRepository {
         .where()
         .watch(fireImmediately: true)
         .map((list) => list.isNotEmpty ? list.first : null);
+  }
+
+  Stream<List<SyncDataResult>> watchSyncDataResults(String driverId) {
+    return _isar.syncDataResults
+        .filter()
+        .driverIDEqualTo(driverId)
+        .sortByShiftTimeDesc()
+        .watch(fireImmediately: true);
   }
 }

@@ -157,12 +157,7 @@ class TimesheetNotifier extends Notifier<TimesheetState> {
     if (activeRecord != null) {
       final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
       activeRecord.endTime = now;
-      final diffMinutes = DateTime.fromMillisecondsSinceEpoch(now * 1000)
-          .difference(
-            DateTime.fromMillisecondsSinceEpoch(activeRecord.startTime * 1000),
-          )
-          .inMinutes;
-      activeRecord.totalTime = diffMinutes;
+      activeRecord.totalTime = now - activeRecord.startTime;
 
       await repo.saveTimesheetRecord(activeRecord);
     }

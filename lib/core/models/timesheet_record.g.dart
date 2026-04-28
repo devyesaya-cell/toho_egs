@@ -17,46 +17,78 @@ const TimesheetRecordSchema = CollectionSchema(
   name: r'TimesheetRecord',
   id: 2553963115734829440,
   properties: {
-    r'activityName': PropertySchema(
+    r'accuracy': PropertySchema(
       id: 0,
+      name: r'accuracy',
+      type: IsarType.double,
+    ),
+    r'activity': PropertySchema(id: 1, name: r'activity', type: IsarType.long),
+    r'activityName': PropertySchema(
+      id: 2,
       name: r'activityName',
       type: IsarType.string,
     ),
     r'activityType': PropertySchema(
-      id: 1,
+      id: 3,
       name: r'activityType',
       type: IsarType.string,
     ),
-    r'endTime': PropertySchema(id: 2, name: r'endTime', type: IsarType.long),
-    r'hmEnd': PropertySchema(id: 3, name: r'hmEnd', type: IsarType.long),
-    r'hmStart': PropertySchema(id: 4, name: r'hmStart', type: IsarType.long),
+    r'activityTypeInt': PropertySchema(
+      id: 4,
+      name: r'activityTypeInt',
+      type: IsarType.long,
+    ),
+    r'alarm': PropertySchema(id: 5, name: r'alarm', type: IsarType.long),
+    r'areaUid': PropertySchema(id: 6, name: r'areaUid', type: IsarType.string),
+    r'compUid': PropertySchema(id: 7, name: r'compUid', type: IsarType.string),
+    r'endTime': PropertySchema(id: 8, name: r'endTime', type: IsarType.long),
+    r'equUid': PropertySchema(id: 9, name: r'equUid', type: IsarType.string),
+    r'fuel': PropertySchema(id: 10, name: r'fuel', type: IsarType.double),
+    r'hmEnd': PropertySchema(id: 11, name: r'hmEnd', type: IsarType.double),
+    r'hmStart': PropertySchema(id: 12, name: r'hmStart', type: IsarType.double),
     r'modeSystem': PropertySchema(
-      id: 5,
+      id: 13,
       name: r'modeSystem',
       type: IsarType.string,
     ),
+    r'opUid': PropertySchema(id: 14, name: r'opUid', type: IsarType.string),
     r'personID': PropertySchema(
-      id: 6,
+      id: 15,
       name: r'personID',
       type: IsarType.string,
     ),
+    r'production': PropertySchema(
+      id: 16,
+      name: r'production',
+      type: IsarType.double,
+    ),
+    r'productivity': PropertySchema(
+      id: 17,
+      name: r'productivity',
+      type: IsarType.double,
+    ),
     r'startTime': PropertySchema(
-      id: 7,
+      id: 18,
       name: r'startTime',
       type: IsarType.long,
     ),
     r'totalSpots': PropertySchema(
-      id: 8,
+      id: 19,
       name: r'totalSpots',
       type: IsarType.double,
     ),
     r'totalTime': PropertySchema(
-      id: 9,
+      id: 20,
       name: r'totalTime',
       type: IsarType.long,
     ),
+    r'workhours': PropertySchema(
+      id: 21,
+      name: r'workhours',
+      type: IsarType.double,
+    ),
     r'workspeed': PropertySchema(
-      id: 10,
+      id: 22,
       name: r'workspeed',
       type: IsarType.double,
     ),
@@ -151,7 +183,31 @@ int _timesheetRecordEstimateSize(
   var bytesCount = offsets.last;
   bytesCount += 3 + object.activityName.length * 3;
   bytesCount += 3 + object.activityType.length * 3;
+  {
+    final value = object.areaUid;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.compUid;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.equUid;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.modeSystem.length * 3;
+  {
+    final value = object.opUid;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.personID.length * 3;
   return bytesCount;
 }
@@ -162,17 +218,29 @@ void _timesheetRecordSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.activityName);
-  writer.writeString(offsets[1], object.activityType);
-  writer.writeLong(offsets[2], object.endTime);
-  writer.writeLong(offsets[3], object.hmEnd);
-  writer.writeLong(offsets[4], object.hmStart);
-  writer.writeString(offsets[5], object.modeSystem);
-  writer.writeString(offsets[6], object.personID);
-  writer.writeLong(offsets[7], object.startTime);
-  writer.writeDouble(offsets[8], object.totalSpots);
-  writer.writeLong(offsets[9], object.totalTime);
-  writer.writeDouble(offsets[10], object.workspeed);
+  writer.writeDouble(offsets[0], object.accuracy);
+  writer.writeLong(offsets[1], object.activity);
+  writer.writeString(offsets[2], object.activityName);
+  writer.writeString(offsets[3], object.activityType);
+  writer.writeLong(offsets[4], object.activityTypeInt);
+  writer.writeLong(offsets[5], object.alarm);
+  writer.writeString(offsets[6], object.areaUid);
+  writer.writeString(offsets[7], object.compUid);
+  writer.writeLong(offsets[8], object.endTime);
+  writer.writeString(offsets[9], object.equUid);
+  writer.writeDouble(offsets[10], object.fuel);
+  writer.writeDouble(offsets[11], object.hmEnd);
+  writer.writeDouble(offsets[12], object.hmStart);
+  writer.writeString(offsets[13], object.modeSystem);
+  writer.writeString(offsets[14], object.opUid);
+  writer.writeString(offsets[15], object.personID);
+  writer.writeDouble(offsets[16], object.production);
+  writer.writeDouble(offsets[17], object.productivity);
+  writer.writeLong(offsets[18], object.startTime);
+  writer.writeDouble(offsets[19], object.totalSpots);
+  writer.writeLong(offsets[20], object.totalTime);
+  writer.writeDouble(offsets[21], object.workhours);
+  writer.writeDouble(offsets[22], object.workspeed);
 }
 
 TimesheetRecord _timesheetRecordDeserialize(
@@ -182,18 +250,30 @@ TimesheetRecord _timesheetRecordDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = TimesheetRecord(
-    activityName: reader.readString(offsets[0]),
-    activityType: reader.readString(offsets[1]),
-    endTime: reader.readLong(offsets[2]),
-    hmEnd: reader.readLong(offsets[3]),
-    hmStart: reader.readLong(offsets[4]),
+    accuracy: reader.readDoubleOrNull(offsets[0]),
+    activity: reader.readLongOrNull(offsets[1]),
+    activityName: reader.readString(offsets[2]),
+    activityType: reader.readString(offsets[3]),
+    activityTypeInt: reader.readLongOrNull(offsets[4]),
+    alarm: reader.readLongOrNull(offsets[5]),
+    areaUid: reader.readStringOrNull(offsets[6]),
+    compUid: reader.readStringOrNull(offsets[7]),
+    endTime: reader.readLong(offsets[8]),
+    equUid: reader.readStringOrNull(offsets[9]),
+    fuel: reader.readDoubleOrNull(offsets[10]),
+    hmEnd: reader.readDouble(offsets[11]),
+    hmStart: reader.readDouble(offsets[12]),
     id: id,
-    modeSystem: reader.readString(offsets[5]),
-    personID: reader.readString(offsets[6]),
-    startTime: reader.readLong(offsets[7]),
-    totalSpots: reader.readDouble(offsets[8]),
-    totalTime: reader.readLong(offsets[9]),
-    workspeed: reader.readDouble(offsets[10]),
+    modeSystem: reader.readString(offsets[13]),
+    opUid: reader.readStringOrNull(offsets[14]),
+    personID: reader.readString(offsets[15]),
+    production: reader.readDoubleOrNull(offsets[16]),
+    productivity: reader.readDoubleOrNull(offsets[17]),
+    startTime: reader.readLong(offsets[18]),
+    totalSpots: reader.readDouble(offsets[19]),
+    totalTime: reader.readLong(offsets[20]),
+    workhours: reader.readDoubleOrNull(offsets[21]),
+    workspeed: reader.readDouble(offsets[22]),
   );
   return object;
 }
@@ -206,26 +286,50 @@ P _timesheetRecordDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 2:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 3:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readLong(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 5:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 6:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 7:
-      return (reader.readLong(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 8:
-      return (reader.readDouble(offset)) as P;
-    case 9:
       return (reader.readLong(offset)) as P;
+    case 9:
+      return (reader.readStringOrNull(offset)) as P;
     case 10:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 11:
+      return (reader.readDouble(offset)) as P;
+    case 12:
+      return (reader.readDouble(offset)) as P;
+    case 13:
+      return (reader.readString(offset)) as P;
+    case 14:
+      return (reader.readStringOrNull(offset)) as P;
+    case 15:
+      return (reader.readString(offset)) as P;
+    case 16:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 17:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 18:
+      return (reader.readLong(offset)) as P;
+    case 19:
+      return (reader.readDouble(offset)) as P;
+    case 20:
+      return (reader.readLong(offset)) as P;
+    case 21:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 22:
       return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -654,6 +758,172 @@ extension TimesheetRecordQueryWhere
 extension TimesheetRecordQueryFilter
     on QueryBuilder<TimesheetRecord, TimesheetRecord, QFilterCondition> {
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  accuracyIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'accuracy'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  accuracyIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'accuracy'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  accuracyEqualTo(double? value, {double epsilon = Query.epsilon}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'accuracy',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  accuracyGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'accuracy',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  accuracyLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'accuracy',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  accuracyBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'accuracy',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  activityIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'activity'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  activityIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'activity'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  activityEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'activity', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  activityGreaterThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'activity',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  activityLessThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'activity',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  activityBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'activity',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
   activityNameEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -936,6 +1206,470 @@ extension TimesheetRecordQueryFilter
   }
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  activityTypeIntIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'activityTypeInt'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  activityTypeIntIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'activityTypeInt'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  activityTypeIntEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'activityTypeInt', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  activityTypeIntGreaterThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'activityTypeInt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  activityTypeIntLessThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'activityTypeInt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  activityTypeIntBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'activityTypeInt',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  alarmIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'alarm'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  alarmIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'alarm'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  alarmEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'alarm', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  alarmGreaterThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'alarm',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  alarmLessThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'alarm',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  alarmBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'alarm',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  areaUidIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'areaUid'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  areaUidIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'areaUid'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  areaUidEqualTo(String? value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'areaUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  areaUidGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'areaUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  areaUidLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'areaUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  areaUidBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'areaUid',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  areaUidStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'areaUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  areaUidEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'areaUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  areaUidContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'areaUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  areaUidMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'areaUid',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  areaUidIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'areaUid', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  areaUidIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'areaUid', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  compUidIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'compUid'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  compUidIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'compUid'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  compUidEqualTo(String? value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'compUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  compUidGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'compUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  compUidLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'compUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  compUidBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'compUid',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  compUidStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'compUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  compUidEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'compUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  compUidContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'compUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  compUidMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'compUid',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  compUidIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'compUid', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  compUidIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'compUid', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
   endTimeEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -991,35 +1725,304 @@ extension TimesheetRecordQueryFilter
   }
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
-  hmEndEqualTo(int value) {
+  equUidIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'hmEnd', value: value),
+        const FilterCondition.isNull(property: r'equUid'),
       );
     });
   }
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
-  hmEndGreaterThan(int value, {bool include = false}) {
+  equUidIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'hmEnd',
+        const FilterCondition.isNotNull(property: r'equUid'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  equUidEqualTo(String? value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'equUid',
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
-  hmEndLessThan(int value, {bool include = false}) {
+  equUidGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'equUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  equUidLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'equUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  equUidBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'equUid',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  equUidStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'equUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  equUidEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'equUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  equUidContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'equUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  equUidMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'equUid',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  equUidIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'equUid', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  equUidIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'equUid', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  fuelIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'fuel'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  fuelIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'fuel'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  fuelEqualTo(double? value, {double epsilon = Query.epsilon}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'fuel',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  fuelGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'fuel',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  fuelLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'fuel',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  fuelBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'fuel',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  hmEndEqualTo(double value, {double epsilon = Query.epsilon}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'hmEnd',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  hmEndGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'hmEnd',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  hmEndLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.lessThan(
           include: include,
           property: r'hmEnd',
           value: value,
+
+          epsilon: epsilon,
         ),
       );
     });
@@ -1027,10 +2030,11 @@ extension TimesheetRecordQueryFilter
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
   hmEndBetween(
-    int lower,
-    int upper, {
+    double lower,
+    double upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1040,41 +2044,60 @@ extension TimesheetRecordQueryFilter
           includeLower: includeLower,
           upper: upper,
           includeUpper: includeUpper,
+
+          epsilon: epsilon,
         ),
       );
     });
   }
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
-  hmStartEqualTo(int value) {
+  hmStartEqualTo(double value, {double epsilon = Query.epsilon}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'hmStart', value: value),
+        FilterCondition.equalTo(
+          property: r'hmStart',
+          value: value,
+
+          epsilon: epsilon,
+        ),
       );
     });
   }
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
-  hmStartGreaterThan(int value, {bool include = false}) {
+  hmStartGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(
           include: include,
           property: r'hmStart',
           value: value,
+
+          epsilon: epsilon,
         ),
       );
     });
   }
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
-  hmStartLessThan(int value, {bool include = false}) {
+  hmStartLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.lessThan(
           include: include,
           property: r'hmStart',
           value: value,
+
+          epsilon: epsilon,
         ),
       );
     });
@@ -1082,10 +2105,11 @@ extension TimesheetRecordQueryFilter
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
   hmStartBetween(
-    int lower,
-    int upper, {
+    double lower,
+    double upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1095,6 +2119,8 @@ extension TimesheetRecordQueryFilter
           includeLower: includeLower,
           upper: upper,
           includeUpper: includeUpper,
+
+          epsilon: epsilon,
         ),
       );
     });
@@ -1297,6 +2323,165 @@ extension TimesheetRecordQueryFilter
   }
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  opUidIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'opUid'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  opUidIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'opUid'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  opUidEqualTo(String? value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'opUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  opUidGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'opUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  opUidLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'opUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  opUidBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'opUid',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  opUidStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'opUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  opUidEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'opUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  opUidContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'opUid',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  opUidMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'opUid',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  opUidIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'opUid', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  opUidIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'opUid', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
   personIDEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1433,6 +2618,192 @@ extension TimesheetRecordQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(property: r'personID', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  productionIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'production'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  productionIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'production'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  productionEqualTo(double? value, {double epsilon = Query.epsilon}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'production',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  productionGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'production',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  productionLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'production',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  productionBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'production',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  productivityIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'productivity'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  productivityIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'productivity'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  productivityEqualTo(double? value, {double epsilon = Query.epsilon}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'productivity',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  productivityGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'productivity',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  productivityLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'productivity',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  productivityBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'productivity',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+
+          epsilon: epsilon,
+        ),
       );
     });
   }
@@ -1623,6 +2994,99 @@ extension TimesheetRecordQueryFilter
   }
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  workhoursIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'workhours'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  workhoursIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'workhours'),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  workhoursEqualTo(double? value, {double epsilon = Query.epsilon}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'workhours',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  workhoursGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'workhours',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  workhoursLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'workhours',
+          value: value,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
+  workhoursBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'workhours',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterFilterCondition>
   workspeedEqualTo(double value, {double epsilon = Query.epsilon}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1707,6 +3171,34 @@ extension TimesheetRecordQueryLinks
 extension TimesheetRecordQuerySortBy
     on QueryBuilder<TimesheetRecord, TimesheetRecord, QSortBy> {
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByAccuracy() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'accuracy', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByAccuracyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'accuracy', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByActivity() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activity', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByActivityDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activity', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
   sortByActivityName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'activityName', Sort.asc);
@@ -1734,6 +3226,59 @@ extension TimesheetRecordQuerySortBy
     });
   }
 
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByActivityTypeInt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activityTypeInt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByActivityTypeIntDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activityTypeInt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> sortByAlarm() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'alarm', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByAlarmDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'alarm', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> sortByAreaUid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'areaUid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByAreaUidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'areaUid', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> sortByCompUid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'compUid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByCompUidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'compUid', Sort.desc);
+    });
+  }
+
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> sortByEndTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.asc);
@@ -1744,6 +3289,32 @@ extension TimesheetRecordQuerySortBy
   sortByEndTimeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> sortByEquUid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'equUid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByEquUidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'equUid', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> sortByFuel() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fuel', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByFuelDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fuel', Sort.desc);
     });
   }
 
@@ -1787,6 +3358,19 @@ extension TimesheetRecordQuerySortBy
     });
   }
 
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> sortByOpUid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'opUid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByOpUidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'opUid', Sort.desc);
+    });
+  }
+
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
   sortByPersonID() {
     return QueryBuilder.apply(this, (query) {
@@ -1798,6 +3382,34 @@ extension TimesheetRecordQuerySortBy
   sortByPersonIDDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'personID', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByProduction() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'production', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByProductionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'production', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByProductivity() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productivity', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByProductivityDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productivity', Sort.desc);
     });
   }
 
@@ -1844,6 +3456,20 @@ extension TimesheetRecordQuerySortBy
   }
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByWorkhours() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'workhours', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  sortByWorkhoursDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'workhours', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
   sortByWorkspeed() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'workspeed', Sort.asc);
@@ -1860,6 +3486,34 @@ extension TimesheetRecordQuerySortBy
 
 extension TimesheetRecordQuerySortThenBy
     on QueryBuilder<TimesheetRecord, TimesheetRecord, QSortThenBy> {
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByAccuracy() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'accuracy', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByAccuracyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'accuracy', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByActivity() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activity', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByActivityDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activity', Sort.desc);
+    });
+  }
+
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
   thenByActivityName() {
     return QueryBuilder.apply(this, (query) {
@@ -1888,6 +3542,59 @@ extension TimesheetRecordQuerySortThenBy
     });
   }
 
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByActivityTypeInt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activityTypeInt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByActivityTypeIntDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activityTypeInt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> thenByAlarm() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'alarm', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByAlarmDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'alarm', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> thenByAreaUid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'areaUid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByAreaUidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'areaUid', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> thenByCompUid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'compUid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByCompUidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'compUid', Sort.desc);
+    });
+  }
+
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> thenByEndTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.asc);
@@ -1898,6 +3605,32 @@ extension TimesheetRecordQuerySortThenBy
   thenByEndTimeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> thenByEquUid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'equUid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByEquUidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'equUid', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> thenByFuel() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fuel', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByFuelDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fuel', Sort.desc);
     });
   }
 
@@ -1953,6 +3686,19 @@ extension TimesheetRecordQuerySortThenBy
     });
   }
 
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy> thenByOpUid() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'opUid', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByOpUidDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'opUid', Sort.desc);
+    });
+  }
+
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
   thenByPersonID() {
     return QueryBuilder.apply(this, (query) {
@@ -1964,6 +3710,34 @@ extension TimesheetRecordQuerySortThenBy
   thenByPersonIDDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'personID', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByProduction() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'production', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByProductionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'production', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByProductivity() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productivity', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByProductivityDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'productivity', Sort.desc);
     });
   }
 
@@ -2010,6 +3784,20 @@ extension TimesheetRecordQuerySortThenBy
   }
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByWorkhours() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'workhours', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
+  thenByWorkhoursDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'workhours', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QAfterSortBy>
   thenByWorkspeed() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'workspeed', Sort.asc);
@@ -2027,6 +3815,20 @@ extension TimesheetRecordQuerySortThenBy
 extension TimesheetRecordQueryWhereDistinct
     on QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct> {
   QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct>
+  distinctByAccuracy() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'accuracy');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct>
+  distinctByActivity() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'activity');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct>
   distinctByActivityName({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'activityName', caseSensitive: caseSensitive);
@@ -2041,9 +3843,52 @@ extension TimesheetRecordQueryWhereDistinct
   }
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct>
+  distinctByActivityTypeInt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'activityTypeInt');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct> distinctByAlarm() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'alarm');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct> distinctByAreaUid({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'areaUid', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct> distinctByCompUid({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'compUid', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct>
   distinctByEndTime() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'endTime');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct> distinctByEquUid({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'equUid', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct> distinctByFuel() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'fuel');
     });
   }
 
@@ -2067,11 +3912,33 @@ extension TimesheetRecordQueryWhereDistinct
     });
   }
 
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct> distinctByOpUid({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'opUid', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct> distinctByPersonID({
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'personID', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct>
+  distinctByProduction() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'production');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct>
+  distinctByProductivity() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'productivity');
     });
   }
 
@@ -2097,6 +3964,13 @@ extension TimesheetRecordQueryWhereDistinct
   }
 
   QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct>
+  distinctByWorkhours() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'workhours');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, TimesheetRecord, QDistinct>
   distinctByWorkspeed() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'workspeed');
@@ -2109,6 +3983,18 @@ extension TimesheetRecordQueryProperty
   QueryBuilder<TimesheetRecord, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, double?, QQueryOperations> accuracyProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'accuracy');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, int?, QQueryOperations> activityProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'activity');
     });
   }
 
@@ -2126,19 +4012,56 @@ extension TimesheetRecordQueryProperty
     });
   }
 
+  QueryBuilder<TimesheetRecord, int?, QQueryOperations>
+  activityTypeIntProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'activityTypeInt');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, int?, QQueryOperations> alarmProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'alarm');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, String?, QQueryOperations> areaUidProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'areaUid');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, String?, QQueryOperations> compUidProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'compUid');
+    });
+  }
+
   QueryBuilder<TimesheetRecord, int, QQueryOperations> endTimeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'endTime');
     });
   }
 
-  QueryBuilder<TimesheetRecord, int, QQueryOperations> hmEndProperty() {
+  QueryBuilder<TimesheetRecord, String?, QQueryOperations> equUidProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'equUid');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, double?, QQueryOperations> fuelProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'fuel');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, double, QQueryOperations> hmEndProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'hmEnd');
     });
   }
 
-  QueryBuilder<TimesheetRecord, int, QQueryOperations> hmStartProperty() {
+  QueryBuilder<TimesheetRecord, double, QQueryOperations> hmStartProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'hmStart');
     });
@@ -2150,9 +4073,29 @@ extension TimesheetRecordQueryProperty
     });
   }
 
+  QueryBuilder<TimesheetRecord, String?, QQueryOperations> opUidProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'opUid');
+    });
+  }
+
   QueryBuilder<TimesheetRecord, String, QQueryOperations> personIDProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'personID');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, double?, QQueryOperations>
+  productionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'production');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, double?, QQueryOperations>
+  productivityProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'productivity');
     });
   }
 
@@ -2171,6 +4114,12 @@ extension TimesheetRecordQueryProperty
   QueryBuilder<TimesheetRecord, int, QQueryOperations> totalTimeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'totalTime');
+    });
+  }
+
+  QueryBuilder<TimesheetRecord, double?, QQueryOperations> workhoursProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'workhours');
     });
   }
 

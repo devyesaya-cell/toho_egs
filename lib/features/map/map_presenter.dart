@@ -10,7 +10,8 @@ import 'package:toho_egs/core/models/error_alert.dart';
 import 'package:toho_egs/core/models/gps_loc.dart';
 import '../../core/services/coordinate_service.dart';
 import 'package:toho_egs/core/services/notification_service.dart';
-import 'package:toho_egs/core/services/notification_service.dart' as custom_notif;
+import 'package:toho_egs/core/services/notification_service.dart'
+    as custom_notif;
 import 'package:flutter/material.dart';
 import 'package:toho_egs/core/models/working_spot.dart';
 import 'package:toho_egs/core/models/workfile.dart';
@@ -39,6 +40,7 @@ class MapState {
 
   // Errors
   final ErrorAlert? lastError;
+  final List<ErrorAlert> errors;
 
   // Slopes (From GPSLoc)
   final double boomTilt;
@@ -79,6 +81,8 @@ class MapState {
   final double? lastQueriedExcaLng;
   final bool diggingStatus; // New field
   final double spotCompletionDelay;
+  final bool autoCompleteEnabled;
+  final bool delayTime;
 
   // Timesheet
   final TimesheetRecord? activeTimesheet;
@@ -120,7 +124,10 @@ class MapState {
     this.crumblingDevSum = 0.0,
     this.crumblingDevCount = 0,
     this.diggingStatus = false,
-    this.spotCompletionDelay = 2.0,
+    this.errors = const [],
+    this.spotCompletionDelay = 1.0,
+    this.autoCompleteEnabled = true,
+    this.delayTime = false,
   });
 
   MapState copyWith({
@@ -160,7 +167,10 @@ class MapState {
     double? crumblingDevSum,
     int? crumblingDevCount,
     bool? diggingStatus,
+    List<ErrorAlert>? errors,
     double? spotCompletionDelay,
+    bool? autoCompleteEnabled,
+    bool? delayTime,
   }) {
     return MapState(
       currentLat: currentLat ?? this.currentLat,
@@ -199,7 +209,10 @@ class MapState {
       crumblingDevSum: crumblingDevSum ?? this.crumblingDevSum,
       crumblingDevCount: crumblingDevCount ?? this.crumblingDevCount,
       diggingStatus: diggingStatus ?? this.diggingStatus,
+      errors: errors ?? this.errors,
       spotCompletionDelay: spotCompletionDelay ?? this.spotCompletionDelay,
+      autoCompleteEnabled: autoCompleteEnabled ?? this.autoCompleteEnabled,
+      delayTime: delayTime ?? this.delayTime,
     );
   }
 }
@@ -216,6 +229,7 @@ class MapPresenter extends Notifier<MapState> {
 
   @override
   MapState build() {
+    ref.watch(authProvider); // Ensure session isolation & reset on user change
     _subscribe();
 
     // Check connection status periodically
@@ -256,7 +270,7 @@ class MapPresenter extends Notifier<MapState> {
     state = state.copyWith(isWorkMode: newMode);
 
     if (newMode) {
-      // NOTE: Mock data logic is disabled for production. 
+      // NOTE: Mock data logic is disabled for production.
       // Re-enable below for debugging if needed.
       // _startMocking(controller);
     } else {
@@ -268,59 +282,63 @@ class MapPresenter extends Notifier<MapState> {
     state = state.copyWith(spotCompletionDelay: seconds);
   }
 
-  // TODO: PROD_RELEASE: Remove this mock method for production release.
-  void _startMocking(maplibre.MapController? controller) {
-    if (_mockSpotTimer != null && _mockSpotTimer!.isActive) return;
-
-    _mockSpotTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      try {
-        final auth = ref.read(authProvider);
-        final activeWorkfile = auth.activeWorkfile;
-        if (activeWorkfile == null) return;
-
-        final fileID = activeWorkfile.uid.toString();
-
-        final isar = DatabaseService().isar;
-        
-        // Ambil spot dengan status 0 (pending) berdasarkan fileID
-        // Urutkan berdasarkan ID (index terkecil dahulu)
-        final spots = await isar.workingSpots
-            .filter()
-            .fileIDEqualTo(fileID)
-            .statusEqualTo(0)
-            .findAll();
-
-        if (spots.isEmpty) return;
-        
-        // Sort explicitly by ID ascending to ensure "index terkecil lebih dahulu"
-        spots.sort((a, b) => a.id.compareTo(b.id));
-
-        // Ambil spot pertama dari hasil filter status 0
-        final targetSpot = spots.first;
-
-        // Jika spot sudah dikerjakan, lewati saja dan lanjut index berikutnya.
-        // Tapi perintahnya: "ubah status workingspot menjadi 1 mulai dari index pertama".
-        if (targetSpot.status != 1) {
-          targetSpot.lastUpdate = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-          targetSpot.status = 1;
-          targetSpot.akurasi = 4.0 + (math.Random().nextDouble() * 6.0);
-
-          await isar.writeTxn(() async {
-            await isar.workingSpots.put(targetSpot);
-          });
-          
-          state = state.copyWith(spotDone: state.spotDone + 1);
-
-          // Refresh UI points on map supaya spot jadi hijau (status 1)
-          if (controller != null) {
-            loadSpots(controller);
-          }
-        }
-      } catch (e) {
-        print("Mock Spot Timer Error: \$e");
-      }
-    });
+  void setAutoComplete(bool enabled) {
+    state = state.copyWith(autoCompleteEnabled: enabled);
   }
+
+  // TODO: PROD_RELEASE: Remove this mock method for production release.
+  // void _startMocking(maplibre.MapController? controller) {
+  //   if (_mockSpotTimer != null && _mockSpotTimer!.isActive) return;
+
+  //   _mockSpotTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+  //     try {
+  //       final auth = ref.read(authProvider);
+  //       final activeWorkfile = auth.activeWorkfile;
+  //       if (activeWorkfile == null) return;
+
+  //       final fileID = activeWorkfile.uid.toString();
+
+  //       final isar = DatabaseService().isar;
+
+  //       // Ambil spot dengan status 0 (pending) berdasarkan fileID
+  //       // Urutkan berdasarkan ID (index terkecil dahulu)
+  //       final spots = await isar.workingSpots
+  //           .filter()
+  //           .fileIDEqualTo(fileID)
+  //           .statusEqualTo(0)
+  //           .findAll();
+
+  //       if (spots.isEmpty) return;
+
+  //       // Sort explicitly by ID ascending to ensure "index terkecil lebih dahulu"
+  //       spots.sort((a, b) => a.id.compareTo(b.id));
+
+  //       // Ambil spot pertama dari hasil filter status 0
+  //       final targetSpot = spots.first;
+
+  //       // Jika spot sudah dikerjakan, lewati saja dan lanjut index berikutnya.
+  //       // Tapi perintahnya: "ubah status workingspot menjadi 1 mulai dari index pertama".
+  //       if (targetSpot.status != 1) {
+  //         targetSpot.lastUpdate = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+  //         targetSpot.status = 1;
+  //         targetSpot.akurasi = 4.0 + (math.Random().nextDouble() * 6.0);
+
+  //         await isar.writeTxn(() async {
+  //           await isar.workingSpots.put(targetSpot);
+  //         });
+
+  //         state = state.copyWith(spotDone: state.spotDone + 1);
+
+  //         // Refresh UI points on map supaya spot jadi hijau (status 1)
+  //         if (controller != null) {
+  //           loadSpots(controller);
+  //         }
+  //       }
+  //     } catch (e) {
+  //       print("Mock Spot Timer Error: \$e");
+  //     }
+  //   });
+  // }
 
   void _stopMocking() {
     _mockSpotTimer?.cancel();
@@ -330,6 +348,8 @@ class MapPresenter extends Notifier<MapState> {
   // --- Timesheet Logic ---
   Future<void> startTimesheet(TimesheetRecord newRecord) async {
     final isar = DatabaseService().isar;
+    final auth = ref.read(authProvider);
+    newRecord.personID = auth.currentUser?.uid?.toString() ?? '0';
     await isar.writeTxn(() async {
       await isar.timesheetRecords.put(newRecord);
     });
@@ -339,13 +359,17 @@ class MapPresenter extends Notifier<MapState> {
     _timesheetTimer?.cancel();
     _timesheetTimer = Timer.periodic(const Duration(minutes: 5), (timer) async {
       final currentTs = state.activeTimesheet;
-      final currentWorkfile = ref.read(authProvider).activeWorkfile;
+      final auth = ref.read(authProvider);
+      final currentWorkfile = auth.activeWorkfile;
 
       if (currentTs != null && currentWorkfile != null) {
         final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
         currentTs.endTime = now;
         currentTs.totalTime = now - currentTs.startTime;
         currentTs.totalSpots = state.spotDone.toDouble();
+
+        // Update personID to current logged in user
+        currentTs.personID = auth.currentUser?.uid?.toString() ?? '0';
 
         // Calculate workspeed: (spot/hours * (panjang * lebar)) / 10000 -> in Ha
         if (currentTs.totalTime > 0) {
@@ -368,12 +392,13 @@ class MapPresenter extends Notifier<MapState> {
     });
   }
 
-  Future<void> stopTimesheet({required int hmEnd}) async {
+  Future<void> stopTimesheet({required double hmEnd}) async {
     _timesheetTimer?.cancel();
     _timesheetTimer = null;
 
     final currentTs = state.activeTimesheet;
-    final currentWorkfile = ref.read(authProvider).activeWorkfile;
+    final auth = ref.read(authProvider);
+    final currentWorkfile = auth.activeWorkfile;
 
     if (currentTs != null && currentWorkfile != null) {
       final isar = DatabaseService().isar;
@@ -383,6 +408,7 @@ class MapPresenter extends Notifier<MapState> {
       currentTs.hmEnd = hmEnd;
       currentTs.totalTime = now - currentTs.startTime;
       currentTs.totalSpots = state.spotDone.toDouble();
+      currentTs.personID = auth.currentUser?.uid?.toString() ?? '0';
 
       if (currentTs.totalTime > 0) {
         final hours = currentTs.totalTime / 3600.0;
@@ -436,13 +462,14 @@ class MapPresenter extends Notifier<MapState> {
       }
 
       if (state.rtkStatus != newRtkStatus) {
-        if (newRtkStatus == 'NO RTK') {
-          NotificationService.showError('RTK Signal Lost!');
-        } else if (newRtkStatus == 'RTK') {
-          NotificationService.showSuccess('RTK Fixed');
-        } else if (newRtkStatus == 'FLOAT') {
-          NotificationService.showWarning('RTK Float Mode');
-        }
+        debugPrint('RTK Status: $newRtkStatus');
+        // if (newRtkStatus == 'NO RTK') {
+        //   NotificationService.showError('RTK Signal Lost!');
+        // } else if (newRtkStatus == 'RTK') {
+        //   NotificationService.showSuccess('RTK Fixed');
+        // } else if (newRtkStatus == 'FLOAT') {
+        //   NotificationService.showWarning('RTK Float Mode');
+        // }
       }
 
       // Track Heading Logic
@@ -662,6 +689,7 @@ class MapPresenter extends Notifier<MapState> {
                     node.status = 1;
                     node.lastUpdate = nowSec;
                     node.akurasi = avgDev;
+                    node.driverID = auth.currentUser?.uid?.toString() ?? '0';
                     await isar.workingSpots.put(node);
 
                     // Remove from memory
@@ -707,14 +735,14 @@ class MapPresenter extends Notifier<MapState> {
           }
 
           if (shouldQueryNearby) {
-            // Find spots within 7.5m from Exca (using loaded spots)
+            // Find spots within 15.0m from Exca (using loaded spots)
             _cachedNearbySpots = _loadedSpots.where((spot) {
               if (spot.status != 0 || spot.lat == null || spot.lng == null) {
                 return false;
               }
               final spotPos = Position(spot.lng!, spot.lat!);
               final dist = _calc.getDistance(excaPos, spotPos);
-              return dist <= 7.5;
+              return dist <= 15.0;
             }).toList();
 
             state = state.copyWith(
@@ -746,31 +774,35 @@ class MapPresenter extends Notifier<MapState> {
             final bearing = _calc.getBearing(bucketPos, targetPos);
             final dist = _calc.getDistance(bucketPos, targetPos);
 
-            // Auto-Complete Spot Logic (< 10cm)
-            if (dist > 0.1) {
-              _spotInRangeSince = null;
+            // Stage 1: Waiting Logic (within 50cm)
+            // Note: newTargetSpot is found within 0.5m (50cm) at line 754.
+            if (_spotInRangeSince == null) {
+              _spotInRangeSince = DateTime.now();
+            } else if (!state.delayTime) {
+              final elapsed =
+                  DateTime.now().difference(_spotInRangeSince!).inMilliseconds /
+                  1000.0;
+              if (elapsed >= state.spotCompletionDelay) {
+                state = state.copyWith(delayTime: true);
+              }
             }
 
+            // Stage 2: Accuracy Trigger (within 10cm)
             bool shouldComplete = false;
-            if (dist <= 0.1) {
-              if (_spotInRangeSince == null) {
-                _spotInRangeSince = DateTime.now();
-              } else {
-                final elapsed = DateTime.now().difference(_spotInRangeSince!).inMilliseconds / 1000.0;
-                if (elapsed >= state.spotCompletionDelay) {
-                  shouldComplete = true;
-                }
-              }
+            if (dist <= 0.1 && state.autoCompleteEnabled && state.delayTime) {
+              shouldComplete = true;
             }
 
             if (shouldComplete) {
               // Update entity
               final spotToSave = newTargetSpot;
-              spotToSave.lastUpdate = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+              spotToSave.lastUpdate =
+                  DateTime.now().millisecondsSinceEpoch ~/ 1000;
               spotToSave.lat = gps.attachLat;
               spotToSave.lng = gps.attachLng;
               spotToSave.status = 1;
               spotToSave.akurasi = dist * 100; // in cm
+              spotToSave.driverID = auth.currentUser?.uid?.toString() ?? '0';
 
               final rand = math.Random();
               spotToSave.deep = 60 + rand.nextInt(21); // 60-80
@@ -807,10 +839,11 @@ class MapPresenter extends Notifier<MapState> {
               // Reset digging status
               state = state.copyWith(diggingStatus: false);
               ref.read(comServiceProvider.notifier).resetDiggingStatus();
-              
-              _spotInRangeSince = null;
 
-              NotificationService.showSuccess('Spot Completed!');
+              _spotInRangeSince = null;
+              state = state.copyWith(delayTime: false);
+
+              // NotificationService.showSuccess('Spot Completed!');
             } else {
               // Theta: angle difference between Bucket-Target bearing vs Exca Machine Heading
               // This aligns the X,Y coordinates to the direction the machine is facing.
@@ -820,6 +853,12 @@ class MapPresenter extends Notifier<MapState> {
               // Left/Right deviation (X): positive is right
               newDevY = dist * math.cos(thetaRad);
               newDevX = dist * math.sin(thetaRad);
+            }
+          } else {
+            // Reset delay state if bucket moves out of 50cm radius
+            if (_spotInRangeSince != null || state.delayTime) {
+              _spotInRangeSince = null;
+              state = state.copyWith(delayTime: false);
             }
           }
         } // End Spot Logic Mode Check
@@ -873,8 +912,11 @@ class MapPresenter extends Notifier<MapState> {
       if (next.isNotEmpty) {
         final latest = next.first;
         if (state.lastError != latest) {
-          NotificationService.showError('Error: ${latest.message}');
-          state = state.copyWith(lastError: latest);
+          // Add to local map buffer instead of showing snackbar
+          state = state.copyWith(
+            lastError: latest,
+            errors: [latest, ...state.errors].take(50).toList(),
+          );
         }
       }
     });
@@ -939,7 +981,7 @@ class MapPresenter extends Notifier<MapState> {
       );
 
       await style.addLayer(
-        const maplibre.CircleStyleLayer(
+        maplibre.CircleStyleLayer(
           id: 'spots_layer',
           sourceId: 'spots_source',
           paint: {
@@ -950,10 +992,20 @@ class MapPresenter extends Notifier<MapState> {
               0, '#FF0000', // Status 0 = Red (Todo)
               '#808080', // Default = Grey
             ],
-            'circle-radius': 5.0,
+            'circle-radius': [
+              'step',
+              ['zoom'],
+              0.5 /
+                  (156543.03392 /
+                      math.pow(2, 19.0)), // Set radius for Zoom Out (19.0)
+              20.1, // Threshold crossing
+              0.5 /
+                  (156543.03392 /
+                      math.pow(2, 21.2)), // Set radius for Zoom In (21.2)
+            ],
             'circle-opacity': 0.8,
           },
-          filter: ['==', r'$type', 'Point'],
+          filter: const ['==', r'$type', 'Point'],
         ),
       );
 
@@ -1164,10 +1216,7 @@ class MapPresenter extends Notifier<MapState> {
     }
   }
 
-  Future<void> _updateBody(
-    maplibre.StyleController style,
-    GPSLoc gps,
-  ) async {
+  Future<void> _updateBody(maplibre.StyleController style, GPSLoc gps) async {
     try {
       const double BODY_WIDTH = 1.7;
       const double BODY_LENGTH = 3.0;
@@ -1525,14 +1574,13 @@ class MapPresenter extends Notifier<MapState> {
       }
 
       final fileID = activeFile.uid.toString();
-      final driverID = driver.uid.toString();
+      // final driverID = driver.uid.toString();
 
       final isar = DatabaseService().isar;
 
       // Query specific spots for this person and workfile, filtered by mode
       final spots = await isar.workingSpots
           .filter()
-          .driverIDEqualTo(driverID)
           .fileIDEqualTo(fileID)
           .modeEqualTo(systemMode)
           .findAll();

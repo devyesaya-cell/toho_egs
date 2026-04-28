@@ -323,7 +323,8 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
     final whDuration = Duration(seconds: workHoursSeconds.toInt());
     final hours = whDuration.inHours.toString().padLeft(2, '0');
     final minutes = (whDuration.inMinutes % 60).toString().padLeft(2, '0');
-    final workHoursStr = "$hours:$minutes";
+    final seconds = (whDuration.inSeconds % 60).toString().padLeft(2, '0');
+    final workHoursStr = "$hours:$minutes:$seconds";
 
     // 9. Production
     // For Spot mode: count of spots. For Crumbling: Total Distance (meters)
@@ -456,7 +457,7 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
       ), // Mock Target 250
 
       precision: double.parse(precision.toStringAsFixed(2)),
-      percentagePrecision: (precision / 10).clamp(0.0, 1.0), // Mock Max 10 cm?
+      percentagePrecision: (1.0 - (precision / 10.0)).clamp(0.0, 1.0), // 0cm = 100%, 10cm = 0%
 
       productionSpots: production,
       productionSpotsTotal: production,

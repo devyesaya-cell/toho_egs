@@ -17,54 +17,59 @@ const WorkFileSchema = CollectionSchema(
   name: r'WorkFile',
   id: -8184710040028081999,
   properties: {
-    r'areaID': PropertySchema(id: 0, name: r'areaID', type: IsarType.long),
+    r'areaID': PropertySchema(id: 0, name: r'areaID', type: IsarType.string),
     r'areaName': PropertySchema(
       id: 1,
       name: r'areaName',
       type: IsarType.string,
     ),
-    r'contractor': PropertySchema(
+    r'companyID': PropertySchema(
       id: 2,
+      name: r'companyID',
+      type: IsarType.string,
+    ),
+    r'contractor': PropertySchema(
+      id: 3,
       name: r'contractor',
       type: IsarType.string,
     ),
-    r'createAt': PropertySchema(id: 3, name: r'createAt', type: IsarType.long),
-    r'doneAt': PropertySchema(id: 4, name: r'doneAt', type: IsarType.long),
+    r'createAt': PropertySchema(id: 4, name: r'createAt', type: IsarType.long),
+    r'doneAt': PropertySchema(id: 5, name: r'doneAt', type: IsarType.long),
     r'equipment': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'equipment',
       type: IsarType.string,
     ),
     r'equipmentID': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'equipmentID',
-      type: IsarType.long,
+      type: IsarType.string,
     ),
     r'lastUpdate': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'lastUpdate',
       type: IsarType.long,
     ),
-    r'lebar': PropertySchema(id: 8, name: r'lebar', type: IsarType.double),
+    r'lebar': PropertySchema(id: 9, name: r'lebar', type: IsarType.double),
     r'luasArea': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'luasArea',
       type: IsarType.double,
     ),
     r'operatorID': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'operatorID',
-      type: IsarType.long,
+      type: IsarType.string,
     ),
-    r'panjang': PropertySchema(id: 11, name: r'panjang', type: IsarType.double),
-    r'spotDone': PropertySchema(id: 12, name: r'spotDone', type: IsarType.long),
-    r'status': PropertySchema(id: 13, name: r'status', type: IsarType.string),
+    r'panjang': PropertySchema(id: 12, name: r'panjang', type: IsarType.double),
+    r'spotDone': PropertySchema(id: 13, name: r'spotDone', type: IsarType.long),
+    r'status': PropertySchema(id: 14, name: r'status', type: IsarType.string),
     r'totalSpot': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'totalSpot',
       type: IsarType.long,
     ),
-    r'uid': PropertySchema(id: 15, name: r'uid', type: IsarType.long),
+    r'uid': PropertySchema(id: 16, name: r'uid', type: IsarType.long),
   },
 
   estimateSize: _workFileEstimateSize,
@@ -103,7 +108,19 @@ int _workFileEstimateSize(
 ) {
   var bytesCount = offsets.last;
   {
+    final value = object.areaID;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.areaName;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.companyID;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -116,6 +133,18 @@ int _workFileEstimateSize(
   }
   {
     final value = object.equipment;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.equipmentID;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.operatorID;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -135,22 +164,23 @@ void _workFileSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.areaID);
+  writer.writeString(offsets[0], object.areaID);
   writer.writeString(offsets[1], object.areaName);
-  writer.writeString(offsets[2], object.contractor);
-  writer.writeLong(offsets[3], object.createAt);
-  writer.writeLong(offsets[4], object.doneAt);
-  writer.writeString(offsets[5], object.equipment);
-  writer.writeLong(offsets[6], object.equipmentID);
-  writer.writeLong(offsets[7], object.lastUpdate);
-  writer.writeDouble(offsets[8], object.lebar);
-  writer.writeDouble(offsets[9], object.luasArea);
-  writer.writeLong(offsets[10], object.operatorID);
-  writer.writeDouble(offsets[11], object.panjang);
-  writer.writeLong(offsets[12], object.spotDone);
-  writer.writeString(offsets[13], object.status);
-  writer.writeLong(offsets[14], object.totalSpot);
-  writer.writeLong(offsets[15], object.uid);
+  writer.writeString(offsets[2], object.companyID);
+  writer.writeString(offsets[3], object.contractor);
+  writer.writeLong(offsets[4], object.createAt);
+  writer.writeLong(offsets[5], object.doneAt);
+  writer.writeString(offsets[6], object.equipment);
+  writer.writeString(offsets[7], object.equipmentID);
+  writer.writeLong(offsets[8], object.lastUpdate);
+  writer.writeDouble(offsets[9], object.lebar);
+  writer.writeDouble(offsets[10], object.luasArea);
+  writer.writeString(offsets[11], object.operatorID);
+  writer.writeDouble(offsets[12], object.panjang);
+  writer.writeLong(offsets[13], object.spotDone);
+  writer.writeString(offsets[14], object.status);
+  writer.writeLong(offsets[15], object.totalSpot);
+  writer.writeLong(offsets[16], object.uid);
 }
 
 WorkFile _workFileDeserialize(
@@ -160,22 +190,23 @@ WorkFile _workFileDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = WorkFile(
-    areaID: reader.readLongOrNull(offsets[0]),
+    areaID: reader.readStringOrNull(offsets[0]),
     areaName: reader.readStringOrNull(offsets[1]),
-    contractor: reader.readStringOrNull(offsets[2]),
-    createAt: reader.readLongOrNull(offsets[3]),
-    doneAt: reader.readLongOrNull(offsets[4]),
-    equipment: reader.readStringOrNull(offsets[5]),
-    equipmentID: reader.readLongOrNull(offsets[6]),
-    lastUpdate: reader.readLongOrNull(offsets[7]),
-    lebar: reader.readDoubleOrNull(offsets[8]),
-    luasArea: reader.readDoubleOrNull(offsets[9]),
-    operatorID: reader.readLongOrNull(offsets[10]),
-    panjang: reader.readDoubleOrNull(offsets[11]),
-    spotDone: reader.readLongOrNull(offsets[12]),
-    status: reader.readStringOrNull(offsets[13]),
-    totalSpot: reader.readLongOrNull(offsets[14]),
-    uid: reader.readLongOrNull(offsets[15]),
+    companyID: reader.readStringOrNull(offsets[2]),
+    contractor: reader.readStringOrNull(offsets[3]),
+    createAt: reader.readLongOrNull(offsets[4]),
+    doneAt: reader.readLongOrNull(offsets[5]),
+    equipment: reader.readStringOrNull(offsets[6]),
+    equipmentID: reader.readStringOrNull(offsets[7]),
+    lastUpdate: reader.readLongOrNull(offsets[8]),
+    lebar: reader.readDoubleOrNull(offsets[9]),
+    luasArea: reader.readDoubleOrNull(offsets[10]),
+    operatorID: reader.readStringOrNull(offsets[11]),
+    panjang: reader.readDoubleOrNull(offsets[12]),
+    spotDone: reader.readLongOrNull(offsets[13]),
+    status: reader.readStringOrNull(offsets[14]),
+    totalSpot: reader.readLongOrNull(offsets[15]),
+    uid: reader.readLongOrNull(offsets[16]),
   );
   object.id = id;
   return object;
@@ -189,36 +220,38 @@ P _workFileDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 1:
       return (reader.readStringOrNull(offset)) as P;
     case 2:
       return (reader.readStringOrNull(offset)) as P;
     case 3:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 4:
       return (reader.readLongOrNull(offset)) as P;
     case 5:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 6:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 7:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 8:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 9:
       return (reader.readDoubleOrNull(offset)) as P;
     case 10:
-      return (reader.readLongOrNull(offset)) as P;
-    case 11:
       return (reader.readDoubleOrNull(offset)) as P;
-    case 12:
-      return (reader.readLongOrNull(offset)) as P;
-    case 13:
+    case 11:
       return (reader.readStringOrNull(offset)) as P;
-    case 14:
+    case 12:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 13:
       return (reader.readLongOrNull(offset)) as P;
+    case 14:
+      return (reader.readStringOrNull(offset)) as P;
     case 15:
+      return (reader.readLongOrNull(offset)) as P;
+    case 16:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -409,18 +442,24 @@ extension WorkFileQueryFilter
   }
 
   QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> areaIDEqualTo(
-    int? value,
-  ) {
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'areaID', value: value),
+        FilterCondition.equalTo(
+          property: r'areaID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> areaIDGreaterThan(
-    int? value, {
+    String? value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -428,14 +467,16 @@ extension WorkFileQueryFilter
           include: include,
           property: r'areaID',
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
   QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> areaIDLessThan(
-    int? value, {
+    String? value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -443,16 +484,18 @@ extension WorkFileQueryFilter
           include: include,
           property: r'areaID',
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
   QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> areaIDBetween(
-    int? lower,
-    int? upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -462,7 +505,84 @@ extension WorkFileQueryFilter
           includeLower: includeLower,
           upper: upper,
           includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
         ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> areaIDStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'areaID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> areaIDEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'areaID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> areaIDContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'areaID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> areaIDMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'areaID',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> areaIDIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'areaID', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> areaIDIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'areaID', value: ''),
       );
     });
   }
@@ -625,6 +745,169 @@ extension WorkFileQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(property: r'areaName', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> companyIDIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'companyID'),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> companyIDIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'companyID'),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> companyIDEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'companyID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> companyIDGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'companyID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> companyIDLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'companyID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> companyIDBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'companyID',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> companyIDStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'companyID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> companyIDEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'companyID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> companyIDContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'companyID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> companyIDMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'companyID',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> companyIDIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'companyID', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition>
+  companyIDIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'companyID', value: ''),
       );
     });
   }
@@ -1124,31 +1407,42 @@ extension WorkFileQueryFilter
   }
 
   QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> equipmentIDEqualTo(
-    int? value,
-  ) {
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'equipmentID', value: value),
+        FilterCondition.equalTo(
+          property: r'equipmentID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition>
-  equipmentIDGreaterThan(int? value, {bool include = false}) {
+  equipmentIDGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(
           include: include,
           property: r'equipmentID',
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
   QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> equipmentIDLessThan(
-    int? value, {
+    String? value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1156,16 +1450,18 @@ extension WorkFileQueryFilter
           include: include,
           property: r'equipmentID',
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
   QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> equipmentIDBetween(
-    int? lower,
-    int? upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1175,7 +1471,85 @@ extension WorkFileQueryFilter
           includeLower: includeLower,
           upper: upper,
           includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
         ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> equipmentIDStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'equipmentID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> equipmentIDEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'equipmentID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> equipmentIDContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'equipmentID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> equipmentIDMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'equipmentID',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> equipmentIDIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'equipmentID', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition>
+  equipmentIDIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'equipmentID', value: ''),
       );
     });
   }
@@ -1511,18 +1885,24 @@ extension WorkFileQueryFilter
   }
 
   QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> operatorIDEqualTo(
-    int? value,
-  ) {
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'operatorID', value: value),
+        FilterCondition.equalTo(
+          property: r'operatorID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> operatorIDGreaterThan(
-    int? value, {
+    String? value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1530,14 +1910,16 @@ extension WorkFileQueryFilter
           include: include,
           property: r'operatorID',
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
   QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> operatorIDLessThan(
-    int? value, {
+    String? value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1545,16 +1927,18 @@ extension WorkFileQueryFilter
           include: include,
           property: r'operatorID',
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
   QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> operatorIDBetween(
-    int? lower,
-    int? upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1564,7 +1948,85 @@ extension WorkFileQueryFilter
           includeLower: includeLower,
           upper: upper,
           includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
         ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> operatorIDStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'operatorID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> operatorIDEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'operatorID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> operatorIDContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'operatorID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> operatorIDMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'operatorID',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition> operatorIDIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'operatorID', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterFilterCondition>
+  operatorIDIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'operatorID', value: ''),
       );
     });
   }
@@ -2078,6 +2540,18 @@ extension WorkFileQuerySortBy on QueryBuilder<WorkFile, WorkFile, QSortBy> {
     });
   }
 
+  QueryBuilder<WorkFile, WorkFile, QAfterSortBy> sortByCompanyID() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'companyID', Sort.asc);
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterSortBy> sortByCompanyIDDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'companyID', Sort.desc);
+    });
+  }
+
   QueryBuilder<WorkFile, WorkFile, QAfterSortBy> sortByContractor() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'contractor', Sort.asc);
@@ -2273,6 +2747,18 @@ extension WorkFileQuerySortThenBy
     });
   }
 
+  QueryBuilder<WorkFile, WorkFile, QAfterSortBy> thenByCompanyID() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'companyID', Sort.asc);
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QAfterSortBy> thenByCompanyIDDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'companyID', Sort.desc);
+    });
+  }
+
   QueryBuilder<WorkFile, WorkFile, QAfterSortBy> thenByContractor() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'contractor', Sort.asc);
@@ -2456,9 +2942,11 @@ extension WorkFileQuerySortThenBy
 
 extension WorkFileQueryWhereDistinct
     on QueryBuilder<WorkFile, WorkFile, QDistinct> {
-  QueryBuilder<WorkFile, WorkFile, QDistinct> distinctByAreaID() {
+  QueryBuilder<WorkFile, WorkFile, QDistinct> distinctByAreaID({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'areaID');
+      return query.addDistinctBy(r'areaID', caseSensitive: caseSensitive);
     });
   }
 
@@ -2467,6 +2955,14 @@ extension WorkFileQueryWhereDistinct
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'areaName', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<WorkFile, WorkFile, QDistinct> distinctByCompanyID({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'companyID', caseSensitive: caseSensitive);
     });
   }
 
@@ -2498,9 +2994,11 @@ extension WorkFileQueryWhereDistinct
     });
   }
 
-  QueryBuilder<WorkFile, WorkFile, QDistinct> distinctByEquipmentID() {
+  QueryBuilder<WorkFile, WorkFile, QDistinct> distinctByEquipmentID({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'equipmentID');
+      return query.addDistinctBy(r'equipmentID', caseSensitive: caseSensitive);
     });
   }
 
@@ -2522,9 +3020,11 @@ extension WorkFileQueryWhereDistinct
     });
   }
 
-  QueryBuilder<WorkFile, WorkFile, QDistinct> distinctByOperatorID() {
+  QueryBuilder<WorkFile, WorkFile, QDistinct> distinctByOperatorID({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'operatorID');
+      return query.addDistinctBy(r'operatorID', caseSensitive: caseSensitive);
     });
   }
 
@@ -2569,7 +3069,7 @@ extension WorkFileQueryProperty
     });
   }
 
-  QueryBuilder<WorkFile, int?, QQueryOperations> areaIDProperty() {
+  QueryBuilder<WorkFile, String?, QQueryOperations> areaIDProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'areaID');
     });
@@ -2578,6 +3078,12 @@ extension WorkFileQueryProperty
   QueryBuilder<WorkFile, String?, QQueryOperations> areaNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'areaName');
+    });
+  }
+
+  QueryBuilder<WorkFile, String?, QQueryOperations> companyIDProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'companyID');
     });
   }
 
@@ -2605,7 +3111,7 @@ extension WorkFileQueryProperty
     });
   }
 
-  QueryBuilder<WorkFile, int?, QQueryOperations> equipmentIDProperty() {
+  QueryBuilder<WorkFile, String?, QQueryOperations> equipmentIDProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'equipmentID');
     });
@@ -2629,7 +3135,7 @@ extension WorkFileQueryProperty
     });
   }
 
-  QueryBuilder<WorkFile, int?, QQueryOperations> operatorIDProperty() {
+  QueryBuilder<WorkFile, String?, QQueryOperations> operatorIDProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'operatorID');
     });

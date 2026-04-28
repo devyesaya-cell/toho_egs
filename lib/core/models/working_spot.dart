@@ -46,18 +46,21 @@ class WorkingSpot {
 
   factory WorkingSpot.fromJson(Map<String, dynamic> json) {
     return WorkingSpot(
-      status: json['status'],
-      driverID: json['driverID'],
-      fileID: json['fileID'],
-      spotID: json['spotID'],
-      mode: json['mode'],
-      totalTime: json['totalTime'],
-      akurasi: json['akurasi'],
-      deep: json['deep'],
-      lat: json['lat'],
-      lng: json['lng'],
-      alt: json['alt'],
-      lastUpdate: json['lastUpdate'],
+      // int? fields: safe cast via (as num?)?.toInt() to handle both int and double in JSON
+      status: (json['status'] as num?)?.toInt(),
+      spotID: (json['spotID'] as num?)?.toInt(),
+      totalTime: (json['totalTime'] as num?)?.toInt(),
+      deep: (json['deep'] as num?)?.toInt(),
+      alt: (json['alt'] as num?)?.toInt(),
+      lastUpdate: (json['lastUpdate'] as num?)?.toInt(),
+      // double? fields: safe cast via (as num?)?.toDouble() to handle both int and double in JSON
+      akurasi: (json['akurasi'] as num?)?.toDouble(),
+      lat: (json['lat'] as num?)?.toDouble(),
+      lng: (json['lng'] as num?)?.toDouble(),
+      // String fields
+      driverID: json['driverID'] as String?,
+      fileID: json['fileID'] as String?,
+      mode: json['mode'] as String?,
     );
   }
 

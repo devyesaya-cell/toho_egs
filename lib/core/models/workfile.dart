@@ -25,9 +25,10 @@ class WorkFile {
   int? lastUpdate;
   int? doneAt;
 
-  int? equipmentID;
-  int? operatorID;
-  int? areaID;
+  String? equipmentID;
+  String? operatorID;
+  String? areaID;
+  String? companyID;
 
   WorkFile({
     this.uid,
@@ -46,5 +47,6 @@ class WorkFile {
     this.equipmentID,
     this.operatorID,
     this.areaID,
+    this.companyID,
   });
 }

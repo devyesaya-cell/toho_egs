@@ -74,11 +74,11 @@ class DashboardPage extends ConsumerWidget {
             const SizedBox(height: 16),
             Expanded(
               child: dashboardDataAsync.when(
-                data: (data) =>
-                    _buildDashboardContent(data, isCrumbling),
+                data: (data) => _buildDashboardContent(data, isCrumbling),
                 loading: () => Center(
                   child: CircularProgressIndicator(
-                      color: theme.loadingIndicatorColor),
+                    color: theme.loadingIndicatorColor,
+                  ),
                 ),
                 error: (err, stack) => Center(
                   child: Text(
@@ -130,8 +130,9 @@ class DashboardPage extends ConsumerWidget {
                                   ? ''
                                   : '${data.productivitySpotsHr.toStringAsFixed(0)} spots/Hr',
                               percent: data.percentageProductivity,
-                              progressColor:
-                                  const Color(0xFF3B82F6), // semantic blue
+                              progressColor: const Color(
+                                0xFF3B82F6,
+                              ), // semantic blue
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -144,8 +145,9 @@ class DashboardPage extends ConsumerWidget {
                               subUnit: 'cm',
                               subValue: '10 cm',
                               percent: data.percentagePrecision,
-                              progressColor:
-                                  const Color(0xFFEF4444), // semantic red
+                              progressColor: const Color(
+                                0xFFEF4444,
+                              ), // semantic red
                             ),
                           ),
                         ],
@@ -158,14 +160,15 @@ class DashboardPage extends ConsumerWidget {
                           Expanded(
                             child: SummaryCard(
                               title: 'Production',
-                              value: data.productionSpots.toStringAsFixed(1),
+                              value: data.productionSpots.toStringAsFixed(0),
                               subUnit: isCrumbling ? 'm²' : 'spot',
                               subValue: isCrumbling
                                   ? ''
                                   : '${data.productionSpotsTotal.toStringAsFixed(0)} spots',
                               percent: data.percentageProduction,
-                              progressColor:
-                                  const Color(0xFF2ECC71), // semantic green
+                              progressColor: const Color(
+                                0xFF2ECC71,
+                              ), // semantic green
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -173,11 +176,12 @@ class DashboardPage extends ConsumerWidget {
                             child: SummaryCard(
                               title: 'Work Hours',
                               value: data.workHours,
-                              subUnit: 'hours',
-                              subValue: '12 Hours',
+                              subUnit: '',
+                              subValue: '12:00:00 Target',
                               percent: data.percentageWorkHours,
-                              progressColor:
-                                  const Color(0xFFA855F7), // semantic purple
+                              progressColor: const Color(
+                                0xFFA855F7,
+                              ), // semantic purple
                             ),
                           ),
                         ],

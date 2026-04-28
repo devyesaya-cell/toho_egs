@@ -3,11 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:file_picker/file_picker.dart';
 import '../../core/models/area.dart';
 import '../../core/models/contractor.dart';
+import '../../core/models/equipment.dart';
+import '../../core/models/workfile.dart';
 import '../../core/state/auth_state.dart';
 import 'workfile_presenter.dart';
 
 class CreateWorkfilePage extends ConsumerStatefulWidget {
-  const CreateWorkfilePage({Key? key}) : super(key: key);
+  final WorkFile? workfileToEdit;
+
+  const CreateWorkfilePage({Key? key, this.workfileToEdit}) : super(key: key);
 
   @override
   ConsumerState<CreateWorkfilePage> createState() => _CreateWorkfilePageState();
@@ -19,7 +23,7 @@ class _CreateWorkfilePageState extends ConsumerState<CreateWorkfilePage> {
     super.initState();
     // Load initial data
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(workfilePresenterProvider.notifier).loadData();
+      ref.read(workfilePresenterProvider.notifier).loadData(widget.workfileToEdit);
     });
   }
 
@@ -31,9 +35,9 @@ class _CreateWorkfilePageState extends ConsumerState<CreateWorkfilePage> {
     return Scaffold(
       backgroundColor: const Color(0xFF121612), // Darker green-black
       appBar: AppBar(
-        title: const Text(
-          'Create Workfile',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          widget.workfileToEdit != null ? 'Edit Workfile' : 'Create Workfile',
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF1E241E),
         iconTheme: const IconThemeData(color: Colors.greenAccent),
@@ -125,48 +129,65 @@ class _CreateWorkfilePageState extends ConsumerState<CreateWorkfilePage> {
                                 .toList(),
                         onChanged: (value) => notifier.selectSpacing(value),
                       ),
+                      const SizedBox(height: 20),
+
+                      // Equipment Dropdown
+                      _buildDropdown<Equipment>(
+                        label: 'SELECT EQUIPMENT',
+                        value: state.selectedEquipment,
+                        items: state.equipments
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(e.equipName ?? 'Unknown Equipment'),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) => notifier.selectEquipment(value),
+                      ),
                       const SizedBox(height: 32),
 
-                      // File Input
-                      Text(
-                        'GEOJSON FILE',
-                        style: TextStyle(
-                          color: Colors.greenAccent[400],
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: () => notifier.pickFile(),
-                        icon: const Icon(Icons.upload_file),
-                        label: const Text('SELECT GEOJSON FILE'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.05),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: const BorderSide(color: Colors.white24),
+                      if (widget.workfileToEdit == null) ...[
+                        // File Input
+                        Text(
+                          'GEOJSON FILE',
+                          style: TextStyle(
+                            color: Colors.greenAccent[400],
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
                           ),
-                          elevation: 0,
                         ),
-                      ),
-                      if (state.filePath != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12.0),
-                          child: Text(
-                            'Selected: ${state.filePath!.split('/').last}',
-                            style: const TextStyle(
-                              color: Colors.greenAccent,
-                              fontWeight: FontWeight.bold,
+                        const SizedBox(height: 8),
+                        ElevatedButton.icon(
+                          onPressed: () => notifier.pickFile(),
+                          icon: const Icon(Icons.upload_file),
+                          label: const Text('SELECT GEOJSON FILE'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white.withOpacity(0.05),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: const BorderSide(color: Colors.white24),
                             ),
-                            textAlign: TextAlign.center,
+                            elevation: 0,
                           ),
                         ),
-
-                      const SizedBox(height: 32),
+                        if (state.filePath != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12.0),
+                            child: Text(
+                              'Selected: ${state.filePath!.split('/').last}',
+                              style: const TextStyle(
+                                color: Colors.greenAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        const SizedBox(height: 32),
+                      ],
 
                       // Summary Card
                       Container(
@@ -187,7 +208,7 @@ class _CreateWorkfilePageState extends ConsumerState<CreateWorkfilePage> {
                           children: [
                             _buildSummaryRow(
                               'Total Spots:',
-                              '${state.parsedSpots.length}',
+                              '${widget.workfileToEdit != null ? widget.workfileToEdit!.totalSpot : state.parsedSpots.length}',
                             ),
                             const SizedBox(height: 12),
                             _buildSummaryRow(
@@ -207,16 +228,16 @@ class _CreateWorkfilePageState extends ConsumerState<CreateWorkfilePage> {
                           onPressed:
                               (state.selectedArea != null &&
                                   state.selectedContractor != null &&
-                                  state.parsedSpots.isNotEmpty)
+                                  (state.parsedSpots.isNotEmpty || widget.workfileToEdit != null))
                               ? () async {
                                   final success = await notifier.saveWorkfile();
                                   if (success && context.mounted) {
                                     Navigator.pop(context);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: const Text(
-                                          'Workfile created successfully',
-                                          style: TextStyle(
+                                        content: Text(
+                                          widget.workfileToEdit != null ? 'Workfile updated successfully' : 'Workfile created successfully',
+                                          style: const TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -239,9 +260,9 @@ class _CreateWorkfilePageState extends ConsumerState<CreateWorkfilePage> {
                             ),
                             elevation: 0,
                           ),
-                          child: const Text(
-                            'CREATE WORKFILE',
-                            style: TextStyle(
+                          child: Text(
+                            widget.workfileToEdit != null ? 'UPDATE WORKFILE' : 'CREATE WORKFILE',
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.0,

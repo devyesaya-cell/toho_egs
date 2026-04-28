@@ -114,13 +114,15 @@ class DialogUtils {
   static Future<void> showDelayConfigDialog({
     required BuildContext context,
     required double currentDelay,
-    required Function(double) onSave,
+    required bool isAutoEnabled,
+    required Function(double, bool) onSave,
   }) {
     final isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF1E3020) : Colors.orange.shade50;
     final textColor = isDark ? Colors.white : Colors.black87;
-    final options = [2.0, 3.0, 5.0, 7.0, 10.0];
+    final options = [1.0, 1.5, 2.0, 2.5, 3.0];
     double selectedDelay = currentDelay;
+    bool autoEnabled = isAutoEnabled;
 
     return showDialog(
       context: context,
@@ -133,29 +135,63 @@ class DialogUtils {
                 borderRadius: BorderRadius.circular(16),
               ),
               title: Text(
-                'Spot Completion Delay',
+                'Spot Completion Setup',
                 style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    'Select the duration (in seconds) the bucket must remain within 10cm of the target spot.',
-                    style: TextStyle(color: textColor, fontSize: 13),
+                  SwitchListTile(
+                    title: Text(
+                      'Automatic Done',
+                      style: TextStyle(
+                        color: textColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    subtitle: Text(
+                      autoEnabled ? 'Enabled' : 'Disabled (Manual)',
+                      style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 11),
+                    ),
+                    value: autoEnabled,
+                    activeColor: isDark ? Colors.greenAccent : Colors.orange,
+                    onChanged: (val) {
+                      setState(() {
+                        autoEnabled = val;
+                      });
+                    },
                   ),
-                  const SizedBox(height: 16),
-                  ...options.map((val) => RadioListTile<double>(
-                        title: Text('${val.toInt()} seconds',
-                            style: TextStyle(color: textColor)),
-                        value: val,
-                        groupValue: selectedDelay,
-                        activeColor: isDark ? Colors.greenAccent : Colors.orange,
-                        onChanged: (double? newValue) {
-                          setState(() {
-                            selectedDelay = newValue!;
-                          });
-                        },
-                      )),
+                  const Divider(),
+                  if (autoEnabled) ...[
+                    Text(
+                      'Wait duration (seconds) inside 10cm:',
+                      style: TextStyle(color: textColor, fontSize: 13),
+                    ),
+                    const SizedBox(height: 8),
+                    ...options.map((val) => RadioListTile<double>(
+                          title: Text('$val seconds',
+                              style: TextStyle(color: textColor, fontSize: 14)),
+                          value: val,
+                          dense: true,
+                          groupValue: selectedDelay,
+                          activeColor: isDark ? Colors.greenAccent : Colors.orange,
+                          onChanged: (double? newValue) {
+                            setState(() {
+                              selectedDelay = newValue!;
+                            });
+                          },
+                        )),
+                  ] else ...[
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Automatic status change is disabled. Target spots will not turn green automatically.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: textColor.withOpacity(0.6), fontSize: 12, fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ],
                 ],
               ),
               actions: [
@@ -171,7 +207,7 @@ class DialogUtils {
                     foregroundColor: Colors.white,
                   ),
                   onPressed: () {
-                    onSave(selectedDelay);
+                    onSave(selectedDelay, autoEnabled);
                     Navigator.of(context).pop();
                   },
                   child: const Text('Save'),

@@ -6,12 +6,14 @@ import '../../../../core/utils/app_theme.dart';
 class WorkfileCardWidget extends StatelessWidget {
   final WorkFile workfile;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
   final bool showDelete;
 
   const WorkfileCardWidget({
     super.key,
     required this.workfile,
     required this.onDelete,
+    required this.onEdit,
     this.showDelete = false,
   });
 
@@ -110,26 +112,54 @@ class WorkfileCardWidget extends StatelessWidget {
 
           if (showDelete) ...[
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 32,
-              child: OutlinedButton(
-                onPressed: onDelete,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFEF4444), // kept semantic red
-                  side: const BorderSide(color: Color(0xFFEF4444), width: 1),
-                  backgroundColor: Colors.transparent,
-                  textStyle: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 32,
+                    child: OutlinedButton(
+                      onPressed: onEdit,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF3B82F6), // Blue for Edit
+                        side: const BorderSide(color: Color(0xFF3B82F6), width: 1),
+                        backgroundColor: Colors.transparent,
+                        textStyle: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('EDIT'),
+                    ),
                   ),
                 ),
-                child: const Text('DELETE WORKFILE'),
-              ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: SizedBox(
+                    height: 32,
+                    child: OutlinedButton(
+                      onPressed: onDelete,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFEF4444), // kept semantic red
+                        side: const BorderSide(color: Color(0xFFEF4444), width: 1),
+                        backgroundColor: Colors.transparent,
+                        textStyle: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('DELETE'),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ],
