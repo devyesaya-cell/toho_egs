@@ -23,6 +23,7 @@ enum SyncConnectionStatus {
   connecting,
   connected,
   sendingPayload,
+  receivingPayload,
   payloadSent,
   error,
 }
@@ -48,7 +49,7 @@ class SyncState {
   final double progress;
   final List<SyncLog> logs;
   final int? activeUploadId;
-  final double uploadProgress;
+  final double? uploadProgress;
 
   /// Epoch seconds of the last time getWorkfile() was called. Used for 5s cooldown.
   final int? lastGetWorkfileTime;
@@ -78,6 +79,7 @@ class SyncState {
     int? activeUploadId,
     double? uploadProgress,
     bool clearUploadId = false,
+    bool clearUploadProgress = false,
     int? lastGetWorkfileTime,
     bool clearGetWorkfileTime = false,
   }) {
@@ -89,7 +91,9 @@ class SyncState {
       activeUploadId: clearUploadId
           ? null
           : (activeUploadId ?? this.activeUploadId),
-      uploadProgress: uploadProgress ?? this.uploadProgress,
+      uploadProgress: clearUploadProgress
+          ? null
+          : (uploadProgress ?? this.uploadProgress),
       lastGetWorkfileTime: clearGetWorkfileTime
           ? null
           : (lastGetWorkfileTime ?? this.lastGetWorkfileTime),
@@ -262,9 +266,9 @@ class SyncPresenter extends Notifier<SyncState> {
             );
 
             // Extract IDs directly from WorkFile
-            if (workfile.operatorID != null) {
-              operatorID = extract(workfile.operatorID, 'Operator');
-            }
+            // if (workfile.operatorID != null) {
+            //   operatorID = extract(workfile.operatorID, 'Operator');
+            // }
             if (workfile.areaID != null) {
               areaID = extract(workfile.areaID, 'Area');
             }
@@ -334,6 +338,8 @@ class SyncPresenter extends Notifier<SyncState> {
         areaID: areaID,
         equipmentID: equipmentID,
         companyID: companyID,
+        shift: syncData.shift?.toLowerCase() == 'malam' ? 1 : 0,
+        event: syncData.event ?? '',
       );
 
       state = state.copyWith(uploadProgress: 0.8);
@@ -394,7 +400,11 @@ class SyncPresenter extends Notifier<SyncState> {
       state = state.copyWith(statusText: 'Please connect first');
       return;
     }
-    state = state.copyWith(statusText: 'Requesting Database Sync...');
+    state = state.copyWith(
+      status: SyncConnectionStatus.receivingPayload,
+      statusText: 'Requesting Database Sync...',
+      clearUploadProgress: true,
+    );
     _comService.sendString('sync_database');
   }
 
@@ -417,8 +427,10 @@ class SyncPresenter extends Notifier<SyncState> {
     }
     final nowEpoch = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     state = state.copyWith(
+      status: SyncConnectionStatus.receivingPayload,
       statusText: 'Requesting Workfile...',
       lastGetWorkfileTime: nowEpoch,
+      clearUploadProgress: true,
     );
     _comService.sendString('get_workfile');
   }
@@ -548,12 +560,17 @@ class SyncPresenter extends Notifier<SyncState> {
         lebar: (workfileJson['lebar'] as num?)?.toDouble(),
         luasArea: (workfileJson['luasArea'] as num?)?.toDouble(),
         contractor: workfileJson['contractor'] as String?,
-        equipment: workfileJson['equipment'] as String?,
-        totalSpot: (workfileJson['totalSpot'] as num?)?.toInt(),
-        spotDone: (workfileJson['spotDone'] as num?)?.toInt(),
-        status: workfileJson['status'] as String?,
-        createAt: (workfileJson['createAt'] as num?)?.toInt(),
-        lastUpdate: (workfileJson['lastUpdate'] as num?)?.toInt(),
+        // Force equipment to current mode if missing to ensure it shows in WorkfilePage
+        equipment: (workfileJson['equipment'] as String?)?.toUpperCase() ??
+            auth.mode.stableName,
+        totalSpot: (workfileJson['totalSpot'] as num?)?.toInt() ??
+            workingResultsJson.length,
+        spotDone: (workfileJson['spotDone'] as num?)?.toInt() ?? 0,
+        status: workfileJson['status'] as String? ?? 'Open',
+        createAt: (workfileJson['createAt'] as num?)?.toInt() ??
+            (DateTime.now().millisecondsSinceEpoch ~/ 1000),
+        lastUpdate: (workfileJson['lastUpdate'] as num?)?.toInt() ??
+            (DateTime.now().millisecondsSinceEpoch ~/ 1000),
         doneAt: (workfileJson['doneAt'] as num?)?.toInt(),
         equipmentID: workfileJson['equipmentID']?.toString(),
         operatorID: workfileJson['operatorID']?.toString(),
@@ -610,8 +627,10 @@ class SyncPresenter extends Notifier<SyncState> {
         final logMsg =
             'Workfile "$areaName" diterima — uid: $generatedUid, ${spots.length} spot disimpan.';
         state = state.copyWith(
+          status: SyncConnectionStatus.connected,
           statusText: 'Workfile Received!',
-          clearGetWorkfileTime: true, // Reset cooldown setelah berhasil
+          uploadProgress: 0.0,
+          clearGetWorkfileTime: true,
           logs: [
             SyncLog(
               timestamp: DateTime.now(),
@@ -627,6 +646,7 @@ class SyncPresenter extends Notifier<SyncState> {
       debugPrint('_handleWorkfileSync ERROR: $e');
       if (!_isDisposed) {
         state = state.copyWith(
+          status: SyncConnectionStatus.error,
           statusText: 'Gagal menyimpan Workfile: $e',
           logs: [
             SyncLog(
@@ -826,7 +846,9 @@ class SyncPresenter extends Notifier<SyncState> {
       debugPrint("FINAL SYNC SUMMARY: $summary");
 
       state = state.copyWith(
+        status: SyncConnectionStatus.connected,
         statusText: 'Database Synchronized!',
+        uploadProgress: 0.0,
         logs: [
           SyncLog(
             timestamp: DateTime.now(),
@@ -840,6 +862,7 @@ class SyncPresenter extends Notifier<SyncState> {
     } catch (e) {
       debugPrint("CRITICAL SYNC ERROR: $e");
       state = state.copyWith(
+        status: SyncConnectionStatus.error,
         statusText: 'Sync Failed: Database Error',
         logs: [
           SyncLog(

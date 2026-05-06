@@ -198,7 +198,7 @@ class _PersonTabState extends ConsumerState<PersonTab> {
   bool _canDelete(Person? currentUser, Person targetPerson) {
     if (currentUser == null) return false;
     // Only Admin can delete
-    if (currentUser.role!.toLowerCase() != 'admin') return false;
+    if (currentUser.role?.toLowerCase() != 'admin') return false;
     // Admin cannot delete self
     if (currentUser.uid == targetPerson.uid) return false;
 

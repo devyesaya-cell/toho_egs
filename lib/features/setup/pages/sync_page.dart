@@ -131,7 +131,9 @@ class _SyncPageState extends ConsumerState<SyncPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '${(state.uploadProgress * 100).toInt()}%',
+                      state.uploadProgress == null
+                          ? '...'
+                          : '${(state.uploadProgress! * 100).toInt()}%',
                       style: TextStyle(
                         color: theme.textOnSurface,
                         fontSize: 36,
@@ -139,7 +141,11 @@ class _SyncPageState extends ConsumerState<SyncPage> {
                       ),
                     ),
                     Text(
-                      'SYNCED',
+                      state.status == SyncConnectionStatus.receivingPayload
+                          ? 'RECEIVING'
+                          : state.status == SyncConnectionStatus.sendingPayload
+                              ? 'SENDING'
+                              : 'SYNCED',
                       style: TextStyle(
                         color: theme.textSecondary,
                         fontSize: 12,
@@ -382,6 +388,28 @@ class _SyncPageState extends ConsumerState<SyncPage> {
             ],
           ),
           
+          if (data.event != null && data.event!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.info_outline, size: 14, color: theme.appBarAccent),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    'Event: ${data.event}',
+                    style: TextStyle(
+                      color: theme.appBarAccent,
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          
           const SizedBox(height: 16),
           
           if (isUploading && progress != null) ...[
@@ -411,6 +439,12 @@ class _SyncPageState extends ConsumerState<SyncPage> {
                   label: const Text('Hapus', style: TextStyle(color: Colors.redAccent, fontSize: 13)),
                 ),
                 if (!isSent) ...[
+                  const SizedBox(width: 12),
+                  TextButton.icon(
+                    onPressed: () => _showEditEventDialog(context, data, theme),
+                    icon: Icon(Icons.edit_note, size: 16, color: theme.appBarAccent),
+                    label: Text('Edit Event', style: TextStyle(color: theme.appBarAccent, fontSize: 13)),
+                  ),
                   const SizedBox(width: 12),
                   ElevatedButton.icon(
                     onPressed: () {
@@ -453,6 +487,68 @@ class _SyncPageState extends ConsumerState<SyncPage> {
     final dt = DateTime.fromMillisecondsSinceEpoch(epochSec * 1000);
     final months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
+  }
+
+  void _showEditEventDialog(BuildContext context, SyncDataResult data, AppThemeData theme) {
+    final controller = TextEditingController(text: data.event);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: theme.dialogBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'SET EVENT DESCRIPTION',
+          style: TextStyle(color: theme.textOnSurface, fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Max 120 characters description for this payload.',
+              style: TextStyle(color: theme.textSecondary, fontSize: 12),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              maxLength: 120,
+              maxLines: 3,
+              style: TextStyle(color: theme.textOnSurface),
+              decoration: InputDecoration(
+                hintText: 'Enter event (e.g., Land Clearing, Harvesting)',
+                hintStyle: TextStyle(color: theme.textSecondary),
+                filled: true,
+                fillColor: theme.pageBackground,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                counterStyle: TextStyle(color: theme.textSecondary),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('CANCEL', style: TextStyle(color: theme.textSecondary)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              data.event = controller.text.trim();
+              await ref.read(appRepositoryProvider).updateSyncDataResult(data);
+              if (context.mounted) Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.appBarAccent,
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('SAVE'),
+          ),
+        ],
+      ),
+    );
   }
 }
 

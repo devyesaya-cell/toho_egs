@@ -67,8 +67,8 @@ class SetupPage extends StatelessWidget {
         'page': const TestingPage(),
       },
       {
-        'title': 'About',
-        'icon': Icons.info,
+        'title': 'Download',
+        'icon': Icons.download_rounded,
         'color': Colors.grey,
         'page': const AboutUsPage(),
       },

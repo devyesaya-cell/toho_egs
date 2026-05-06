@@ -131,6 +131,21 @@ class TimesheetNotifier extends Notifier<TimesheetState> {
       totalSpots: 0,
       workspeed: 0,
       personID: personId,
+      // New fields
+      compUid: null,
+      opUid: null,
+      equUid: null,
+      areaUid: null,
+      fuel: 0,
+      activity: 0,
+      activityTypeInt: _resolveActivityTypeInt(
+        state.selectedActivity!.activityType,
+      ),
+      productivity: 0,
+      production: 0,
+      accuracy: 0,
+      alarm: 0,
+      workhours: 0,
     );
 
     await repo.saveTimesheetRecord(record);
@@ -176,6 +191,21 @@ class TimesheetNotifier extends Notifier<TimesheetState> {
       await stopActivity();
     }
     SystemNavigator.pop();
+  }
+
+  /// Maps activityType string to int:
+  /// OPERASIONAL → 0, MDT → 1, ODT → 2
+  int _resolveActivityTypeInt(String? activityType) {
+    switch (activityType?.toUpperCase()) {
+      case 'OPERASIONAL':
+        return 0;
+      case 'MDT':
+        return 1;
+      case 'ODT':
+        return 2;
+      default:
+        return 0;
+    }
   }
 }
 

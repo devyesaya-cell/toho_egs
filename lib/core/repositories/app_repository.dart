@@ -139,11 +139,29 @@ class AppRepository {
   int _getShiftTime(DateTime time) {
     int hour = time.hour;
     if (hour >= 7 && hour < 19) {
-      return DateTime(time.year, time.month, time.day, 7).millisecondsSinceEpoch ~/ 1000;
+      return DateTime(
+            time.year,
+            time.month,
+            time.day,
+            7,
+          ).millisecondsSinceEpoch ~/
+          1000;
     } else if (hour < 7) {
-      return DateTime(time.year, time.month, time.day, 19).subtract(const Duration(days: 1)).millisecondsSinceEpoch ~/ 1000;
+      return DateTime(
+            time.year,
+            time.month,
+            time.day,
+            19,
+          ).subtract(const Duration(days: 1)).millisecondsSinceEpoch ~/
+          1000;
     } else {
-      return DateTime(time.year, time.month, time.day, 19).millisecondsSinceEpoch ~/ 1000;
+      return DateTime(
+            time.year,
+            time.month,
+            time.day,
+            19,
+          ).millisecondsSinceEpoch ~/
+          1000;
     }
   }
 
@@ -191,7 +209,9 @@ class AppRepository {
         }
 
         if (syncResult == null) {
-          final shiftStr = _getShiftString(DateTime.fromMillisecondsSinceEpoch(minTime * 1000));
+          final shiftStr = _getShiftString(
+            DateTime.fromMillisecondsSinceEpoch(minTime * 1000),
+          );
           syncResult = SyncDataResult(
             driverID: driverId,
             startTime: minTime,
@@ -204,7 +224,8 @@ class AppRepository {
           await _isar.syncDataResults.put(syncResult);
         } else {
           // If status is pending, make sure total spot is updated if there were changes
-          if (syncResult.status == 'pending' && syncResult.totalSpot != shiftSpots.length) {
+          if (syncResult.status == 'pending' &&
+              syncResult.totalSpot != shiftSpots.length) {
             syncResult.startTime = minTime;
             syncResult.endTime = maxTime;
             syncResult.totalSpot = shiftSpots.length;
@@ -215,7 +236,10 @@ class AppRepository {
     });
   }
 
-  Future<List<WorkingSpot>> getWorkingSpotsByShiftTime(String driverId, int shiftTime) async {
+  Future<List<WorkingSpot>> getWorkingSpotsByShiftTime(
+    String driverId,
+    int shiftTime,
+  ) async {
     final spots = await _isar.workingSpots
         .filter()
         .driverIDEqualTo(driverId)

@@ -23,21 +23,22 @@ const SyncDataResultSchema = CollectionSchema(
       type: IsarType.string,
     ),
     r'endTime': PropertySchema(id: 1, name: r'endTime', type: IsarType.long),
-    r'shift': PropertySchema(id: 2, name: r'shift', type: IsarType.string),
+    r'event': PropertySchema(id: 2, name: r'event', type: IsarType.string),
+    r'shift': PropertySchema(id: 3, name: r'shift', type: IsarType.string),
     r'shiftTime': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'shiftTime',
       type: IsarType.long,
     ),
     r'startTime': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'startTime',
       type: IsarType.long,
     ),
-    r'status': PropertySchema(id: 5, name: r'status', type: IsarType.string),
-    r'syncTime': PropertySchema(id: 6, name: r'syncTime', type: IsarType.long),
+    r'status': PropertySchema(id: 6, name: r'status', type: IsarType.string),
+    r'syncTime': PropertySchema(id: 7, name: r'syncTime', type: IsarType.long),
     r'totalSpot': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'totalSpot',
       type: IsarType.long,
     ),
@@ -111,6 +112,12 @@ int _syncDataResultEstimateSize(
     }
   }
   {
+    final value = object.event;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.shift;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
@@ -133,12 +140,13 @@ void _syncDataResultSerialize(
 ) {
   writer.writeString(offsets[0], object.driverID);
   writer.writeLong(offsets[1], object.endTime);
-  writer.writeString(offsets[2], object.shift);
-  writer.writeLong(offsets[3], object.shiftTime);
-  writer.writeLong(offsets[4], object.startTime);
-  writer.writeString(offsets[5], object.status);
-  writer.writeLong(offsets[6], object.syncTime);
-  writer.writeLong(offsets[7], object.totalSpot);
+  writer.writeString(offsets[2], object.event);
+  writer.writeString(offsets[3], object.shift);
+  writer.writeLong(offsets[4], object.shiftTime);
+  writer.writeLong(offsets[5], object.startTime);
+  writer.writeString(offsets[6], object.status);
+  writer.writeLong(offsets[7], object.syncTime);
+  writer.writeLong(offsets[8], object.totalSpot);
 }
 
 SyncDataResult _syncDataResultDeserialize(
@@ -150,12 +158,13 @@ SyncDataResult _syncDataResultDeserialize(
   final object = SyncDataResult(
     driverID: reader.readStringOrNull(offsets[0]),
     endTime: reader.readLongOrNull(offsets[1]),
-    shift: reader.readStringOrNull(offsets[2]),
-    shiftTime: reader.readLongOrNull(offsets[3]),
-    startTime: reader.readLongOrNull(offsets[4]),
-    status: reader.readStringOrNull(offsets[5]),
-    syncTime: reader.readLongOrNull(offsets[6]),
-    totalSpot: reader.readLongOrNull(offsets[7]),
+    event: reader.readStringOrNull(offsets[2]),
+    shift: reader.readStringOrNull(offsets[3]),
+    shiftTime: reader.readLongOrNull(offsets[4]),
+    startTime: reader.readLongOrNull(offsets[5]),
+    status: reader.readStringOrNull(offsets[6]),
+    syncTime: reader.readLongOrNull(offsets[7]),
+    totalSpot: reader.readLongOrNull(offsets[8]),
   );
   object.id = id;
   return object;
@@ -175,14 +184,16 @@ P _syncDataResultDeserializeProp<P>(
     case 2:
       return (reader.readStringOrNull(offset)) as P;
     case 3:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 4:
       return (reader.readLongOrNull(offset)) as P;
     case 5:
-      return (reader.readStringOrNull(offset)) as P;
-    case 6:
       return (reader.readLongOrNull(offset)) as P;
+    case 6:
+      return (reader.readStringOrNull(offset)) as P;
     case 7:
+      return (reader.readLongOrNull(offset)) as P;
+    case 8:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -801,6 +812,165 @@ extension SyncDataResultQueryFilter
           upper: upper,
           includeUpper: includeUpper,
         ),
+      );
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterFilterCondition>
+  eventIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'event'),
+      );
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterFilterCondition>
+  eventIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'event'),
+      );
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterFilterCondition>
+  eventEqualTo(String? value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'event',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterFilterCondition>
+  eventGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'event',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterFilterCondition>
+  eventLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'event',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterFilterCondition>
+  eventBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'event',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterFilterCondition>
+  eventStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'event',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterFilterCondition>
+  eventEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'event',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterFilterCondition>
+  eventContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'event',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterFilterCondition>
+  eventMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'event',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterFilterCondition>
+  eventIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'event', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterFilterCondition>
+  eventIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'event', value: ''),
       );
     });
   }
@@ -1505,6 +1675,18 @@ extension SyncDataResultQuerySortBy
     });
   }
 
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterSortBy> sortByEvent() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'event', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterSortBy> sortByEventDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'event', Sort.desc);
+    });
+  }
+
   QueryBuilder<SyncDataResult, SyncDataResult, QAfterSortBy> sortByShift() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shift', Sort.asc);
@@ -1608,6 +1790,18 @@ extension SyncDataResultQuerySortThenBy
   thenByEndTimeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'endTime', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterSortBy> thenByEvent() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'event', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SyncDataResult, SyncDataResult, QAfterSortBy> thenByEventDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'event', Sort.desc);
     });
   }
 
@@ -1717,6 +1911,14 @@ extension SyncDataResultQueryWhereDistinct
     });
   }
 
+  QueryBuilder<SyncDataResult, SyncDataResult, QDistinct> distinctByEvent({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'event', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<SyncDataResult, SyncDataResult, QDistinct> distinctByShift({
     bool caseSensitive = true,
   }) {
@@ -1778,6 +1980,12 @@ extension SyncDataResultQueryProperty
   QueryBuilder<SyncDataResult, int?, QQueryOperations> endTimeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'endTime');
+    });
+  }
+
+  QueryBuilder<SyncDataResult, String?, QQueryOperations> eventProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'event');
     });
   }
 

@@ -28,6 +28,9 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
   String? _selectedPicUrl;
   String? _selectedRole;
 
+  late Future<List<Contractor>> _contractorsFuture;
+  late Future<List<Equipment>> _equipmentFuture;
+
   final List<String> _availableImages = [
     'images/driver_exca.png',
     'images/ic_supir.png',
@@ -39,6 +42,9 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
   @override
   void initState() {
     super.initState();
+    _contractorsFuture = ref.read(appRepositoryProvider).getAllContractors();
+    _equipmentFuture = ref.read(appRepositoryProvider).getAllEquipment();
+    
     _firstNameController = TextEditingController(
       text: widget.person?.firstName ?? '',
     );
@@ -131,43 +137,43 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
       child: Container(
         padding: const EdgeInsets.all(24),
         width: 900,
-        height: 600,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.person_add, color: theme.appBarAccent),
-                    const SizedBox(width: 12),
-                    Text(
-                      widget.person == null
-                          ? 'ADD NEW OPERATOR'
-                          : 'EDIT OPERATOR',
-                      style: TextStyle(
-                        color: theme.textOnSurface,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.person_add, color: theme.appBarAccent),
+                      const SizedBox(width: 12),
+                      Text(
+                        widget.person == null
+                            ? 'ADD NEW OPERATOR'
+                            : 'EDIT OPERATOR',
+                        style: TextStyle(
+                          color: theme.textOnSurface,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: Icon(Icons.close, color: theme.textSecondary),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            Divider(color: theme.dividerColor),
-            const SizedBox(height: 32),
+                    ],
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(Icons.close, color: theme.textSecondary),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+              Divider(color: theme.dividerColor),
+              const SizedBox(height: 32),
 
-            Expanded(
-              child: Row(
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Left Column: Image Picker
@@ -186,7 +192,8 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        Expanded(
+                        AspectRatio(
+                          aspectRatio: 1,
                           child: Container(
                             decoration: BoxDecoration(
                               border: Border.all(
@@ -281,12 +288,11 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                     ),
                   ),
 
-                  const SizedBox(width: 32),
+                    const SizedBox(width: 32),
 
-                  // Right Column: Form Fields
-                  Expanded(
-                    flex: 2,
-                    child: SingleChildScrollView(
+                    // Right Column: Form Fields
+                    Expanded(
+                      flex: 2,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -337,10 +343,8 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                         ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
+                  ],
+                ),
 
             const SizedBox(height: 24),
             Row(
@@ -390,9 +394,10 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
               ),
             ),
           ],
-        ),
-      ),
-    );
+        ), // Column
+      ), // SingleChildScrollView
+      ), // Container
+    ); // Dialog
   }
 
   void _showImagePickerModal(AppThemeData theme) {
@@ -505,9 +510,30 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
 
   Widget _buildContractorDropdown(AppThemeData theme) {
     return FutureBuilder<List<Contractor>>(
-      future: ref.read(appRepositoryProvider).getAllContractors(),
+      future: _contractorsFuture,
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('CONTRACTOR', style: TextStyle(color: theme.labelColor, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.1)),
+                const SizedBox(height: 8),
+                const Center(child: CircularProgressIndicator()),
+              ],
+            ),
+          );
+        }
         final contractors = snapshot.data ?? [];
+        final items = contractors.map((c) => c.name).whereType<String>().toList();
+        
+        String? validValue = items.contains(_selectedContractor) ? _selectedContractor : null;
+        if (validValue == null && _selectedContractor != null && _selectedContractor!.isNotEmpty) {
+          items.add(_selectedContractor!);
+          validValue = _selectedContractor;
+        }
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 24),
           child: Column(
@@ -524,7 +550,7 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: _selectedContractor,
+                value: validValue,
                 dropdownColor: theme.dropdownBackground,
                 style: TextStyle(color: theme.dropdownItemText),
                 decoration: InputDecoration(
@@ -543,10 +569,10 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                     vertical: 16,
                   ),
                 ),
-                items: contractors.map((c) {
+                items: items.map((name) {
                   return DropdownMenuItem<String>(
-                    value: c.name,
-                    child: Text(c.name ?? 'Unknown'),
+                    value: name,
+                    child: Text(name),
                   );
                 }).toList(),
                 onChanged: (value) =>
@@ -565,9 +591,30 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
 
   Widget _buildEquipmentDropdown(AppThemeData theme) {
     return FutureBuilder<List<Equipment>>(
-      future: ref.read(appRepositoryProvider).getAllEquipment(),
+      future: _equipmentFuture,
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('EQUIPMENT', style: TextStyle(color: theme.labelColor, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.1)),
+                const SizedBox(height: 8),
+                const Center(child: CircularProgressIndicator()),
+              ],
+            ),
+          );
+        }
         final equipments = snapshot.data ?? [];
+        final items = equipments.map((e) => e.equipName).whereType<String>().toList();
+
+        String? validValue = items.contains(_selectedEquipment) ? _selectedEquipment : null;
+        if (validValue == null && _selectedEquipment != null && _selectedEquipment!.isNotEmpty) {
+          items.add(_selectedEquipment!);
+          validValue = _selectedEquipment;
+        }
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 24),
           child: Column(
@@ -584,7 +631,7 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: _selectedEquipment,
+                value: validValue,
                 dropdownColor: theme.dropdownBackground,
                 style: TextStyle(color: theme.dropdownItemText),
                 decoration: InputDecoration(
@@ -603,10 +650,10 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
                     vertical: 16,
                   ),
                 ),
-                items: equipments.map((e) {
+                items: items.map((name) {
                   return DropdownMenuItem<String>(
-                    value: e.equipName,
-                    child: Text(e.equipName ?? 'Unknown'),
+                    value: name,
+                    child: Text(name),
                   );
                 }).toList(),
                 onChanged: (value) =>
@@ -631,6 +678,13 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
       'Engineer',
       'Admin',
     ];
+    
+    String? validRole = items.contains(_selectedRole) ? _selectedRole : null;
+    if (validRole == null && _selectedRole != null && _selectedRole!.isNotEmpty) {
+      items.add(_selectedRole!);
+      validRole = _selectedRole;
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: Column(
@@ -647,7 +701,7 @@ class _PersonEditDialogState extends ConsumerState<PersonEditDialog> {
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-            initialValue: _selectedRole,
+            value: validRole,
             dropdownColor: theme.dropdownBackground,
             style: TextStyle(color: theme.dropdownItemText),
             decoration: InputDecoration(

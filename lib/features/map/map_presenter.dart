@@ -346,10 +346,39 @@ class MapPresenter extends Notifier<MapState> {
   }
 
   // --- Timesheet Logic ---
+
+  /// Ambil last 4 char dari UID string (2 byte hexa), parse sebagai int.
+  /// Contoh: "0000AABB" → "AABB" → 43707
+  int _parseUidLast4(String? uid) {
+    if (uid == null || uid.length < 4) return 0;
+    final last4 = uid.substring(uid.length - 4);
+    return int.tryParse(last4, radix: 16) ?? 0;
+  }
+
   Future<void> startTimesheet(TimesheetRecord newRecord) async {
     final isar = DatabaseService().isar;
     final auth = ref.read(authProvider);
     newRecord.personID = auth.currentUser?.uid?.toString() ?? '0';
+
+    // Populate UID fields from active workfile
+    final workfile = auth.activeWorkfile;
+    if (workfile != null) {
+      newRecord.compUid = _parseUidLast4(workfile.companyID).toString();
+      newRecord.opUid   = _parseUidLast4(workfile.operatorID).toString();
+      newRecord.equUid  = _parseUidLast4(workfile.equipmentID).toString();
+      newRecord.areaUid = _parseUidLast4(workfile.areaID).toString();
+    }
+
+    // Static defaults for map timesheet (always OPERASIONAL)
+    newRecord.fuel            = 0;
+    newRecord.activity        = 0;
+    newRecord.activityTypeInt = 0; // OPERASIONAL
+    newRecord.production      = 0;
+    newRecord.productivity    = 0;
+    newRecord.accuracy        = 0;
+    newRecord.alarm           = 0;
+    newRecord.workhours       = 0;
+
     await isar.writeTxn(() async {
       await isar.timesheetRecords.put(newRecord);
     });
@@ -410,12 +439,62 @@ class MapPresenter extends Notifier<MapState> {
       currentTs.totalSpots = state.spotDone.toDouble();
       currentTs.personID = auth.currentUser?.uid?.toString() ?? '0';
 
+      // --- Workspeed ---
       if (currentTs.totalTime > 0) {
         final hours = currentTs.totalTime / 3600.0;
         final spotsPerHour = currentTs.totalSpots / hours;
         final panjang = currentWorkfile.panjang ?? 0.0;
         final lebar = currentWorkfile.lebar ?? 0.0;
         currentTs.workspeed = (spotsPerHour * (panjang * lebar)) / 10000.0;
+      }
+
+      // --- New fields ---
+
+      // 1. production = total spot dikerjakan
+      currentTs.production = state.spotDone.toDouble();
+
+      // 2. productivity = ha/jam
+      if (currentTs.totalTime > 0) {
+        final hours = currentTs.totalTime / 3600.0;
+        final panjang = currentWorkfile.panjang ?? 0.0;
+        final lebar = currentWorkfile.lebar ?? 0.0;
+        currentTs.productivity =
+            (currentTs.totalSpots / hours) * (panjang * lebar) / 10000.0;
+      }
+
+      // 3. accuracy & workhours: query spot yang selesai dalam rentang startTime..now
+      final doneSpots = await isar.workingSpots
+          .filter()
+          .statusEqualTo(1)
+          .lastUpdateBetween(currentTs.startTime, now)
+          .findAll();
+
+      if (doneSpots.isNotEmpty) {
+        // accuracy = rata-rata akurasi (dalam cm)
+        final spotsWithAkurasi = doneSpots.where((s) => s.akurasi != null).toList();
+        if (spotsWithAkurasi.isNotEmpty) {
+          final totalAkurasi = spotsWithAkurasi.fold(
+            0.0,
+            (sum, s) => sum + s.akurasi!,
+          );
+          currentTs.accuracy = totalAkurasi / spotsWithAkurasi.length;
+        }
+
+        // workhours = total jeda antar spot consecutive (exclude jeda > 300 detik), dalam detik
+        if (doneSpots.length >= 2) {
+          final sorted = [...doneSpots]
+            ..sort((a, b) => (a.lastUpdate ?? 0).compareTo(b.lastUpdate ?? 0));
+          double totalWorkSec = 0;
+          for (int i = 1; i < sorted.length; i++) {
+            final prev = sorted[i - 1].lastUpdate ?? 0;
+            final curr = sorted[i].lastUpdate ?? 0;
+            final gap = curr - prev;
+            if (gap > 0 && gap <= 300) {
+              totalWorkSec += gap;
+            }
+          }
+          currentTs.workhours = totalWorkSec; // dalam detik
+        }
       }
 
       currentWorkfile.spotDone = state.spotDone;

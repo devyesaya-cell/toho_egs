@@ -134,7 +134,11 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
                       alignment: Alignment.center,
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
-                          value: filter.selectedFileID,
+                          value: workfiles.any((w) =>
+                                  w.uid != null &&
+                                  w.uid.toString() == filter.selectedFileID)
+                              ? filter.selectedFileID
+                              : null,
                           dropdownColor: theme.dropdownBackground,
                           icon: Icon(
                             Icons.folder_open_outlined,
@@ -142,7 +146,9 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
                             size: 20,
                           ),
                           isDense: true,
-                          items: workfiles.map((workfile) {
+                          items: workfiles
+                              .where((w) => w.uid != null)
+                              .map((workfile) {
                             final displayName =
                                 workfile.areaName?.isNotEmpty == true
                                     ? workfile.areaName!

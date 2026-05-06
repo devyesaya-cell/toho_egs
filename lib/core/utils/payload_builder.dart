@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import '../models/working_spot.dart';
 
@@ -10,12 +11,25 @@ class PayloadBuilder {
     int operatorID = 0,
     int areaID = 0,
     int equipmentID = 0,
+    int shift = 0,
+    String event = '',
   }) {
     // Determine the number of records
     final int recordCount = workingSpots.length;
 
-    // The header is 29 bytes. Each record is 18 bytes.
-    final int totalLength = 29 + (recordCount * 18);
+    // --- Dynamic Header Calculation ---
+    // Header specification:
+    // 0-28: existing fields (29 bytes)
+    // 29: shift (uint8: 1 byte)
+    // 30: itemLength (uint8: 1 byte)
+    // 31: event (variable: itemLength bytes)
+    
+    final List<int> eventBytes = utf8.encode(event);
+    final int itemLength = eventBytes.length;
+    final int headerLength = 31 + itemLength;
+
+    // Each record is 18 bytes.
+    final int totalLength = headerLength + (recordCount * 18);
     final ByteData byteData = ByteData(totalLength);
     int offset = 0;
 
@@ -56,12 +70,9 @@ class PayloadBuilder {
     offset += 2;
 
     // 16-17: productivity (uint16_t: 2 bytes) -> (dibagi 1000) ha/hours
-    // productivity = (total spots / hours elapsed in shift) * (4 * 1.87) / 10000 * 1000
     int productivityVal = 0;
     if (workHours > 0) {
-      // productivity = (spots / seconds) * 3600 (to get spots per hour)
       double spotsPerHour = (recordCount / workHours) * 3600;
-      // Formula: (spotsPerHour * 4 * 1.87 / 10000) * 1000
       productivityVal = (spotsPerHour * 0.748).toInt();
     }
 
@@ -89,10 +100,24 @@ class PayloadBuilder {
     offset += 4;
 
     // 28: alarm (uint8_t: 1 byte) -> now accuracy (avg)
-    // Server will divide by 10. Max 10cm -> 100.
     int scaledAccuracy = (avgAccuracy * 10).toInt().clamp(0, 255);
     byteData.setUint8(offset, scaledAccuracy);
     offset += 1;
+
+    // 29: shift (uint8_t: 1 byte) -> enum 0-1
+    byteData.setUint8(offset, shift.clamp(0, 1));
+    offset += 1;
+
+    // 30: itemLength (uint8_t: 1 byte) -> length of event string
+    byteData.setUint8(offset, itemLength.clamp(0, 255));
+    offset += 1;
+
+    // 31: event (variable: itemLength bytes)
+    for (int i = 0; i < itemLength; i++) {
+      byteData.setUint8(offset, eventBytes[i]);
+      offset += 1;
+    }
+
 
     // --- Records ---
     for (int i = 0; i < recordCount; i++) {
@@ -126,10 +151,10 @@ class PayloadBuilder {
       byteData.setUint8(offset, cDepth);
       offset += 1;
 
-      // 12-15: timestamp (uint32_t: 4 bytes) -> change ms to s
+      // 12-15: timestamp (uint32_t: 4 bytes) -> epoch time in second
       int cTime = 0;
       if (spot.lastUpdate != null) {
-        cTime = spot.lastUpdate! ~/ 1000;
+        cTime = spot.lastUpdate!;
       }
       byteData.setUint32(offset, cTime, endian);
       offset += 4;

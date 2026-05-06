@@ -94,3 +94,25 @@ If tapping a Card opens an edit prompt:
 
 ## Riverpod Standard Rules
 1. **Riverpod Lifecycle Side-Effects**: Never modify another provider's state or call synchronous functions that mutate other providers directly inside `onDispose` (e.g., `ref.onDispose()`) or other lifecycle hooks. This will throw the assertion error: *"Cannot use Ref or modify other providers inside life-cycles/selectors."* Instead, wrap the state mutation or disconnect logic in a `Future.microtask(() => ...);` to safely push the execution to the next event loop.
+
+# Development Rules & Fixes
+
+## Isar Build Runner (SDK 3.10.0+ Compatibility)
+Jika `build_runner` gagal dengan error `dart compile does not support build hooks` atau error `analyzer/source_gen` (seperti `getInvocation isn't defined`), gunakan kombinasi paket berikut:
+
+### pubspec.yaml
+```yaml
+dependencies:
+  isar_community: 3.3.0-dev.3
+  isar_community_flutter_libs: 3.3.0-dev.3
+
+dev_dependencies:
+  build_runner: ^2.4.9
+  isar_community_generator: 3.3.0-dev.3
+  analyzer: 8.0.0
+```
+
+## Code Integrity & Imports
+- **Import Preservation**: Selalu pastikan import inti seperti `package:flutter/material.dart` tidak terhapus saat melakukan refactoring atau penambahan import baru.
+- **Scope Verification**: Pastikan semua variabel (seperti `theme`) sudah terdefinisi di dalam scope metode helper sebelum digunakan.
+- **No Placeholders**: Hindari penggunaan komentar placeholder jika kode aslinya masih diperlukan.

@@ -135,12 +135,21 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
       final workfiles = await _isar.workFiles.where().findAll();
       if (workfiles.isNotEmpty) {
         _filter = _filter.copyWith(
-          selectedFileID: workfiles.first.uid.toString(),
+          selectedFileID: _normalizeID(workfiles.first.uid),
         );
       }
     }
 
     return _loadDashboardData();
+  }
+
+  String _normalizeID(int? uid) {
+    if (uid == null) return '';
+    // If UID > 10,000,000,000, it's likely milliseconds (13 digits)
+    if (uid > 10000000000) {
+      return (uid ~/ 1000).toString();
+    }
+    return uid.toString();
   }
 
   // --- Actions ---
@@ -251,7 +260,7 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
     final fileID = _filter.selectedFileID ?? '';
 
     final activeWorkfile = workfiles.firstWhere(
-      (w) => w.uid.toString() == fileID,
+      (w) => _normalizeID(w.uid) == fileID,
       orElse: () => WorkFile(),
     );
 
@@ -480,7 +489,13 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
       productivityMaxY: productivityMaxY,
       productionMaxY: productionMaxY,
       trendInterval: chartInterval,
-      workfiles: workfiles,
+      workfiles: workfiles.map((w) {
+        // Return a copy with normalized UID for the UI dropdown
+        if (w.uid != null && w.uid! > 10000000000) {
+          w.uid = w.uid! ~/ 1000;
+        }
+        return w;
+      }).toList(),
     );
   }
 

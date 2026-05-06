@@ -40,38 +40,47 @@ class DialogUtils {
   }) async {
     final theme = AppTheme.of(context);
     return await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: theme.dialogBackground,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.bold, color: theme.textOnSurface),
-          ),
-          content: Text(
-            message,
-            style: TextStyle(color: theme.textSecondary),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text('Cancel', style: TextStyle(color: theme.textSecondary)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEF4444), // Red for destructive actions
-                foregroundColor: Colors.white,
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              backgroundColor: theme.dialogBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Confirm'),
-            ),
-          ],
-        );
-      },
-    ) ?? false;
+              title: Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: theme.textOnSurface,
+                ),
+              ),
+              content: Text(
+                message,
+                style: TextStyle(color: theme.textSecondary),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: theme.textSecondary),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(
+                      0xFFEF4444,
+                    ), // Red for destructive actions
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Confirm'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
   }
 
   static Widget buildKeyValue(String key, String value, {Color? valueColor}) {
@@ -120,7 +129,7 @@ class DialogUtils {
     final isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF1E3020) : Colors.orange.shade50;
     final textColor = isDark ? Colors.white : Colors.black87;
-    final options = [1.0, 1.5, 2.0, 2.5, 3.0];
+    final options = [0.3, 0.5, 0.8, 1.0, 1.5, 2.0];
     double selectedDelay = currentDelay;
     bool autoEnabled = isAutoEnabled;
 
@@ -152,7 +161,10 @@ class DialogUtils {
                     ),
                     subtitle: Text(
                       autoEnabled ? 'Enabled' : 'Disabled (Manual)',
-                      style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 11),
+                      style: TextStyle(
+                        color: textColor.withOpacity(0.7),
+                        fontSize: 11,
+                      ),
                     ),
                     value: autoEnabled,
                     activeColor: isDark ? Colors.greenAccent : Colors.orange,
@@ -169,26 +181,36 @@ class DialogUtils {
                       style: TextStyle(color: textColor, fontSize: 13),
                     ),
                     const SizedBox(height: 8),
-                    ...options.map((val) => RadioListTile<double>(
-                          title: Text('$val seconds',
-                              style: TextStyle(color: textColor, fontSize: 14)),
-                          value: val,
-                          dense: true,
-                          groupValue: selectedDelay,
-                          activeColor: isDark ? Colors.greenAccent : Colors.orange,
-                          onChanged: (double? newValue) {
-                            setState(() {
-                              selectedDelay = newValue!;
-                            });
-                          },
-                        )),
+                    ...options.map(
+                      (val) => RadioListTile<double>(
+                        title: Text(
+                          '$val seconds',
+                          style: TextStyle(color: textColor, fontSize: 14),
+                        ),
+                        value: val,
+                        dense: true,
+                        groupValue: selectedDelay,
+                        activeColor: isDark
+                            ? Colors.greenAccent
+                            : Colors.orange,
+                        onChanged: (double? newValue) {
+                          setState(() {
+                            selectedDelay = newValue!;
+                          });
+                        },
+                      ),
+                    ),
                   ] else ...[
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
                         'Automatic status change is disabled. Target spots will not turn green automatically.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: textColor.withOpacity(0.6), fontSize: 12, fontStyle: FontStyle.italic),
+                        style: TextStyle(
+                          color: textColor.withOpacity(0.6),
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
                     ),
                   ],
@@ -197,9 +219,12 @@ class DialogUtils {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Cancel',
-                      style: TextStyle(
-                          color: isDark ? Colors.white54 : Colors.black54)),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: isDark ? Colors.white54 : Colors.black54,
+                    ),
+                  ),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(

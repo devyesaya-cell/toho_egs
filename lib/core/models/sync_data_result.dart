@@ -22,6 +22,8 @@ class SyncDataResult {
 
   int? syncTime;
   int? totalSpot;
+  
+  String? event;
 
   SyncDataResult({
     this.driverID,
@@ -32,6 +34,7 @@ class SyncDataResult {
     this.shiftTime,
     this.syncTime,
     this.totalSpot,
+    this.event,
   });
 
   factory SyncDataResult.fromJson(Map<String, dynamic> json) {
@@ -44,6 +47,7 @@ class SyncDataResult {
       shiftTime: json['shiftTime'],
       syncTime: json['syncTime'],
       totalSpot: json['totalSpot'],
+      event: json['event'],
     );
   }
 
@@ -57,6 +61,7 @@ class SyncDataResult {
       'shiftTime': shiftTime,
       'syncTime': syncTime,
       'totalSpot': totalSpot,
+      'event': event,
     };
   }
 }
