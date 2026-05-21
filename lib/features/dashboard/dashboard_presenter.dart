@@ -45,6 +45,7 @@ class DashboardData {
 
   // New Fields for Workfile selection
   final List<WorkFile> workfiles;
+  final String? selectedFileID;
 
   DashboardData({
     this.productivity = 0,
@@ -68,6 +69,7 @@ class DashboardData {
     this.productionMaxY = 100.0,
     this.trendInterval = 7200000,
     this.workfiles = const [],
+    this.selectedFileID,
   });
 }
 
@@ -130,14 +132,9 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
       _filter = _filter.copyWith(type: DashboardFilterType.night);
     }
 
-    // Set initial fileID if not already set, and load workfiles
+    // Let selectedFileID remain null initially
     if (_filter.selectedFileID == null) {
-      final workfiles = await _isar.workFiles.where().findAll();
-      if (workfiles.isNotEmpty) {
-        _filter = _filter.copyWith(
-          selectedFileID: _normalizeID(workfiles.first.uid),
-        );
-      }
+      // Intentionally left null so user is prompted to select a Workfile
     }
 
     return _loadDashboardData();
@@ -272,7 +269,9 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
     // Query Isar
     final spots = await _isar.workingSpots
         .filter()
-        .fileIDEqualTo(fileID)
+        .group((q) {
+          return q.fileIDEqualTo(fileID).or().fileIDEqualTo(activeWorkfile.uid?.toString() ?? '');
+        })
         .driverIDEqualTo(driverID)
         .statusEqualTo(1)
         .modeEqualTo(systemMode)
@@ -283,8 +282,19 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
         .sortByLastUpdate()
         .findAll();
 
+    final normalizedWorkfiles = workfiles.map((w) {
+      if (w.uid != null && w.uid! > 10000000000) {
+        w.uid = w.uid! ~/ 1000;
+      }
+      return w;
+    }).toList();
+
     if (spots.isEmpty) {
-      return DashboardData(workfiles: workfiles, spacing: currentSpacing);
+      return DashboardData(
+        workfiles: normalizedWorkfiles, 
+        spacing: currentSpacing,
+        selectedFileID: fileID.isEmpty ? null : fileID,
+      );
     }
 
     // --- Calculations ---
@@ -489,13 +499,8 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
       productivityMaxY: productivityMaxY,
       productionMaxY: productionMaxY,
       trendInterval: chartInterval,
-      workfiles: workfiles.map((w) {
-        // Return a copy with normalized UID for the UI dropdown
-        if (w.uid != null && w.uid! > 10000000000) {
-          w.uid = w.uid! ~/ 1000;
-        }
-        return w;
-      }).toList(),
+      selectedFileID: fileID.isEmpty ? null : fileID,
+      workfiles: normalizedWorkfiles,
     );
   }
 

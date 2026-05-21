@@ -74,7 +74,33 @@ class DashboardPage extends ConsumerWidget {
             const SizedBox(height: 16),
             Expanded(
               child: dashboardDataAsync.when(
-                data: (data) => _buildDashboardContent(data, isCrumbling),
+                data: (data) {
+                  if (data.selectedFileID == null) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.folder_open, size: 64, color: theme.textSecondary),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Data kosong',
+                            style: TextStyle(
+                              color: theme.appBarForeground,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Silahkan memilih Workfile untuk menampilkan Data.',
+                            style: TextStyle(color: theme.textSecondary, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return _buildDashboardContent(data, isCrumbling);
+                },
                 loading: () => Center(
                   child: CircularProgressIndicator(
                     color: theme.loadingIndicatorColor,

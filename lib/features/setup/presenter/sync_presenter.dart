@@ -523,11 +523,11 @@ class SyncPresenter extends Notifier<SyncState> {
       );
       debugPrint('=== dataMap[workfile] value: $workfileRaw ===');
 
-      final workingResultsRaw = dataMap['working_results'];
+      final workingResultsRaw = dataMap['design_spots'] ?? dataMap['working_results'];
       debugPrint(
-        '=== dataMap[working_results] runtimeType: ${workingResultsRaw?.runtimeType} ===',
+        '=== dataMap[design_spots] runtimeType: ${workingResultsRaw?.runtimeType} ===',
       );
-      debugPrint('=== dataMap[working_results] value: $workingResultsRaw ===');
+      debugPrint('=== dataMap[design_spots] value: $workingResultsRaw ===');
 
       final workfileJson = workfileRaw as Map<String, dynamic>?;
       final workingResultsJson = workingResultsRaw as List? ?? [];
@@ -586,7 +586,7 @@ class SyncPresenter extends Notifier<SyncState> {
       for (int i = 0; i < workingResultsJson.length; i++) {
         final json = workingResultsJson[i];
         debugPrint(
-          '_handleWorkfileSync: working_results[$i] runtimeType=${json.runtimeType}, value=$json',
+          '_handleWorkfileSync: design_spots[$i] runtimeType=${json.runtimeType}, value=$json',
         );
         if (json is Map<String, dynamic>) {
           final spot = WorkingSpot.fromJson(json);
@@ -601,7 +601,7 @@ class SyncPresenter extends Notifier<SyncState> {
           spots.add(spot);
         } else {
           debugPrint(
-            '_handleWorkfileSync: skipping non-Map entry[$i] in working_results: ${json.runtimeType}',
+            '_handleWorkfileSync: skipping non-Map entry[$i] in design_spots: ${json.runtimeType}',
           );
         }
       }

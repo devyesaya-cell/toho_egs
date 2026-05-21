@@ -23,6 +23,7 @@ class _WorkConfigPageState extends ConsumerState<WorkConfigPage> {
     2: '2 - Bucket Length Ref',
     3: '3 - Bucket Horiz Ref',
     4: '4 - Pitch Compensation',
+    5: '5 - Use Bucket Sensor',
   };
 
   final Map<int, Map<int, String>> _valueOptions = {
@@ -31,6 +32,7 @@ class _WorkConfigPageState extends ConsumerState<WorkConfigPage> {
     2: {0: '0 - Teeth', 1: '1 - Back'},
     3: {0: '0 - Center', 1: '1 - Left', 2: '2 - Right'},
     4: {0: '0 - No', 1: '1 - Yes'},
+    5: {0: '0 - No', 1: '1 - Yes'},
   };
 
   @override

@@ -134,6 +134,14 @@ class _DashboardHeaderState extends ConsumerState<DashboardHeader> {
                       alignment: Alignment.center,
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
+                          hint: Text(
+                            'Select Workfile',
+                            style: TextStyle(
+                              color: theme.textSecondary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                           value: workfiles.any((w) =>
                                   w.uid != null &&
                                   w.uid.toString() == filter.selectedFileID)

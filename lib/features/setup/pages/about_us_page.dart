@@ -30,7 +30,7 @@ class AboutUsPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: theme.pageBackground,
       appBar: AppBar(
-        title: Text('Export GeoJSON', style: TextStyle(color: theme.appBarForeground)),
+        title: Text('Export Payload (BIN)', style: TextStyle(color: theme.appBarForeground)),
         backgroundColor: theme.appBarBackground,
         iconTheme: IconThemeData(color: theme.appBarForeground),
         actions: const [GlobalAppBarActions()],
@@ -50,7 +50,7 @@ class AboutUsPage extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Pilih Workfile untuk mengekspor data Workingspot yang sudah diselesaikan (status=1) ke format GeoJSON. File akan disimpan di folder Download perangkat.',
+              'Pilih Workfile untuk mengekspor data Workingspot yang sudah diselesaikan (status=1) ke format .BIN. File akan disimpan di folder Download perangkat.',
               style: TextStyle(color: theme.textOnSurface.withOpacity(0.7), fontSize: 16),
             ),
             const SizedBox(height: 32),
@@ -103,7 +103,7 @@ class AboutUsPage extends ConsumerWidget {
                 onPressed: state.isLoading || state.selectedWorkfile == null
                     ? null
                     : () {
-                        notifier.exportGeoJson();
+                        notifier.exportBin();
                       },
                 child: state.isLoading
                     ? const SizedBox(
@@ -112,7 +112,7 @@ class AboutUsPage extends ConsumerWidget {
                         child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                       )
                     : const Text(
-                        'Download GeoJSON',
+                        'Download .BIN',
                         style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
               ),

@@ -20,7 +20,7 @@ This blueprint details the **Binary Payload Specification** used for transmittin
 | 6 - 7 | `areaID` | `uint16` | Resolved ID of the Area (Last 4 hex digits of UID). |
 | 8 - 9 | `equipmentID` | `uint16` | Resolved ID of the Equipment (Last 4 hex digits of UID). |
 | 10 - 13 | `timestamp` | `uint32` | Transmission timestamp (Epoch seconds). |
-| 14 - 15 | `totalRecord` | `uint16` | Total number of `working_results` included. |
+| 14 - 15 | `totalRecord` | `uint16` | Total number of spots/records included. |
 | 16 - 17 | `productivity` | `uint16` | Calculated productivity (ha/hours × 1000). |
 | 18 - 19 | `production` | `uint16` | Count of total spots (equivalent to `totalRecord`). |
 | 20 - 23 | `lastPosLat` | `int32` | Latitude of the first/last spot × 10,000,000. |

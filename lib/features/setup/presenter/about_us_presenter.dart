@@ -9,6 +9,7 @@ import '../../../core/database/database_service.dart';
 import '../../../core/models/workfile.dart';
 import '../../../core/models/working_spot.dart';
 import '../../../core/state/auth_state.dart';
+import '../../../core/utils/payload_builder.dart';
 
 class AboutUsState {
   final bool isLoading;
@@ -70,7 +71,7 @@ class AboutUsNotifier extends Notifier<AboutUsState> {
     );
   }
 
-  Future<void> exportGeoJson() async {
+  Future<void> exportBin() async {
     final selectedWorkfile = state.selectedWorkfile;
     if (selectedWorkfile == null) {
       state = state.copyWith(
@@ -91,7 +92,7 @@ class AboutUsNotifier extends Notifier<AboutUsState> {
 
     state = state.copyWith(
       isLoading: true,
-      statusMessage: "Memproses export GeoJSON...",
+      statusMessage: "Memproses export Payload...",
       isSuccess: false,
     );
 
@@ -131,37 +132,52 @@ class AboutUsNotifier extends Notifier<AboutUsState> {
         return;
       }
 
-      // Build GeoJSON FeatureCollection
-      final features = <Map<String, dynamic>>[];
-      for (int i = 0; i < spots.length; i++) {
-        final spot = spots[i];
-        if (spot.lng == null || spot.lat == null) continue;
-
-        final feature = {
-          "type": "Feature",
-          "geometry": {
-            "type": "Point",
-            "coordinates": [spot.lng, spot.lat],
-          },
-          "properties": {
-            "fileID": spot.fileID,
-            "operatorID": selectedWorkfile.operatorID,
-            "companyID": selectedWorkfile.companyID,
-            "areaID": selectedWorkfile.areaID,
-            "equipmentID": selectedWorkfile.equipmentID,
-            "status": 1,
-            "accuracy": spot.akurasi,
-            "spotID": spot.spotID ?? i,
-            "color": "green",
-            "lastUpdate": spot.lastUpdate ?? "",
-          },
-        };
-        features.add(feature);
+      int extract(String? uid) {
+        if (uid == null || uid.length < 4) return 0;
+        final last4Hex = uid.substring(uid.length - 4);
+        final value = int.tryParse(last4Hex, radix: 16);
+        return value ?? 0;
       }
 
-      final geoJson = {"type": "FeatureCollection", "features": features};
+      int operatorID = extract(selectedWorkfile.operatorID);
+      int areaID = extract(selectedWorkfile.areaID);
+      int equipmentID = extract(selectedWorkfile.equipmentID);
+      int companyID = extract(selectedWorkfile.companyID);
 
-      final geoJsonString = jsonEncode(geoJson);
+      spots.sort((a, b) => (a.lastUpdate ?? 0).compareTo(b.lastUpdate ?? 0));
+
+      double workHoursSeconds = 0;
+      double totalAccuracy = 0;
+      if (spots.length > 1) {
+        for (int i = 0; i < spots.length - 1; i++) {
+          final current = spots[i];
+          final next = spots[i + 1];
+          if (current.lastUpdate != null && next.lastUpdate != null) {
+            final diff = next.lastUpdate! - current.lastUpdate!;
+            if (diff > 0 && diff <= 300) {
+              workHoursSeconds += diff;
+            }
+          }
+        }
+      }
+      for (var spot in spots) {
+        totalAccuracy += (spot.akurasi ?? 0);
+      }
+      final double averageAccuracy = spots.isNotEmpty
+          ? totalAccuracy / spots.length
+          : 0;
+
+      final payloadBytes = PayloadBuilder.buildSyncPayload(
+        workHours: workHoursSeconds.toInt(),
+        workingSpots: spots,
+        avgAccuracy: averageAccuracy,
+        operatorID: operatorID,
+        areaID: areaID,
+        equipmentID: equipmentID,
+        companyID: companyID,
+        shift: 0,
+        event: 'Export Manual',
+      );
 
       // Setup Save Directory
       final downloadDir = Directory('/storage/emulated/0/Download/TohoEGS');
@@ -180,10 +196,10 @@ class AboutUsNotifier extends Notifier<AboutUsState> {
           .replaceAll(RegExp(r'[^\w\s]+'), '_');
 
       final fileName =
-          '${areaNameSafe}_${operatorNameSafe}(${operatorIDSafe})_${equipmentIDSafe}.geojson';
+          '${areaNameSafe}_${operatorNameSafe}(${operatorIDSafe})_${equipmentIDSafe}.bin';
       final file = File('${downloadDir.path}/$fileName');
 
-      await file.writeAsString(geoJsonString);
+      await file.writeAsBytes(payloadBytes);
 
       state = state.copyWith(
         isLoading: false,

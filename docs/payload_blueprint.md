@@ -46,7 +46,7 @@
       "operatorID": 51,
       "areaID": 52075
     },
-    "working_results": [
+    "design_spots": [
       {
         "status": 0,
         "driverID": "0",
@@ -91,7 +91,7 @@
 
 ---
 
-## 4. Field Reference: `working_results` Array (per item)
+## 4. Field Reference: `design_spots` (previously `working_results`) Array (per item)
 
 | Field | Tipe JSON | Tipe Dart | Sumber (Host DB) | Catatan |
 |---|---|---|---|---|
@@ -214,7 +214,7 @@ final payload = jsonEncode({
   'command': 'sync_workfile',
   'data': {
     'workfile': workfileToJson(workFile),
-    'working_results': spots.map((s) => s.toJson()).toList(),
+    'design_spots': spots.map((s) => s.toJson()).toList(),
   },
 });
 _wsChannel.sink.add(payload);

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +14,7 @@ import '../models/error_alert.dart';
 import '../models/gps_loc.dart';
 import '../models/radio_config.dart';
 import '../models/send_acknowledge.dart';
+import '../models/sensor_node_data.dart';
 import '../utils/parsing.dart';
 import '../services/notification_service.dart' as simple_notif;
 
@@ -72,6 +72,8 @@ class ComService extends Notifier<UsbState> {
       StreamController<GPSLoc>.broadcast();
   final StreamController<CalibrationData> _calibController =
       StreamController<CalibrationData>.broadcast();
+  final StreamController<SensorNodeData> _sensorController =
+      StreamController<SensorNodeData>.broadcast();
 
   // USB Transaction
   Transaction<Uint8List>? _txn;
@@ -108,6 +110,7 @@ class ComService extends Notifier<UsbState> {
   // Getters for Streams
   Stream<GPSLoc> get gpsStream => _gpsController.stream;
   Stream<CalibrationData> get calibStream => _calibController.stream;
+  Stream<SensorNodeData> get sensorStream => _sensorController.stream;
 
   // --- WebSocket Management ---
 
@@ -365,6 +368,14 @@ class ComService extends Notifier<UsbState> {
           // Digging Status
           debugPrint('Digging Status Received (0xD2)');
           state = state.copyWith(diggingStatus: true);
+        } else if (opcode == 0xD7) {
+          // Sensor Node Diagnostics
+          try {
+            final sensor = _parseSensorNodeData(packet);
+            _sensorController.add(sensor);
+          } catch (e) {
+            debugPrint('Error parsing SensorNodeData: $e');
+          }
         } else if (opcode == 0x81) {
           // Send Acknowledge
           try {
@@ -534,6 +545,42 @@ class ComService extends Notifier<UsbState> {
     );
   }
 
+  SensorNodeData _parseSensorNodeData(List<int> socketData) {
+    return SensorNodeData(
+      length: socketData[4],
+      opcode: socketData[5],
+      sourceID: socketData[6],
+      errorBits: socketData[7],
+      resetReason: socketData[8],
+      restartNumber: Parsing.parseFromUint_16(socketData.sublist(9, 11)),
+      uptime: Parsing.parseFromUint_32(socketData.sublist(11, 15)),
+      sensorType: socketData[15],
+      sensorID: socketData[16],
+      accelX: Parsing.parseFromINT_16(socketData.sublist(17, 19)),
+      accelY: Parsing.parseFromINT_16(socketData.sublist(19, 21)),
+      accelZ: Parsing.parseFromINT_16(socketData.sublist(21, 23)),
+      offsetX: Parsing.parseFromINT_16(socketData.sublist(23, 25)),
+      offsetY: Parsing.parseFromINT_16(socketData.sublist(25, 27)),
+      offsetZ: Parsing.parseFromINT_16(socketData.sublist(27, 29)),
+      scaleRawX: Parsing.parseFromINT_16(socketData.sublist(29, 31)),
+      scaleRawY: Parsing.parseFromINT_16(socketData.sublist(31, 33)),
+      scaleRawZ: Parsing.parseFromINT_16(socketData.sublist(33, 35)),
+      errSensorRead: Parsing.parseFromUint_16(socketData.sublist(35, 37)),
+      errSensorUncalib: Parsing.parseFromUint_16(socketData.sublist(37, 39)),
+      errCANSendFail: Parsing.parseFromUint_16(socketData.sublist(39, 41)),
+      tiltRaw: Parsing.parseFromINT_16(socketData.sublist(41, 43)),
+      tempRaw: Parsing.parseFromINT_16(socketData.sublist(43, 45)),
+      adc3V3Raw: Parsing.parseFromINT_16(socketData.sublist(45, 47)),
+      adc5VRaw: Parsing.parseFromINT_16(socketData.sublist(47, 49)),
+      mainCounter: Parsing.parseFromUint_32(socketData.sublist(49, 53)),
+      boomCounter: Parsing.parseFromUint_32(socketData.sublist(53, 57)),
+      stickCounter: Parsing.parseFromUint_32(socketData.sublist(57, 61)),
+      bucketCounter: Parsing.parseFromUint_32(socketData.sublist(61, 65)),
+      canRxTimeout: Parsing.parseFromUint_16(socketData.sublist(65, 67)),
+      crc16: Parsing.parseFromUint_16(socketData.sublist(67, 69)),
+    );
+  }
+
   // --- Helper Functions ---
   String _statusGPS(int status) {
     switch (status) {
@@ -683,4 +730,9 @@ final radioProvider = NotifierProvider<RadioNotifier, RadioConfig?>(
 final calibStreamProvider = StreamProvider.autoDispose<CalibrationData>((ref) {
   ref.keepAlive();
   return ref.watch(comServiceProvider.notifier).calibStream;
+});
+
+final sensorStreamProvider = StreamProvider.autoDispose<SensorNodeData>((ref) {
+  ref.keepAlive();
+  return ref.watch(comServiceProvider.notifier).sensorStream;
 });

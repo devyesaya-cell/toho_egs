@@ -3,6 +3,7 @@ import '../../../core/widgets/global_app_bar_actions.dart';
 import '../widgets/debug/rover_debug_tab.dart';
 import '../widgets/debug/basestation_debug_tab.dart';
 import '../widgets/debug/alert_debug_tab.dart';
+import '../widgets/debug/sensor_debug_tab.dart';
 import '../../../core/utils/app_theme.dart';
 
 class DebugPage extends StatelessWidget {
@@ -13,7 +14,7 @@ class DebugPage extends StatelessWidget {
     final theme = AppTheme.of(context);
 
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         backgroundColor: theme.pageBackground,
         appBar: AppBar(
@@ -69,6 +70,7 @@ class DebugPage extends StatelessWidget {
               Tab(text: 'ROVER'),
               Tab(text: 'BASESTATION'),
               Tab(text: 'ALERT'),
+              Tab(text: 'SENSOR'),
             ],
           ),
         ),
@@ -77,7 +79,12 @@ class DebugPage extends StatelessWidget {
             border: Border(top: BorderSide(color: theme.cardBorderColor)),
           ),
           child: const TabBarView(
-            children: [RoverDebugTab(), BasestationDebugTab(), AlertDebugTab()],
+            children: [
+              RoverDebugTab(),
+              BasestationDebugTab(),
+              AlertDebugTab(),
+              SensorDebugTab(),
+            ],
           ),
         ),
       ),
