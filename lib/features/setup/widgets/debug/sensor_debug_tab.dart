@@ -21,67 +21,58 @@ class SensorDebugTab extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Row 1: Identity & Health
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: _buildNodeInfoCard(sensorData, theme),
-                  ),
-                  const SizedBox(width: 24),
-                  Expanded(
-                    flex: 1,
-                    child: _buildHealthStatusCard(sensorData, theme),
-                  ),
-                ],
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: _buildNodeInfoCard(sensorData, theme),
+                    ),
+                    const SizedBox(width: 24),
+                    Expanded(
+                      flex: 1,
+                      child: _buildHealthStatusCard(sensorData, theme),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
 
-              // Row 2: Motion Data & Calibration
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 4,
-                    child: _buildMotionCard(sensorData, theme),
-                  ),
-                  const SizedBox(width: 24),
-                  Expanded(
-                    flex: 3,
-                    child: _buildCalibrationOffsetsCard(sensorData, theme),
-                  ),
-                ],
-              ),
+              // Row 2: Accelerometer Calibration (full width)
+              _buildAccelerometerCalibrationCard(sensorData, theme),
               const SizedBox(height: 24),
 
-              // Row 3: Counters & Power
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: _buildCountersCard(sensorData, theme),
-                  ),
-                  const SizedBox(width: 24),
-                  Expanded(
-                    flex: 1,
-                    child: _buildPowerAndAdcCard(sensorData, theme),
-                  ),
-                ],
+              // Row 3: Counters & Hardware Info
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: _buildCountersCard(sensorData, theme),
+                    ),
+                    const SizedBox(width: 24),
+                    Expanded(
+                      flex: 1,
+                      child: _buildHardwareInfoCard(sensorData, theme),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
       ),
-      loading: () => const Center(
+      loading: () => Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(color: Color(0xFF2ECC71)),
-            SizedBox(height: 16),
+            CircularProgressIndicator(color: theme.appBarAccent),
+            const SizedBox(height: 16),
             Text(
               'Waiting for Sensor Node data stream (Opcode 0xD7)...',
-              style: TextStyle(color: Colors.white54, fontSize: 16),
+              style: TextStyle(color: theme.textSecondary, fontSize: 16),
             ),
           ],
         ),
@@ -104,17 +95,17 @@ class SensorDebugTab extends ConsumerWidget {
       theme: theme,
       child: Column(
         children: [
-          _buildInfoRow('Source ID', data.sourceIDLabel, isBold: true),
-          const Divider(color: Colors.white10),
-          _buildInfoRow('Sensor Type', data.sensorTypeLabel),
-          const Divider(color: Colors.white10),
-          _buildInfoRow('Sensor ID', '${data.sensorID}'),
-          const Divider(color: Colors.white10),
-          _buildInfoRow('Uptime', data.uptimeFormatted, valueColor: const Color(0xFF2ECC71)),
-          const Divider(color: Colors.white10),
-          _buildInfoRow('Reset Reason', data.resetReasonLabel),
-          const Divider(color: Colors.white10),
-          _buildInfoRow('Restart Number', '${data.restartNumber} times'),
+          _buildInfoRow('Source ID', data.sourceIDLabel, theme: theme, isBold: true),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('Sensor Type', data.sensorTypeLabel, theme: theme),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('Sensor ID', '${data.sensorID}', theme: theme),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('Uptime', data.uptimeFormatted, theme: theme, valueColor: const Color(0xFF2ECC71)),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('Reset Reason', data.resetReasonLabel, theme: theme),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('Restart Number', '${data.restartNumber} times', theme: theme),
         ],
       ),
     );
@@ -128,29 +119,40 @@ class SensorDebugTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
+          Text(
             'SYSTEM BITWISE ERRORS',
-            style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0),
+            style: TextStyle(
+              color: theme.textSecondary.withOpacity(0.6),
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.0,
+            ),
           ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              _buildErrorChip('ESP32 System', data.hasESP32Error),
-              _buildErrorChip('IMU Sensor', data.hasSensorError),
-              _buildErrorChip('CAN Network', data.hasCANError),
-              _buildErrorChip('Voltage Input', data.hasInputVoltError),
+              _buildErrorChip('ESP32 System', data.hasESP32Error, theme),
+              _buildErrorChip('IMU Sensor', data.hasSensorError, theme),
+              _buildErrorChip('CAN Network', data.hasCANError, theme),
+              _buildErrorChip('Voltage Input', data.hasInputVoltError, theme),
             ],
           ),
           const SizedBox(height: 24),
-          const Divider(color: Colors.white10),
+          Divider(color: theme.dividerColor),
           const SizedBox(height: 8),
-          _buildInfoRow('CAN RX Timeout Counter', '${data.canRxTimeout}', valueColor: data.canRxTimeout > 0 ? Colors.redAccent : Colors.white70),
-          const Divider(color: Colors.white10),
           _buildInfoRow(
-            'Integrity Check (CRC16)', 
+            'CAN RX Timeout Counter',
+            '${data.canRxTimeout}',
+            theme: theme,
+            valueColor: data.canRxTimeout > 0 ? Colors.redAccent : theme.textOnSurface.withOpacity(0.85),
+          ),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow(
+            'Integrity Check (CRC16)',
             '0x${data.crc16.toRadixString(16).toUpperCase().padLeft(4, '0')}',
+            theme: theme,
             valueColor: const Color(0xFF2ECC71),
           ),
         ],
@@ -158,58 +160,87 @@ class SensorDebugTab extends ConsumerWidget {
     );
   }
 
-  // --- Motion & Measurement Card Builders ---
+  // --- Accelerometer Calibration Card (formerly Motion & Inertial Data) ---
 
-  Widget _buildMotionCard(SensorNodeData data, AppThemeData theme) {
-    // VISUAL ANGLE/TILT CAPPING CONSTRAINT (Calibration Layout Rule #5)
-    final double rawTilt = data.tilt;
-    final double cappedTilt = rawTilt > 360.0 ? 360.0 : rawTilt;
-    final String formattedTilt = '${cappedTilt.toStringAsFixed(2)}°';
-
+  Widget _buildAccelerometerCalibrationCard(SensorNodeData data, AppThemeData theme) {
     return _buildCardTemplate(
-      title: 'Motion & Inertial Data',
-      icon: Icons.screen_rotation,
+      title: 'Accelerometer Calibration',
+      icon: Icons.tune,
       theme: theme,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Accelerometer values
+          // Accelerometer raw values
           Expanded(
             flex: 4,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'ACCELERATION (mg)',
-                  style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0),
+                  style: TextStyle(
+                    color: theme.textSecondary.withOpacity(0.6),
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.0,
+                  ),
                 ),
                 const SizedBox(height: 12),
-                _buildInfoRow('X-Axis', '${data.accelX} mg', isBold: true),
-                const Divider(color: Colors.white10),
-                _buildInfoRow('Y-Axis', '${data.accelY} mg', isBold: true),
-                const Divider(color: Colors.white10),
-                _buildInfoRow('Z-Axis', '${data.accelZ} mg', isBold: true),
+                _buildInfoRow('X-Axis', '${data.accelX} mg', theme: theme, isBold: true),
+                Divider(color: theme.dividerColor),
+                _buildInfoRow('Y-Axis', '${data.accelY} mg', theme: theme, isBold: true),
+                Divider(color: theme.dividerColor),
+                _buildInfoRow('Z-Axis', '${data.accelZ} mg', theme: theme, isBold: true),
               ],
             ),
           ),
           const SizedBox(width: 32),
-          Container(width: 1, height: 110, color: Colors.white10),
+          Container(width: 1, color: theme.dividerColor),
           const SizedBox(width: 32),
-          // Physics/Degrees
+          // Calibration Offsets
           Expanded(
             flex: 3,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'ORIENTATION & TEMP',
-                  style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0),
+                Text(
+                  'OFFSETS',
+                  style: TextStyle(
+                    color: theme.textSecondary.withOpacity(0.6),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
+                  ),
                 ),
-                const SizedBox(height: 12),
-                // Tilt uses formattedTilt with Degree symbol and visual capping constraint
-                _buildInfoRow('Capped Tilt', formattedTilt, valueColor: const Color(0xFF2ECC71), isBold: true),
-                const Divider(color: Colors.white10),
-                _buildInfoRow('Temperature', '${data.temperature.toStringAsFixed(2)} °C', valueColor: Colors.orangeAccent),
+                const SizedBox(height: 8),
+                _buildInfoRow('X', '${data.offsetX}', theme: theme),
+                _buildInfoRow('Y', '${data.offsetY}', theme: theme),
+                _buildInfoRow('Z', '${data.offsetZ}', theme: theme),
+              ],
+            ),
+          ),
+          const SizedBox(width: 32),
+          Container(width: 1, color: theme.dividerColor),
+          const SizedBox(width: 32),
+          // Calibration Scales
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'SCALES (1E-02)',
+                  style: TextStyle(
+                    color: theme.textSecondary.withOpacity(0.6),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildInfoRow('X', data.scaleX.toStringAsFixed(2), theme: theme),
+                _buildInfoRow('Y', data.scaleY.toStringAsFixed(2), theme: theme),
+                _buildInfoRow('Z', data.scaleZ.toStringAsFixed(2), theme: theme),
               ],
             ),
           ),
@@ -218,50 +249,7 @@ class SensorDebugTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildCalibrationOffsetsCard(SensorNodeData data, AppThemeData theme) {
-    return _buildCardTemplate(
-      title: 'Calibration Offsets & Scales',
-      icon: Icons.tune,
-      theme: theme,
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('OFFSETS', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    _buildInfoRow('X', '${data.offsetX}'),
-                    _buildInfoRow('Y', '${data.offsetY}'),
-                    _buildInfoRow('Z', '${data.offsetZ}'),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 24),
-              Container(width: 1, height: 80, color: Colors.white10),
-              const SizedBox(width: 24),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('SCALES (1E-02)', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    _buildInfoRow('X', data.scaleX.toStringAsFixed(2)),
-                    _buildInfoRow('Y', data.scaleY.toStringAsFixed(2)),
-                    _buildInfoRow('Z', data.scaleZ.toStringAsFixed(2)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- Counters & Power Card Builders ---
+  // --- Counters & Hardware Info Card Builders ---
 
   Widget _buildCountersCard(SensorNodeData data, AppThemeData theme) {
     return _buildCardTemplate(
@@ -276,28 +264,44 @@ class SensorDebugTab extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('PULSE COUNTERS', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                Text(
+                  'PULSE COUNTERS',
+                  style: TextStyle(
+                    color: theme.textSecondary.withOpacity(0.6),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                _buildInfoRow('Main', '${data.mainCounter}'),
-                _buildInfoRow('Boom', '${data.boomCounter}'),
-                _buildInfoRow('Stick', '${data.stickCounter}'),
-                _buildInfoRow('Bucket', '${data.bucketCounter}'),
+                _buildInfoRow('Main', '${data.mainCounter}', theme: theme),
+                _buildInfoRow('Boom', '${data.boomCounter}', theme: theme),
+                _buildInfoRow('Stick', '${data.stickCounter}', theme: theme),
+                _buildInfoRow('Bucket', '${data.bucketCounter}', theme: theme),
               ],
             ),
           ),
           const SizedBox(width: 24),
-          Container(width: 1, height: 110, color: Colors.white10),
+          Container(width: 1, color: theme.dividerColor),
           const SizedBox(width: 24),
           // Sensor Error Counters
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('HARDWARE ERRS', style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                Text(
+                  'HARDWARE ERRS',
+                  style: TextStyle(
+                    color: theme.textSecondary.withOpacity(0.6),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                _buildInfoRow('Sensor Read', '${data.errSensorRead}', valueColor: data.errSensorRead > 0 ? Colors.redAccent : Colors.white70),
-                _buildInfoRow('Uncalibrated', '${data.errSensorUncalib}', valueColor: data.errSensorUncalib > 0 ? Colors.redAccent : Colors.white70),
-                _buildInfoRow('CAN Send Fail', '${data.errCANSendFail}', valueColor: data.errCANSendFail > 0 ? Colors.redAccent : Colors.white70),
+                _buildInfoRow('Sensor Read', '${data.errSensorRead}', theme: theme, valueColor: data.errSensorRead > 0 ? Colors.redAccent : theme.textOnSurface.withOpacity(0.85)),
+                _buildInfoRow('Uncalibrated', '${data.errSensorUncalib}', theme: theme, valueColor: data.errSensorUncalib > 0 ? Colors.redAccent : theme.textOnSurface.withOpacity(0.85)),
+                _buildInfoRow('CAN Send Fail', '${data.errCANSendFail}', theme: theme, valueColor: data.errCANSendFail > 0 ? Colors.redAccent : theme.textOnSurface.withOpacity(0.85)),
               ],
             ),
           ),
@@ -306,36 +310,70 @@ class SensorDebugTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildPowerAndAdcCard(SensorNodeData data, AppThemeData theme) {
+  Widget _buildHardwareInfoCard(SensorNodeData data, AppThemeData theme) {
+    // VISUAL ANGLE/TILT CAPPING CONSTRAINT (Calibration Layout Rule #5)
+    final double rawTilt = data.tilt;
+    final double cappedTilt = rawTilt > 360.0 ? 360.0 : rawTilt;
+    final String formattedTilt = '${cappedTilt.toStringAsFixed(2)}°';
+
     return _buildCardTemplate(
-      title: 'Hardware ADC Voltages',
+      title: 'Hardware Info',
       icon: Icons.battery_charging_full_outlined,
       theme: theme,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildInfoRow('3.3V ADC Rail', '${data.adc3V3.toStringAsFixed(2)} V', valueColor: const Color(0xFF2ECC71), isBold: true),
-          const Divider(color: Colors.white10),
-          _buildInfoRow('5.0V ADC Rail', '${data.adc5V.toStringAsFixed(2)} V', valueColor: const Color(0xFF2ECC71), isBold: true),
-          const SizedBox(height: 12),
+          // ADC Voltages section
+          Text(
+            'ADC VOLTAGE RAILS',
+            style: TextStyle(
+              color: theme.textSecondary.withOpacity(0.6),
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildInfoRow('3.3V ADC Rail', '${data.adc3V3.toStringAsFixed(2)} V', theme: theme, valueColor: const Color(0xFF2ECC71), isBold: true),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('5.0V ADC Rail', '${data.adc5V.toStringAsFixed(2)} V', theme: theme, valueColor: const Color(0xFF2ECC71), isBold: true),
+          const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.02),
+              color: theme.appBarAccent.withOpacity(0.04),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(Icons.flash_on, color: Colors.orangeAccent, size: 16),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Voltage rail tolerances: ±5% ideal operating bounds.',
-                    style: TextStyle(color: Colors.white38, fontSize: 11),
+                    style: TextStyle(color: theme.textSecondary.withOpacity(0.6), fontSize: 11),
                   ),
                 ),
               ],
             ),
           ),
+          const SizedBox(height: 20),
+          Divider(color: theme.dividerColor),
+          const SizedBox(height: 8),
+          // Orientation & Temperature section
+          Text(
+            'ORIENTATION & TEMP',
+            style: TextStyle(
+              color: theme.textSecondary.withOpacity(0.6),
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildInfoRow('Capped Tilt', formattedTilt, theme: theme, valueColor: const Color(0xFF2ECC71), isBold: true),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('Temperature', '${data.temperature.toStringAsFixed(2)} °C', theme: theme, valueColor: Colors.orangeAccent),
         ],
       ),
     );
@@ -351,15 +389,15 @@ class SensorDebugTab extends ConsumerWidget {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: theme.cardSurface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: const Color(0xFF2ECC71).withOpacity(0.3),
+          color: theme.cardBorderColor.withOpacity(0.5),
           width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withOpacity(0.25),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -375,9 +413,9 @@ class SensorDebugTab extends ConsumerWidget {
               bottom: 24,
               width: 8,
               child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFF2ECC71),
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: theme.appBarAccent,
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(8),
                     bottomLeft: Radius.circular(8),
                   ),
@@ -391,12 +429,12 @@ class SensorDebugTab extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(icon, color: Colors.white, size: 24),
+                      Icon(icon, color: theme.textOnSurface, size: 24),
                       const SizedBox(width: 12),
                       Text(
                         title,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: theme.textOnSurface,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -418,9 +456,10 @@ class SensorDebugTab extends ConsumerWidget {
   }
 
   Widget _buildInfoRow(
-    String label, 
+    String label,
     String value, {
-    Color valueColor = Colors.white70,
+    required AppThemeData theme,
+    Color? valueColor,
     bool isBold = false,
   }) {
     return Padding(
@@ -428,11 +467,11 @@ class SensorDebugTab extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.white54, fontSize: 13)),
+          Text(label, style: TextStyle(color: theme.textSecondary, fontSize: 13)),
           Text(
             value,
             style: TextStyle(
-              color: valueColor,
+              color: valueColor ?? theme.textOnSurface.withOpacity(0.85),
               fontSize: 13,
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             ),
@@ -442,11 +481,11 @@ class SensorDebugTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorChip(String label, bool hasError) {
-    final Color bgColor = hasError ? Colors.red.withOpacity(0.1) : const Color(0xFF2ECC71).withOpacity(0.1);
-    final Color textColor = hasError ? Colors.redAccent : const Color(0xFF2ECC71);
-    final Color borderColor = hasError ? Colors.redAccent.withOpacity(0.3) : const Color(0xFF2ECC71).withOpacity(0.3);
-    final IconData icon = hasError ? Icons.error_outline : Icons.check_circle_outline;
+  Widget _buildErrorChip(String label, bool hasError, AppThemeData theme) {
+    final Color bgColor = hasError ? Colors.red.withOpacity(0.1) : theme.appBarAccent.withOpacity(0.1);
+    final Color textColor = hasError ? Colors.redAccent : theme.appBarAccent;
+    final Color borderColor = hasError ? Colors.redAccent.withOpacity(0.3) : theme.appBarAccent.withOpacity(0.3);
+    final IconData chipIcon = hasError ? Icons.error_outline : Icons.check_circle_outline;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -458,7 +497,7 @@ class SensorDebugTab extends ConsumerWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: textColor, size: 14),
+          Icon(chipIcon, color: textColor, size: 14),
           const SizedBox(width: 6),
           Text(
             label,

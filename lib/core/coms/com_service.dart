@@ -15,6 +15,7 @@ import '../models/gps_loc.dart';
 import '../models/radio_config.dart';
 import '../models/send_acknowledge.dart';
 import '../models/sensor_node_data.dart';
+import '../models/rover_node_data.dart';
 import '../utils/parsing.dart';
 import '../services/notification_service.dart' as simple_notif;
 
@@ -74,6 +75,8 @@ class ComService extends Notifier<UsbState> {
       StreamController<CalibrationData>.broadcast();
   final StreamController<SensorNodeData> _sensorController =
       StreamController<SensorNodeData>.broadcast();
+  final StreamController<RoverNodeData> _roverController =
+      StreamController<RoverNodeData>.broadcast();
 
   // USB Transaction
   Transaction<Uint8List>? _txn;
@@ -111,6 +114,7 @@ class ComService extends Notifier<UsbState> {
   Stream<GPSLoc> get gpsStream => _gpsController.stream;
   Stream<CalibrationData> get calibStream => _calibController.stream;
   Stream<SensorNodeData> get sensorStream => _sensorController.stream;
+  Stream<RoverNodeData> get roverStream => _roverController.stream;
 
   // --- WebSocket Management ---
 
@@ -376,6 +380,14 @@ class ComService extends Notifier<UsbState> {
           } catch (e) {
             debugPrint('Error parsing SensorNodeData: $e');
           }
+        } else if (opcode == 0xD6) {
+          // Rover Node Diagnostics
+          try {
+            final rover = _parseRoverNodeData(packet);
+            _roverController.add(rover);
+          } catch (e) {
+            debugPrint('Error parsing RoverNodeData: $e');
+          }
         } else if (opcode == 0x81) {
           // Send Acknowledge
           try {
@@ -581,6 +593,48 @@ class ComService extends Notifier<UsbState> {
     );
   }
 
+  RoverNodeData _parseRoverNodeData(List<int> socketData) {
+    return RoverNodeData(
+      length: socketData[4],
+      opcode: socketData[5],
+      errorBits: Parsing.parseFromUint_16(socketData.sublist(6, 8)),
+      resetReason: socketData[8],
+      restartNumber: Parsing.parseFromUint_16(socketData.sublist(9, 11)),
+      uptime: Parsing.parseFromUint_32(socketData.sublist(11, 15)),
+      sensorType: socketData[15],
+      sensorID: socketData[16],
+      accelX: Parsing.parseFromINT_16(socketData.sublist(17, 19)),
+      accelY: Parsing.parseFromINT_16(socketData.sublist(19, 21)),
+      accelZ: Parsing.parseFromINT_16(socketData.sublist(21, 23)),
+      offsetX: Parsing.parseFromINT_16(socketData.sublist(23, 25)),
+      offsetY: Parsing.parseFromINT_16(socketData.sublist(25, 27)),
+      offsetZ: Parsing.parseFromINT_16(socketData.sublist(27, 29)),
+      scaleRawX: Parsing.parseFromINT_16(socketData.sublist(29, 31)),
+      scaleRawY: Parsing.parseFromINT_16(socketData.sublist(31, 33)),
+      scaleRawZ: Parsing.parseFromINT_16(socketData.sublist(33, 35)),
+      rawPitch: Parsing.parseFromINT_16(socketData.sublist(35, 37)),
+      rawRoll: Parsing.parseFromINT_16(socketData.sublist(37, 39)),
+      tempRaw: Parsing.parseFromINT_16(socketData.sublist(39, 41)),
+      vinAdcRaw: Parsing.parseFromINT_16(socketData.sublist(41, 43)),
+      adc5VRaw: Parsing.parseFromINT_16(socketData.sublist(43, 45)),
+      rawBoom: Parsing.parseFromINT_16(socketData.sublist(45, 47)),
+      rawStick: Parsing.parseFromINT_16(socketData.sublist(47, 49)),
+      rawBucket: Parsing.parseFromINT_16(socketData.sublist(49, 51)),
+      mainCounter: Parsing.parseFromUint_32(socketData.sublist(51, 55)),
+      boomCounter: Parsing.parseFromUint_32(socketData.sublist(55, 59)),
+      stickCounter: Parsing.parseFromUint_32(socketData.sublist(59, 63)),
+      bucketCounter: Parsing.parseFromUint_32(socketData.sublist(63, 67)),
+      canRxTimeout: Parsing.parseFromUint_16(socketData.sublist(67, 69)),
+      gnss1Counter: Parsing.parseFromUint_32(socketData.sublist(69, 73)),
+      gnss2Counter: Parsing.parseFromUint_32(socketData.sublist(73, 77)),
+      bsStationRx: Parsing.parseFromUint_32(socketData.sublist(77, 81)),
+      rs485Rx: Parsing.parseFromUint_32(socketData.sublist(81, 85)),
+      sdCardCapacity: Parsing.parseFromUint_32(socketData.sublist(85, 89)),
+      sdCardSpeed: Parsing.parseFromUint_32(socketData.sublist(89, 93)),
+      crc16: Parsing.parseFromUint_16(socketData.sublist(93, 95)),
+    );
+  }
+
   // --- Helper Functions ---
   String _statusGPS(int status) {
     switch (status) {
@@ -735,4 +789,9 @@ final calibStreamProvider = StreamProvider.autoDispose<CalibrationData>((ref) {
 final sensorStreamProvider = StreamProvider.autoDispose<SensorNodeData>((ref) {
   ref.keepAlive();
   return ref.watch(comServiceProvider.notifier).sensorStream;
+});
+
+final roverStreamProvider = StreamProvider.autoDispose<RoverNodeData>((ref) {
+  ref.keepAlive();
+  return ref.watch(comServiceProvider.notifier).roverStream;
 });
