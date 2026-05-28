@@ -5,6 +5,7 @@ import '../../features/home/home_page.dart';
 import '../../features/auth/login_page.dart';
 import '../../features/setup/presenter/calibration_presenter.dart';
 import '../../core/coms/com_service.dart';
+import '../../core/services/debug_logs_manager.dart';
 
 class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({super.key});
@@ -31,6 +32,9 @@ class _LandingPageState extends ConsumerState<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Keep DebugLogsManager alive and listening to USB state changes
+    ref.watch(debugLogsManagerProvider);
+
     final authState = ref.watch(authProvider);
 
     if (authState.currentUser != null) {

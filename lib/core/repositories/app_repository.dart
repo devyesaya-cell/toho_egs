@@ -11,6 +11,7 @@ import '../models/timesheet_record.dart';
 import '../models/timesheet_data.dart';
 import '../models/status_timesheet.dart';
 import '../models/sync_data_result.dart';
+import '../models/debug_logs.dart';
 
 // Provides the generic AppRepository
 final appRepositoryProvider = Provider<AppRepository>((ref) {
@@ -490,5 +491,74 @@ class AppRepository {
         .driverIDEqualTo(driverId)
         .sortByShiftTimeDesc()
         .watch(fireImmediately: true);
+  }
+
+  // --- DebugLogs CRUD ---
+
+  Future<void> saveDebugLog(DebugLogs log) async {
+    await _isar.writeTxn(() async {
+      await _isar.debugLogs.put(log);
+    });
+  }
+
+  Future<void> saveDebugLogs(List<DebugLogs> logs) async {
+    await _isar.writeTxn(() async {
+      await _isar.debugLogs.putAll(logs);
+    });
+  }
+
+  Future<List<DebugLogs>> getAllDebugLogs() async {
+    return await _isar.debugLogs.where().sortByLastUpdateDesc().findAll();
+  }
+
+  Future<DebugLogs?> getDebugLogById(int id) async {
+    return await _isar.debugLogs.get(id);
+  }
+
+  Future<void> deleteDebugLog(int id) async {
+    await _isar.writeTxn(() async {
+      await _isar.debugLogs.delete(id);
+    });
+  }
+
+  Future<void> deleteDebugLogs(List<int> ids) async {
+    await _isar.writeTxn(() async {
+      await _isar.debugLogs.deleteAll(ids);
+    });
+  }
+
+  Future<void> clearDebugLogs() async {
+    await _isar.writeTxn(() async {
+      await _isar.debugLogs.clear();
+    });
+  }
+
+  Stream<List<DebugLogs>> watchDebugLogs() {
+    return _isar.debugLogs.where().sortByLastUpdateDesc().watch(fireImmediately: true);
+  }
+
+  Future<void> saveDebugLogsAndPrune(List<DebugLogs> logs) async {
+    await _isar.writeTxn(() async {
+      // 1. Put all new logs in a batch
+      await _isar.debugLogs.putAll(logs);
+
+      // 2. Query total count
+      final totalCount = await _isar.debugLogs.count();
+      if (totalCount > 10000) {
+        final toDeleteCount = totalCount - 10000;
+        final oldestLogs = await _isar.debugLogs
+            .where()
+            .sortByLastUpdate()
+            .limit(toDeleteCount)
+            .findAll();
+        
+        final idsToDelete = oldestLogs.map((e) => e.id).toList();
+        await _isar.debugLogs.deleteAll(idsToDelete);
+      }
+    });
+  }
+
+  Future<int> getDebugLogsCount() async {
+    return await _isar.debugLogs.count();
   }
 }

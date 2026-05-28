@@ -78,6 +78,15 @@ class ComService extends Notifier<UsbState> {
   final StreamController<RoverNodeData> _roverController =
       StreamController<RoverNodeData>.broadcast();
 
+  // Snapped packets for DebugLogs
+  GPSLoc? _lastGPSLoc;
+  SensorNodeData? _lastSensorNodeData;
+  RoverNodeData? _lastRoverNodeData;
+
+  GPSLoc? get lastGPSLoc => _lastGPSLoc;
+  SensorNodeData? get lastSensorNodeData => _lastSensorNodeData;
+  RoverNodeData? get lastRoverNodeData => _lastRoverNodeData;
+
   // USB Transaction
   Transaction<Uint8List>? _txn;
   StreamSubscription<Uint8List>? _txnSub;
@@ -332,6 +341,7 @@ class ComService extends Notifier<UsbState> {
           // GPS Data
           try {
             final gps = _parseGPSLoc(packet);
+            _lastGPSLoc = gps;
             _gpsController.add(gps);
           } catch (e) {
             debugPrint('Error parsing GPS: $e');
@@ -376,6 +386,7 @@ class ComService extends Notifier<UsbState> {
           // Sensor Node Diagnostics
           try {
             final sensor = _parseSensorNodeData(packet);
+            _lastSensorNodeData = sensor;
             _sensorController.add(sensor);
           } catch (e) {
             debugPrint('Error parsing SensorNodeData: $e');
@@ -384,6 +395,7 @@ class ComService extends Notifier<UsbState> {
           // Rover Node Diagnostics
           try {
             final rover = _parseRoverNodeData(packet);
+            _lastRoverNodeData = rover;
             _roverController.add(rover);
           } catch (e) {
             debugPrint('Error parsing RoverNodeData: $e');
