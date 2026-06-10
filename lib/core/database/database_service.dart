@@ -12,6 +12,7 @@ import '../models/status_timesheet.dart';
 import '../models/voice_message.dart';
 import '../models/sync_data_result.dart';
 import '../models/debug_logs.dart';
+import '../models/activation.dart';
 
 class DatabaseService {
   late Isar isar;
@@ -39,6 +40,7 @@ class DatabaseService {
       VoiceMessageSchema,
       SyncDataResultSchema,
       DebugLogsSchema,
+      ActivationSchema,
     ], directory: dir.path);
   }
 

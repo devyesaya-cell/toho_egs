@@ -9,6 +9,7 @@ import 'pages/about_us_page.dart';
 import 'pages/work_config_page.dart';
 import 'pages/wireless_page.dart';
 import 'pages/testing_page.dart';
+import 'pages/activation_page.dart';
 
 class SetupPage extends StatelessWidget {
   const SetupPage({super.key});
@@ -71,6 +72,12 @@ class SetupPage extends StatelessWidget {
         'icon': Icons.download_rounded,
         'color': Colors.grey,
         'page': const AboutUsPage(),
+      },
+      {
+        'title': 'Activation',
+        'icon': Icons.verified_user_rounded,
+        'color': Colors.teal,
+        'page': const ActivationPage(),
       },
     ];
 

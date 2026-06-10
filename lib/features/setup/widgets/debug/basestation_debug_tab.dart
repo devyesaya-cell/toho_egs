@@ -3,24 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/coms/com_service.dart';
 import '../../../../core/models/base_status.dart';
+import '../../../../core/utils/app_theme.dart';
 
 class BasestationDebugTab extends ConsumerWidget {
   const BasestationDebugTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = AppTheme.of(context);
     final bsData = ref.watch(bsProvider);
 
     if (bsData == null) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(color: Color(0xFF2ECC71)),
-            SizedBox(height: 16),
+            CircularProgressIndicator(color: theme.appBarAccent),
+            const SizedBox(height: 16),
             Text(
               'Waiting for Basestatus data stream...',
-              style: TextStyle(color: Colors.white54, fontSize: 16),
+              style: TextStyle(color: theme.textSecondary, fontSize: 16),
             ),
           ],
         ),
@@ -28,78 +30,167 @@ class BasestationDebugTab extends ConsumerWidget {
     }
 
     return SingleChildScrollView(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          minHeight: MediaQuery.of(context).size.height - 
-                     AppBar().preferredSize.height - 
-                     MediaQuery.of(context).padding.top -
-                     kTabBarHeight, // Rough estimate of remaining space
-        ),
-        child: SizedBox(
-          height: 600, // Fixed height to maintain the dashboard layout proportions
-          child: _buildDataView(bsData),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Row 1: Basestation Identity & GNSS Status and Position & Attitude
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: _buildIdentityAndGnssCard(bsData, theme),
+                  ),
+                  const SizedBox(width: 24),
+                  Expanded(
+                    flex: 1,
+                    child: _buildPositionAndAttitudeCard(bsData, theme),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Row 2: Power & Battery Diagnostics (full width)
+            _buildPowerDiagnosticsCard(bsData, theme),
+          ],
         ),
       ),
     );
   }
 
-  // Define tab bar height if not available
-  static const double kTabBarHeight = 48.0;
+  // --- Identity & GNSS Card Builder ---
+  Widget _buildIdentityAndGnssCard(Basestatus data, AppThemeData theme) {
+    // Dynamic mapping for RTK/GNSS status colors
+    Color statusColor = Colors.redAccent;
+    final statusUpper = data.status.toUpperCase();
+    if (statusUpper.contains('FIX') || statusUpper == 'RTK ON') {
+      statusColor = const Color(0xFF2ECC71); // Green for healthy fixes
+    } else if (statusUpper.contains('RECKONING') || statusUpper == 'FLOAT') {
+      statusColor = Colors.orangeAccent;
+    }
 
-  Widget _buildDataView(Basestatus bsData) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
+    return _buildCardTemplate(
+      title: 'Basestation GNSS Status',
+      icon: Icons.satellite_alt,
+      theme: theme,
       child: Column(
         children: [
-          // Row 1: GNSS Status & Position
+          _buildInfoRow('Fix Status', data.status, theme: theme, valueColor: statusColor, isBold: true),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('Satellites', '${data.satelit}', theme: theme),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('Accuracy', data.accuracyFormatted, theme: theme),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('Distance to Rover', data.distanceFormatted, theme: theme, valueColor: const Color(0xFF2ECC71)),
+        ],
+      ),
+    );
+  }
+
+  // --- Position & Attitude Card Builder ---
+  Widget _buildPositionAndAttitudeCard(Basestatus data, AppThemeData theme) {
+    return _buildCardTemplate(
+      title: 'Position & Attitude',
+      icon: Icons.location_on,
+      theme: theme,
+      child: Column(
+        children: [
+          _buildInfoRow('Latitude', data.latFormatted, theme: theme),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('Longitude', data.longFormatted, theme: theme),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('Altitude', data.altitudeFormatted, theme: theme),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('Pitch', data.pitchFormatted, theme: theme, valueColor: const Color(0xFF2ECC71)),
+          Divider(color: theme.dividerColor),
+          _buildInfoRow('Roll', data.rollFormatted, theme: theme, valueColor: const Color(0xFF2ECC71)),
+        ],
+      ),
+    );
+  }
+
+  // --- Power & Battery Diagnostics Card Builder (Full Width) ---
+  Widget _buildPowerDiagnosticsCard(Basestatus data, AppThemeData theme) {
+    // Dynamic charge type color
+    final Color chargeColor = data.isCharging ? const Color(0xFF2ECC71) : Colors.orangeAccent;
+
+    return _buildCardTemplate(
+      title: 'Power & Battery Diagnostics',
+      icon: Icons.battery_charging_full,
+      theme: theme,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Column 1: Battery Levels
           Expanded(
-            flex: 1,
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: _buildGnssStatusCard(bsData)),
-                const SizedBox(width: 24),
-                Expanded(child: _buildPositionCard(bsData)),
+                Text(
+                  'BATTERY LEVELS',
+                  style: TextStyle(
+                    color: theme.textSecondary.withOpacity(0.6),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildInfoRow('Current Capacity (BCC)', data.bccFormatted, theme: theme, isBold: true),
+                Divider(color: theme.dividerColor),
+                _buildInfoRow('Max Capacity (BMC)', data.bmcFormatted, theme: theme),
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          // Row 2: 3 Columns, each containing 2 Cards
+          const SizedBox(width: 32),
+          Container(width: 1, height: 100, color: theme.dividerColor),
+          const SizedBox(width: 32),
+          // Column 2: Electrical measurements
           Expanded(
-            flex: 2,
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Column 1: Battery Voltage & Battery Current
-                Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(child: _buildBatteryVoltageCard(bsData)),
-                      const SizedBox(height: 24),
-                      Expanded(child: _buildBatteryCurrentCard(bsData)),
-                    ],
+                Text(
+                  'ELECTRICAL STATS',
+                  style: TextStyle(
+                    color: theme.textSecondary.withOpacity(0.6),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
                   ),
                 ),
-                const SizedBox(width: 24),
-                // Column 2: BMC & BCC
-                Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(child: _buildBMCCard(bsData)),
-                      const SizedBox(height: 24),
-                      Expanded(child: _buildBCCCard(bsData)),
-                    ],
+                const SizedBox(height: 12),
+                _buildInfoRow('Battery Voltage', data.batteryVoltageFormatted, theme: theme, valueColor: const Color(0xFF2ECC71)),
+                Divider(color: theme.dividerColor),
+                _buildInfoRow('Battery Current', data.batteryCurrentFormatted, theme: theme, valueColor: const Color(0xFF2ECC71)),
+              ],
+            ),
+          ),
+          const SizedBox(width: 32),
+          Container(width: 1, height: 100, color: theme.dividerColor),
+          const SizedBox(width: 32),
+          // Column 3: Charger Status
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'CHARGER STATUS',
+                  style: TextStyle(
+                    color: theme.textSecondary.withOpacity(0.6),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
                   ),
                 ),
-                const SizedBox(width: 24),
-                // Column 3: Charging Status & BS Distance
-                Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(child: _buildChargingStatusCard(bsData)),
-                      const SizedBox(height: 24),
-                      Expanded(child: _buildBSDistanceCard(bsData)),
-                    ],
-                  ),
-                ),
+                const SizedBox(height: 12),
+                _buildInfoRow('Charging Mode', data.chargetype, theme: theme, valueColor: chargeColor, isBold: true),
+                Divider(color: theme.dividerColor),
+                _buildInfoRow('Status Label', data.isCharging ? 'Charging' : 'Discharging', theme: theme),
               ],
             ),
           ),
@@ -108,145 +199,24 @@ class BasestationDebugTab extends ConsumerWidget {
     );
   }
 
-  // Row 1 Cards
-  Widget _buildGnssStatusCard(Basestatus bsData) {
-    return _buildCardTemplate(
-      title: 'GNSS Status',
-      icon: Icons.satellite_alt,
-      mainValue: bsData.status,
-      bottomWidget: Text(
-        'Accuracy: ${bsData.akurasi}  •  Satellite: ${bsData.satelit}',
-        style: const TextStyle(color: Colors.white70, fontSize: 13),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  Widget _buildPositionCard(Basestatus bsData) {
-    return _buildCardTemplate(
-      title: 'Position',
-      icon: Icons.location_on,
-      mainValue: '${bsData.altitude}',
-      mainSuffix: 'mm',
-      bottomWidget: Text(
-        'Lat: ${bsData.lat.toStringAsFixed(7)}  •  Lng: ${bsData.long.toStringAsFixed(7)}',
-        style: const TextStyle(color: Colors.white70, fontSize: 13),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  // Row 2 Cards
-  Widget _buildBatteryVoltageCard(Basestatus bsData) {
-    return _buildCardTemplate(
-      title: 'Battery Voltage',
-      icon: Icons.electric_bolt,
-      mainValue: bsData.batteryVoltage.toStringAsFixed(2),
-      mainSuffix: 'V',
-      bottomWidget: const Text(
-        'Base station Battery Voltage',
-        style: TextStyle(color: Colors.white70, fontSize: 13),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  Widget _buildBatteryCurrentCard(Basestatus bsData) {
-    return _buildCardTemplate(
-      title: 'Battery Current',
-      icon: Icons.speed,
-      mainValue: bsData.batteryCurrent.toStringAsFixed(2),
-      mainSuffix: 'A',
-      bottomWidget: const Text(
-        'Base station Battery Current',
-        style: TextStyle(color: Colors.white70, fontSize: 13),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  Widget _buildBMCCard(Basestatus bsData) {
-    return _buildCardTemplate(
-      title: 'BMC',
-      icon: Icons.battery_full,
-      mainValue: '${bsData.bmc}',
-      mainSuffix: '%',
-      bottomWidget: const Text(
-        'Battery Max Capacity',
-        style: TextStyle(color: Colors.white70, fontSize: 13),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  Widget _buildBCCCard(Basestatus bsData) {
-    return _buildCardTemplate(
-      title: 'BCC',
-      icon: Icons.battery_charging_full,
-      mainValue: '${bsData.bcc}',
-      mainSuffix: '%',
-      bottomWidget: const Text(
-        'Battery Current Capacity',
-        style: TextStyle(color: Colors.white70, fontSize: 13),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  Widget _buildChargingStatusCard(Basestatus bsData) {
-    return _buildCardTemplate(
-      title: 'Charging Status',
-      icon: Icons.electrical_services,
-      mainValue: bsData.chargetype,
-      bottomWidget: const Text(
-        'Battery Charging status',
-        style: TextStyle(color: Colors.white70, fontSize: 13),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  Widget _buildBSDistanceCard(Basestatus bsData) {
-    return _buildCardTemplate(
-      title: 'BS Distance',
-      icon: Icons.social_distance,
-      mainValue: '${bsData.bsDistance}',
-      mainSuffix: 'm',
-      bottomWidget: const Text(
-        'Basestation Distance',
-        style: TextStyle(color: Colors.white70, fontSize: 13),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  // The Card Template matching the design aesthetic from RoverDebugTab
+  // --- Helper Card Template (Uniform with RoverDebugTab) ---
   Widget _buildCardTemplate({
     required String title,
     required IconData icon,
-    required String mainValue,
-    String? mainSuffix,
-    required Widget bottomWidget,
+    required AppThemeData theme,
+    required Widget child,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B), // Dark blueish tint
+        color: theme.cardSurface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: const Color(0xFF2ECC71).withOpacity(0.3),
+          color: theme.cardBorderColor.withOpacity(0.5),
           width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withOpacity(0.25),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -256,16 +226,15 @@ class BasestationDebugTab extends ConsumerWidget {
         borderRadius: BorderRadius.circular(22),
         child: Stack(
           children: [
-            // Right-side Accent Bar
             Positioned(
               right: 0,
               top: 24,
               bottom: 24,
               width: 8,
               child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFF2ECC71), // Primary Green
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: theme.appBarAccent,
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(8),
                     bottomLeft: Radius.circular(8),
                   ),
@@ -273,66 +242,60 @@ class BasestationDebugTab extends ConsumerWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.topLeft,
-                child: SizedBox(
-                  width: 280, // Target width for internal layout
-                  height: 160, // Target height for internal layout
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      // Icon
-                      Icon(icon, color: Colors.white, size: 28),
-
-                      // Title
+                      Icon(icon, color: theme.textOnSurface, size: 24),
+                      const SizedBox(width: 12),
                       Text(
                         title,
-                        style: const TextStyle(
-                          color: Colors.white54,
+                        style: TextStyle(
+                          color: theme.textOnSurface,
                           fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-
-                      // Main Value
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text(
-                            mainValue,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if (mainSuffix != null) ...[
-                            const SizedBox(width: 4),
-                            Text(
-                              mainSuffix,
-                              style: const TextStyle(
-                                color: Colors.white54,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-
-                      // Bottom Info
-                      bottomWidget,
                     ],
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12.0),
+                    child: child,
+                  ),
+                ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(
+    String label,
+    String value, {
+    required AppThemeData theme,
+    Color? valueColor,
+    bool isBold = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(color: theme.textSecondary, fontSize: 13)),
+          Text(
+            value,
+            style: TextStyle(
+              color: valueColor ?? theme.textOnSurface.withOpacity(0.85),
+              fontSize: 13,
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
       ),
     );
   }

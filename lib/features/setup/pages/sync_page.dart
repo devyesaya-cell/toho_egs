@@ -207,6 +207,19 @@ class _SyncPageState extends ConsumerState<SyncPage> {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: _buildActionButton(
+              context,
+              ref,
+              'EXPORT LOGS SUMMARY',
+              Icons.summarize_outlined,
+              () => ref.read(syncPresenterProvider.notifier).exportLogsSummary(context),
+              theme,
+              isDisabled: false,
+            ),
+          ),
         ],
       ),
     );

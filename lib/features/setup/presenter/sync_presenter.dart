@@ -1,4 +1,9 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+
 import '../../../../core/coms/com_service.dart';
 import '../../../../core/state/auth_state.dart';
 import '../../../../core/repositories/app_repository.dart';
@@ -11,8 +16,10 @@ import '../../../../core/models/sync_data_result.dart';
 import '../../../../core/models/workfile.dart';
 import '../../../../core/models/working_spot.dart';
 import '../../../../core/database/database_service.dart';
+import '../../../../core/models/debug_logs.dart';
+import '../../../../core/services/notification_service.dart';
 import 'package:isar_community/isar.dart';
-import 'package:flutter/foundation.dart';
+
 
 // --- State Status Enum ---
 // ... (rest of imports remains the same as I'm replacing from line 10)
@@ -874,6 +881,242 @@ class SyncPresenter extends Notifier<SyncState> {
           ...state.logs,
         ],
       );
+    }
+  }
+
+  Future<bool> _requestStoragePermission() async {
+    if (Platform.isAndroid) {
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+
+      if (androidInfo.version.sdkInt >= 30) {
+        var status = await Permission.manageExternalStorage.status;
+        if (!status.isGranted) {
+          status = await Permission.manageExternalStorage.request();
+        }
+        return status.isGranted;
+      } else {
+        var status = await Permission.storage.status;
+        if (!status.isGranted) {
+          status = await Permission.storage.request();
+        }
+        return status.isGranted;
+      }
+    }
+    return false;
+  }
+
+  Future<void> exportLogsSummary(BuildContext context) async {
+    try {
+      final hasPermission = await _requestStoragePermission();
+      if (!hasPermission) {
+        NotificationService.showError("Storage permission is required to export logs.");
+        return;
+      }
+
+      final appRepo = ref.read(appRepositoryProvider);
+      final logs = await appRepo.getAllDebugLogs();
+
+      if (logs.isEmpty) {
+        NotificationService.showWarning("No debug logs found in database to export.");
+        return;
+      }
+
+      // Sort logs chronologically (oldest to newest)
+      final sortedLogs = List<DebugLogs>.from(logs);
+      sortedLogs.sort((a, b) => a.lastUpdate.compareTo(b.lastUpdate));
+
+      final buffer = StringBuffer();
+      
+      for (var log in sortedLogs) {
+        final dt = log.lastUpdate;
+        final dayStr = dt.day.toString().padLeft(2, '0');
+        final hourStr = dt.hour.toString().padLeft(2, '0');
+        final minStr = dt.minute.toString().padLeft(2, '0');
+        final secStr = dt.second.toString().padLeft(2, '0');
+        
+        buffer.writeln('tanggal $dayStr jam $hourStr-$minStr-$secStr');
+        buffer.writeln();
+
+        // ROVER
+        buffer.writeln('ROVER :');
+        final rover = log.roverNode;
+        if (rover != null) {
+          final sensorTypeLabel = rover.sensorType == 0 ? 'ISM' : (rover.sensorType == 1 ? 'ASM' : (rover.sensorType == 2 ? 'IIM' : 'Unknown (${rover.sensorType})'));
+          final resetReasonLabel = rover.resetReason == 0 ? 'Unknown' : 
+                                   (rover.resetReason == 1 ? 'Power On' :
+                                   (rover.resetReason == 2 ? 'Panic' :
+                                   (rover.resetReason == 3 ? 'WatchDog' :
+                                   (rover.resetReason == 4 ? 'BrownOut' :
+                                   (rover.resetReason == 5 ? 'OTA Update' :
+                                   (rover.resetReason == 6 ? 'Internal' :
+                                   (rover.resetReason == 7 ? 'External' : 'Code ${rover.resetReason}')))))));
+          final hasESP32Error = rover.errorBits != null && (rover.errorBits! & 1) != 0;
+          final hasSensorError = rover.errorBits != null && (rover.errorBits! & 2) != 0;
+          final hasCANError = rover.errorBits != null && (rover.errorBits! & 4) != 0;
+          final hasInputVoltError = rover.errorBits != null && (rover.errorBits! & 8) != 0;
+          final errors = [
+            if (hasESP32Error) 'ESP32 Error',
+            if (hasSensorError) 'Sensor Error',
+            if (hasCANError) 'CAN Error',
+            if (hasInputVoltError) 'Input Volt Error'
+          ].join(', ');
+
+          final uptimeFormatted = () {
+            if (rover.uptime == null) return '00:00:00';
+            final hours = rover.uptime! ~/ 3600;
+            final minutes = (rover.uptime! % 3600) ~/ 60;
+            final seconds = rover.uptime! % 60;
+            return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+          }();
+
+          final scaleX = rover.scaleRawX != null ? rover.scaleRawX! / 100.0 : 0.0;
+          final scaleY = rover.scaleRawY != null ? rover.scaleRawY! / 100.0 : 0.0;
+          final scaleZ = rover.scaleRawZ != null ? rover.scaleRawZ! / 100.0 : 0.0;
+          final pitch = rover.rawPitch != null ? rover.rawPitch! / 100.0 : 0.0;
+          final roll = rover.rawRoll != null ? rover.rawRoll! / 100.0 : 0.0;
+          final temp = rover.tempRaw != null ? rover.tempRaw! / 100.0 : 0.0;
+          final vinAdc = rover.vinAdcRaw != null ? rover.vinAdcRaw! / 100.0 : 0.0;
+          final adc5V = rover.adc5VRaw != null ? rover.adc5VRaw! / 100.0 : 0.0;
+          final boomAngle = rover.rawBoom != null ? rover.rawBoom! / 100.0 : 0.0;
+          final stickAngle = rover.rawStick != null ? rover.rawStick! / 100.0 : 0.0;
+          final bucketAngle = rover.rawBucket != null ? rover.rawBucket! / 100.0 : 0.0;
+
+          buffer.writeln('  Sensor Type: $sensorTypeLabel');
+          buffer.writeln('  Sensor ID: ${rover.sensorID}');
+          buffer.writeln('  Uptime: $uptimeFormatted');
+          buffer.writeln('  Reset Reason: $resetReasonLabel');
+          buffer.writeln('  Restart Number: ${rover.restartNumber}');
+          buffer.writeln('  Acceleration: X: ${rover.accelX} mg, Y: ${rover.accelY} mg, Z: ${rover.accelZ} mg');
+          buffer.writeln('  Offsets: X: ${rover.offsetX}, Y: ${rover.offsetY}, Z: ${rover.offsetZ}');
+          buffer.writeln('  Scales: X: ${scaleX.toStringAsFixed(2)}, Y: ${scaleY.toStringAsFixed(2)}, Z: ${scaleZ.toStringAsFixed(2)}');
+          buffer.writeln('  Pitch: ${pitch.toStringAsFixed(2)}°, Roll: ${roll.toStringAsFixed(2)}°');
+          buffer.writeln('  Arm Angles: Boom: ${boomAngle.toStringAsFixed(2)}°, Stick: ${stickAngle.toStringAsFixed(2)}°, Bucket: ${bucketAngle.toStringAsFixed(2)}°');
+          buffer.writeln('  Pulse Counters: Main: ${rover.mainCounter}, Boom: ${rover.boomCounter}, Stick: ${rover.stickCounter}, Bucket: ${rover.bucketCounter}');
+          buffer.writeln('  Comm Counters: GNSS1: ${rover.gnss1Counter}, GNSS2: ${rover.gnss2Counter}, Base RX: ${rover.bsStationRx}, RS485 RX: ${rover.rs485Rx}');
+          buffer.writeln('  Diagnostics: Temp: ${temp.toStringAsFixed(2)} °C, VIN: ${vinAdc.toStringAsFixed(2)} V, 5V Rail: ${adc5V.toStringAsFixed(2)} V, CAN RX Timeout: ${rover.canRxTimeout}, SD Cap: ${rover.sdCardCapacity} MB, SD Speed: ${rover.sdCardSpeed} kHz');
+          buffer.writeln('  Errors: ${errors.isEmpty ? "None" : errors}');
+          buffer.writeln('  CRC16: 0x${rover.crc16?.toRadixString(16).toUpperCase().padLeft(4, '0')}');
+        } else {
+          buffer.writeln('  No data');
+        }
+        buffer.writeln();
+
+        // Base station
+        buffer.writeln('Base station :');
+        final bs = log.baseStatus;
+        if (bs != null) {
+          buffer.writeln('  Status: ${bs.status}');
+          buffer.writeln('  Satellites: ${bs.satelit}');
+          buffer.writeln('  Accuracy: ${bs.akurasi} mm');
+          buffer.writeln('  Distance to Rover: ${bs.bsDistance} m');
+          buffer.writeln('  Coordinates: Lat: ${bs.lat?.toStringAsFixed(7)}, Lng: ${bs.long?.toStringAsFixed(7)}');
+          buffer.writeln('  Altitude: ${bs.altitude} mm');
+          buffer.writeln('  Pitch: ${bs.pitch?.toStringAsFixed(2)}°, Roll: ${bs.roll?.toStringAsFixed(2)}°');
+          buffer.writeln('  Battery: ${bs.batteryVoltage?.toStringAsFixed(2)} V, Current: ${bs.batteryCurrent?.toStringAsFixed(2)} A, BCC: ${bs.bcc}%, BMC: ${bs.bmc}%');
+          buffer.writeln('  Charger Type: ${bs.chargetype}');
+        } else {
+          buffer.writeln('  No data');
+        }
+        buffer.writeln();
+
+        // Sensor
+        buffer.writeln('Sensor :');
+        final sensor = log.sensorNode;
+        if (sensor != null) {
+          final sensorTypeLabel = sensor.sensorType == 0 ? 'ISM' : (sensor.sensorType == 1 ? 'ASM' : (sensor.sensorType == 2 ? 'IIM' : 'Unknown (${sensor.sensorType})'));
+          final resetReasonLabel = sensor.resetReason == 0 ? 'Unknown' : 
+                                   (sensor.resetReason == 1 ? 'Power On' :
+                                   (sensor.resetReason == 2 ? 'Panic' :
+                                   (sensor.resetReason == 3 ? 'WatchDog' :
+                                   (sensor.resetReason == 4 ? 'BrownOut' :
+                                   (sensor.resetReason == 5 ? 'OTA Update' :
+                                   (sensor.resetReason == 6 ? 'Internal' :
+                                   (sensor.resetReason == 7 ? 'External' : 'Code ${sensor.resetReason}')))))));
+          final hasESP32Error = sensor.errorBits != null && (sensor.errorBits! & 1) != 0;
+          final hasSensorError = sensor.errorBits != null && (sensor.errorBits! & 2) != 0;
+          final hasCANError = sensor.errorBits != null && (sensor.errorBits! & 4) != 0;
+          final hasInputVoltError = sensor.errorBits != null && (sensor.errorBits! & 8) != 0;
+          final errors = [
+            if (hasESP32Error) 'ESP32 Error',
+            if (hasSensorError) 'Sensor Error',
+            if (hasCANError) 'CAN Error',
+            if (hasInputVoltError) 'Input Volt Error'
+          ].join(', ');
+
+          final uptimeFormatted = () {
+            if (sensor.uptime == null) return '00:00:00';
+            final hours = sensor.uptime! ~/ 3600;
+            final minutes = (sensor.uptime! % 3600) ~/ 60;
+            final seconds = sensor.uptime! % 60;
+            return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+          }();
+
+          final scaleX = sensor.scaleRawX != null ? sensor.scaleRawX! / 100.0 : 0.0;
+          final scaleY = sensor.scaleRawY != null ? sensor.scaleRawY! / 100.0 : 0.0;
+          final scaleZ = sensor.scaleRawZ != null ? sensor.scaleRawZ! / 100.0 : 0.0;
+          final temp = sensor.tempRaw != null ? sensor.tempRaw! / 100.0 : 0.0;
+          final adc3V3 = sensor.adc3V3Raw != null ? sensor.adc3V3Raw! / 100.0 : 0.0;
+          final adc5V = sensor.adc5VRaw != null ? sensor.adc5VRaw! / 100.0 : 0.0;
+
+          buffer.writeln('  Source ID: ${sensor.sourceID}');
+          buffer.writeln('  Sensor Type: $sensorTypeLabel');
+          buffer.writeln('  Sensor ID: ${sensor.sensorID}');
+          buffer.writeln('  Uptime: $uptimeFormatted');
+          buffer.writeln('  Reset Reason: $resetReasonLabel');
+          buffer.writeln('  Restart Number: ${sensor.restartNumber}');
+          buffer.writeln('  Acceleration: X: ${sensor.accelX} mg, Y: ${sensor.accelY} mg, Z: ${sensor.accelZ} mg');
+          buffer.writeln('  Offsets: X: ${sensor.offsetX}, Y: ${sensor.offsetY}, Z: ${sensor.offsetZ}');
+          buffer.writeln('  Scales: X: ${scaleX.toStringAsFixed(2)}, Y: ${scaleY.toStringAsFixed(2)}, Z: ${scaleZ.toStringAsFixed(2)}');
+          buffer.writeln('  Tilt Raw: ${sensor.tiltRaw}');
+          buffer.writeln('  Counters: Main: ${sensor.mainCounter}, Boom: ${sensor.boomCounter}, Stick: ${sensor.stickCounter}, Bucket: ${sensor.bucketCounter}');
+          buffer.writeln('  Diagnostics: Temp: ${temp.toStringAsFixed(2)} °C, 3V3 Rail: ${adc3V3.toStringAsFixed(2)} V, 5V Rail: ${adc5V.toStringAsFixed(2)} V, CAN RX Timeout: ${sensor.canRxTimeout}');
+          buffer.writeln('  Errors: ${errors.isEmpty ? "None" : errors}');
+          buffer.writeln('  Error Read Count: ${sensor.errSensorRead}, Uncalib Count: ${sensor.errSensorUncalib}, CAN Send Fail Count: ${sensor.errCANSendFail}');
+          buffer.writeln('  CRC16: 0x${sensor.crc16?.toRadixString(16).toUpperCase().padLeft(4, '0')}');
+        } else {
+          buffer.writeln('  No data');
+        }
+        buffer.writeln();
+
+        // Error Log
+        buffer.writeln('Error Log');
+        final err = log.errorAlert;
+        if (err != null) {
+          buffer.writeln('  Timestamp: ${err.timestamp}');
+          buffer.writeln('  Source ID: ${err.sourceID}');
+          buffer.writeln('  Alert Type: ${err.alertType}');
+          buffer.writeln('  Message: ${err.message}');
+        } else {
+          buffer.writeln('  No error');
+        }
+        buffer.writeln();
+        buffer.writeln('======================================================================');
+        buffer.writeln();
+      }
+
+      // Ensure directory exists
+      final downloadDir = Directory('/storage/emulated/0/Download/TohoEGS');
+      if (!await downloadDir.exists()) {
+        await downloadDir.create(recursive: true);
+      }
+
+      final now = DateTime.now();
+      final yearStr = now.year.toString();
+      final monthStr = now.month.toString().padLeft(2, '0');
+      final dayStr = now.day.toString().padLeft(2, '0');
+      final hourStr = now.hour.toString().padLeft(2, '0');
+      final minStr = now.minute.toString().padLeft(2, '0');
+      final secStr = now.second.toString().padLeft(2, '0');
+
+      final fileName = 'debug_logs_summary_$yearStr$monthStr${dayStr}_$hourStr$minStr$secStr.txt';
+      final file = File('${downloadDir.path}/$fileName');
+
+      await file.writeAsString(buffer.toString());
+      NotificationService.showSuccess("Logs summary exported successfully to: ${file.path}");
+    } catch (e) {
+      debugPrint("Error exporting logs summary: $e");
+      NotificationService.showError("Failed to export logs: $e");
     }
   }
 }

@@ -184,30 +184,41 @@ class DashboardPresenter extends AsyncNotifier<DashboardData> {
     DateTime startTime;
     DateTime endTime;
 
+    final now = DateTime.now();
+    if (_filter.type != DashboardFilterType.custom) {
+      _filter = _filter.copyWith(selectedDate: now);
+    }
+
+    final referenceDate = _filter.selectedDate;
     final selectedDay = DateTime(
-      _filter.selectedDate.year,
-      _filter.selectedDate.month,
-      _filter.selectedDate.day,
+      referenceDate.year,
+      referenceDate.month,
+      referenceDate.day,
     );
 
     switch (_filter.type) {
       case DashboardFilterType.morning:
-        // 07:00 - 18:59 on selected date
-        startTime = selectedDay.add(const Duration(hours: 7));
-        endTime = selectedDay.add(
+        // Morning shift of the working day.
+        // If we are currently in the early morning (before 07:00 AM) of the calendar day,
+        // the active working day is yesterday.
+        final DateTime workingDay = (now.hour < 7 && _filter.type != DashboardFilterType.custom)
+            ? selectedDay.subtract(const Duration(days: 1))
+            : selectedDay;
+        startTime = workingDay.add(const Duration(hours: 7));
+        endTime = workingDay.add(
           const Duration(hours: 18, minutes: 59, seconds: 59),
         );
         break;
 
       case DashboardFilterType.night:
-        // Night Logic:
-        // If selected date is Today and time is 19:00 - 23:59 -> Today 19:00 - 23:59
-        // If selected date is Today and time is 00:00 - 06:59 -> Yesterday 19:00 - Today 06:59
-        // BUT here we are filtering by a "Selected Date" from the picker.
-        // Logic: The "Night Shift" OF that day.
-        // Usually Night Shift of Date X starts at 19:00 Date X and ends 06:59 Date X+1.
-        startTime = selectedDay.add(const Duration(hours: 19));
-        endTime = selectedDay.add(
+        // Night shift of the working day.
+        // If we are currently in the daytime or early morning (before 19:00 PM) of the calendar day,
+        // the active/most recently completed night shift is the one that started yesterday.
+        final DateTime workingDay = (now.hour < 19 && _filter.type != DashboardFilterType.custom)
+            ? selectedDay.subtract(const Duration(days: 1))
+            : selectedDay;
+        startTime = workingDay.add(const Duration(hours: 19));
+        endTime = workingDay.add(
           const Duration(days: 1, hours: 6, minutes: 59, seconds: 59),
         );
         break;

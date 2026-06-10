@@ -6,6 +6,8 @@ import '../../features/auth/login_page.dart';
 import '../../features/setup/presenter/calibration_presenter.dart';
 import '../../core/coms/com_service.dart';
 import '../../core/services/debug_logs_manager.dart';
+import '../../core/state/activation_state.dart';
+import '../../features/auth/activation_required_screen.dart';
 
 class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({super.key});
@@ -34,6 +36,23 @@ class _LandingPageState extends ConsumerState<LandingPage> {
   Widget build(BuildContext context) {
     // Keep DebugLogsManager alive and listening to USB state changes
     ref.watch(debugLogsManagerProvider);
+
+    final activationState = ref.watch(activationProvider);
+
+    if (!activationState.isInitialized) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF0D1118),
+        body: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00BCD4)),
+          ),
+        ),
+      );
+    }
+
+    if (!activationState.isActivated) {
+      return const ActivationRequiredScreen();
+    }
 
     final authState = ref.watch(authProvider);
 
